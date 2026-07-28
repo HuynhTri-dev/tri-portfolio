@@ -7,11 +7,15 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && npm run build:sites",
+    "build:sites": "node scripts/prepare-sites-build.mjs && cp scripts/static-worker.mjs dist/server/index.js",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^7.1.4"
+    "@astrojs/mdx": "^7.0.4",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.1.4",
+    "tailwindcss": "^4.3.3"
   }
 }

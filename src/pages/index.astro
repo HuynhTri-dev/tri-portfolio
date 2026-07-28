@@ -1,17 +1,669 @@
 ---
+import "../styles/global.css";
 
+const profileLinks = [
+  { number: "01", href: "#education", en: "Education", vi: "Học vấn" },
+  { number: "02", href: "#technical-skill", en: "Technical Skills", vi: "Kỹ năng kỹ thuật" },
+  { number: "03", href: "#soft-skill", en: "Soft Skills", vi: "Kỹ năng mềm" },
+  { number: "04", href: "#achievements", en: "Achievements", vi: "Thành tựu" },
+  { number: "05", href: "#beyond-code", en: "Beyond Code", vi: "Ngoài lập trình" },
+];
+
+const techGroups = [
+  {
+    step: "01",
+    short: "BE",
+    en: "Backend Engineering",
+    vi: "Kỹ thuật Backend",
+    evidenceEn: "Production & internship",
+    evidenceVi: "Sản phẩm & thực tập",
+    technologies: ["Python", "FastAPI", "Node.js", "Express", "Odoo 18", "TypeScript"],
+  },
+  {
+    step: "02",
+    short: "AI",
+    en: "Agentic AI & RAG",
+    vi: "Agentic AI & RAG",
+    evidenceEn: "Personal health platform",
+    evidenceVi: "Nền tảng sức khỏe cá nhân",
+    technologies: ["LangGraph", "ReAct", "HybridRAG", "BGE-M3", "BM25", "RAGAS"],
+  },
+  {
+    step: "03",
+    short: "DT",
+    en: "Data & Retrieval",
+    vi: "Dữ liệu & Truy xuất",
+    evidenceEn: "Real-time and semantic data",
+    evidenceVi: "Dữ liệu thời gian thực & ngữ nghĩa",
+    technologies: ["PostgreSQL", "MongoDB", "Redis", "Kafka", "Qdrant", "Neo4j"],
+  },
+  {
+    step: "04",
+    short: "DV",
+    en: "DevOps & Infrastructure",
+    vi: "DevOps & Hạ tầng",
+    evidenceEn: "Staging deployment & CI",
+    evidenceVi: "Triển khai staging & CI",
+    technologies: ["Docker", "Docker Compose", "GitHub Actions", "Automated Testing"],
+  },
+  {
+    step: "05",
+    short: "UI",
+    en: "Mobile & Frontend",
+    vi: "Mobile & Frontend",
+    evidenceEn: "Working knowledge",
+    evidenceVi: "Kiến thức thực hành",
+    technologies: ["Flutter", "Next.js", "UI/UX"],
+  },
+];
+
+const softSkills = [
+  {
+    number: "01",
+    en: "Product Ownership",
+    vi: "Làm chủ sản phẩm",
+    evidenceEn: "Took a solo health platform from backend design and data processing through evaluation and containerized delivery.",
+    evidenceVi: "Tự mình đưa nền tảng sức khỏe từ thiết kế backend, xử lý dữ liệu đến đánh giá và triển khai đóng gói.",
+  },
+  {
+    number: "02",
+    en: "Analytical Problem Solving",
+    vi: "Giải quyết vấn đề",
+    evidenceEn: "Applied DFS cycle detection for bills of materials and statistical anomaly detection for wearable health signals.",
+    evidenceVi: "Áp dụng DFS để phát hiện chu trình BOM và thống kê để nhận diện bất thường trong dữ liệu sức khỏe.",
+  },
+  {
+    number: "03",
+    en: "Cross-team Communication",
+    vi: "Giao tiếp liên phòng ban",
+    evidenceEn: "Translated a product lifecycle spanning R&D, Marketing, Sales and Purchasing into implementable Odoo workflows.",
+    evidenceVi: "Chuyển quy trình sản phẩm xuyên suốt R&D, Marketing, Sales và Purchasing thành workflow Odoo khả thi.",
+  },
+  {
+    number: "04",
+    en: "Leadership",
+    vi: "Lãnh đạo",
+    evidenceEn: "Led and contributed within academic and extracurricular teams, supported by structured planning and clear ownership.",
+    evidenceVi: "Dẫn dắt và đóng góp trong các nhóm học thuật, ngoại khóa với kế hoạch và trách nhiệm rõ ràng.",
+  },
+  {
+    number: "05",
+    en: "Agile Mindset",
+    vi: "Tư duy Agile",
+    evidenceEn: "Uses Kanban and sprint planning to break complex product work into visible, testable increments.",
+    evidenceVi: "Dùng Kanban và sprint planning để chia công việc phức tạp thành các phần nhỏ, rõ ràng và kiểm thử được.",
+  },
+  {
+    number: "06",
+    en: "Fast Learning",
+    vi: "Học hỏi nhanh",
+    evidenceEn: "Expanded from backend engineering into UI/UX, mobile technology, enterprise Odoo and Agentic AI.",
+    evidenceVi: "Mở rộng từ backend sang UI/UX, công nghệ mobile, Odoo doanh nghiệp và Agentic AI.",
+  },
+];
+
+const achievements = [
+  {
+    tagEn: "Academic competition",
+    tagVi: "Cuộc thi học thuật",
+    titleEn: "Top 5 Excellent Projects",
+    titleVi: "Top 5 Dự án xuất sắc",
+    metaEn: "Design Your Future · CJ Corporation · 2025",
+    metaVi: "Design Your Future · CJ Corporation · 2025",
+    descriptionEn: "Recognized among the competition’s five excellent projects for a product-focused solution.",
+    descriptionVi: "Được công nhận trong nhóm năm dự án xuất sắc của cuộc thi nhờ giải pháp định hướng sản phẩm.",
+    metric: "TOP 5",
+    href: "",
+  },
+  {
+    tagEn: "National informatics olympiad",
+    tagVi: "Olympic Tin học toàn quốc",
+    titleEn: "Open Source Consolation Prize",
+    titleVi: "Giải Khuyến khích Phần mềm nguồn mở",
+    metaEn: "Vietnam Student Informatics Olympic · 2025",
+    metaVi: "Olympic Tin học Sinh viên Việt Nam · 2025",
+    descriptionEn: "Contributed to GreenWave, an AI and IoT system for cleaner, smarter urban traffic.",
+    descriptionVi: "Đóng góp cho GreenWave, hệ thống AI và IoT hướng đến giao thông đô thị thông minh, sạch hơn.",
+    metric: "OLP ’25",
+    href: "https://github.com/sonmessia/GreenWave",
+  },
+  {
+    tagEn: "System evaluation",
+    tagVi: "Đánh giá hệ thống",
+    titleEn: "Agentic AI Benchmark",
+    titleVi: "Đánh giá Agentic AI",
+    metaEn: "100-question RAGAS benchmark · 20 high-risk scenarios",
+    metaVi: "Bộ 100 câu hỏi RAGAS · 20 tình huống rủi ro cao",
+    descriptionEn: "Measured 0.85 answer relevancy, 0.78 faithfulness and 90% safety recall.",
+    descriptionVi: "Đạt 0.85 độ liên quan, 0.78 độ trung thực và 90% safety recall.",
+    metric: "90% SAFE",
+    href: "https://github.com/HuynhTri-dev/omnimer_health",
+  },
+];
+
+const beyondCards = [
+  {
+    label: "01 / DESIGN",
+    en: "Design curiosity",
+    vi: "Tò mò về thiết kế",
+    descriptionEn: "Self-learning UI/UX helps turn complex technical systems into clearer, more usable product experiences.",
+    descriptionVi: "Tự học UI/UX giúp chuyển các hệ thống kỹ thuật phức tạp thành trải nghiệm sản phẩm rõ ràng, dễ dùng hơn.",
+  },
+  {
+    label: "02 / SYSTEMS",
+    en: "Cross-domain thinking",
+    vi: "Tư duy liên ngành",
+    descriptionEn: "Exploring healthcare, enterprise operations and smart mobility builds a wider view of real-world software problems.",
+    descriptionVi: "Khám phá y tế, vận hành doanh nghiệp và giao thông thông minh mở rộng góc nhìn về bài toán phần mềm thực tế.",
+  },
+  {
+    label: "03 / PEOPLE",
+    en: "Team energy",
+    vi: "Năng lượng đội nhóm",
+    descriptionEn: "Academic and extracurricular leadership strengthens initiative, shared responsibility and communication.",
+    descriptionVi: "Hoạt động lãnh đạo học thuật và ngoại khóa rèn tính chủ động, trách nhiệm chung và khả năng giao tiếp.",
+  },
+];
 ---
 
+<!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Portfolio of Huynh Minh Tri, a product-oriented Software Developer focused on backend engineering, Agentic AI and IoT."
+    />
+    <meta name="theme-color" content="#050b09" />
+    <meta property="og:title" content="Huynh Minh Tri — Software Developer" />
+    <meta
+      property="og:description"
+      content="Backend engineering, Agentic AI and future-ready product systems."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/og.png" />
+    <meta property="og:image:width" content="1672" />
+    <meta property="og:image:height" content="941" />
+    <meta property="og:image:alt" content="Huynh Minh Tri — Software Developer" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Huynh Minh Tri — Software Developer" />
+    <meta
+      name="twitter:description"
+      content="Backend engineering, Agentic AI and future-ready product systems."
+    />
+    <meta name="twitter:image" content="/og.png" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap"
+      rel="stylesheet"
+    />
+    <title>Huynh Minh Tri — Software Developer</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+
+    <div class="ambient-layer" aria-hidden="true">
+      <span class="ambient ambient-one"></span>
+      <span class="ambient ambient-two"></span>
+      <span class="forest-line line-one"></span>
+      <span class="forest-line line-two"></span>
+      <span class="forest-line line-three"></span>
+    </div>
+
+    <header class="site-header" data-header>
+      <div class="mobile-bar shell">
+        <a href="#home" class="mobile-brand" aria-label="Huynh Minh Tri home">HMT</a>
+        <div class="mobile-actions">
+          <div class="language-switcher language-switcher--mobile" aria-label="Language">
+            <button type="button" data-language="en" aria-pressed="true">EN</button>
+            <span aria-hidden="true">/</span>
+            <button type="button" data-language="vi" aria-pressed="false">VI</button>
+          </div>
+          <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu">
+            <span class="menu-label" data-en="Menu" data-vi="Menu">Menu</span>
+            <span class="menu-icon" aria-hidden="true"><i></i><i></i></span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="desktop-nav shell" aria-label="Primary navigation">
+        <div class="nav-frame">
+          <a href="/Huynh-Minh-Tri-Software-Engineer-CV.pdf" target="_blank">
+            <span data-en="CV" data-vi="CV">CV</span>
+          </a>
+          <a href="#projects">
+            <span data-en="Projects" data-vi="Dự án">Projects</span>
+          </a>
+          <a href="#home" class="home-medallion" aria-current="page">
+            <span>HMT</span>
+            <small data-en="Home" data-vi="Trang chủ">Home</small>
+          </a>
+          <a href="#beyond-code">
+            <span data-en="Journal" data-vi="Góc nhìn">Journal</span>
+          </a>
+          <a href="#contact">
+            <span data-en="Contact" data-vi="Liên hệ">Contact</span>
+          </a>
+        </div>
+        <div class="language-switcher" aria-label="Language">
+          <button type="button" data-language="en" aria-pressed="true">EN</button>
+          <span aria-hidden="true">/</span>
+          <button type="button" data-language="vi" aria-pressed="false">VI</button>
+        </div>
+      </nav>
+
+      <nav class="mobile-menu" id="mobile-menu" aria-label="Mobile navigation">
+        <a href="#home" data-en="Home" data-vi="Trang chủ">Home</a>
+        <a href="#projects" data-en="Projects" data-vi="Dự án">Projects</a>
+        <a href="#education" data-en="Education" data-vi="Học vấn">Education</a>
+        <a href="#technical-skill" data-en="Technical Skills" data-vi="Kỹ năng kỹ thuật">Technical Skills</a>
+        <a href="#contact" data-en="Contact" data-vi="Liên hệ">Contact</a>
+      </nav>
+    </header>
+
+    <main id="main-content">
+      <section class="hero shell" id="home">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="status-dot"></span><span data-en="Available for software opportunities" data-vi="Sẵn sàng cho cơ hội phát triển phần mềm">Available for software opportunities</span></div>
+          <h1>HUỲNH<br />MINH TRÍ</h1>
+          <p
+            class="hero-summary"
+            data-en="Software Developer focused on building practical, future-ready products across industries using modern software engineering, Artificial Intelligence and IoT."
+            data-vi="Lập trình viên phần mềm định hướng sản phẩm, tập trung xây dựng các giải pháp thực tiễn cho nhiều lĩnh vực bằng kỹ thuật phần mềm hiện đại, Trí tuệ nhân tạo và IoT."
+          >
+            Software Developer focused on building practical, future-ready products across industries using modern software engineering, Artificial Intelligence and IoT.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#projects">
+              <span data-en="View projects" data-vi="Xem dự án">View projects</span><span aria-hidden="true">↘</span>
+            </a>
+            <a class="button button-secondary" href="/Huynh-Minh-Tri-Software-Engineer-CV.pdf" download>
+              <span data-en="Download CV" data-vi="Tải CV">Download CV</span><span aria-hidden="true">↓</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="portrait-stage">
+          <div class="orbit orbit-one" aria-hidden="true"></div>
+          <div class="orbit orbit-two" aria-hidden="true"></div>
+          <div class="portrait-frame" aria-label="Portrait area for Huynh Minh Tri">
+            <div class="portrait-placeholder">
+              <span class="portrait-code">PROFILE_01</span>
+              <strong>HMT</strong>
+              <span class="portrait-note" data-en="Portrait ready" data-vi="Vị trí chân dung">Portrait ready</span>
+            </div>
+          </div>
+          <div class="portrait-chip chip-left"><span>3.61</span><small>GPA / 4.00</small></div>
+          <div class="portrait-chip chip-right"><span>2026</span><small data-en="GRADUATION" data-vi="TỐT NGHIỆP">GRADUATION</small></div>
+        </div>
+
+        <div class="hero-index">
+          <span class="index-kicker" data-en="Profile index" data-vi="Mục lục hồ sơ">Profile index</span>
+          <h2>SOFTWARE<br /><em>DEVELOPER</em></h2>
+          <div class="index-list">
+            {profileLinks.map((item) => (
+              <a href={item.href}>
+                <span class="index-number">{item.number}</span>
+                <span data-en={item.en} data-vi={item.vi}>{item.en}</span>
+                <span class="index-arrow" aria-hidden="true">↘</span>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <div class="hero-signal" aria-hidden="true">
+          <span>BACKEND</span>
+          <i></i>
+          <span>AGENTIC AI</span>
+          <i></i>
+          <span>IoT</span>
+        </div>
+      </section>
+
+      <section class="section shell" id="education">
+        <div class="section-heading">
+          <div>
+            <span class="section-index">01 / FOUNDATION</span>
+            <h2 data-en="Education" data-vi="Học vấn">Education</h2>
+          </div>
+          <p
+            data-en="A software engineering foundation shaped by academic rigor, product competitions and hands-on system building."
+            data-vi="Nền tảng kỹ thuật phần mềm được hình thành từ học thuật, các cuộc thi sản phẩm và quá trình xây dựng hệ thống thực tế."
+          >
+            A software engineering foundation shaped by academic rigor, product competitions and hands-on system building.
+          </p>
+        </div>
+
+        <article class="education-card panel">
+          <div class="education-main">
+            <a class="school-mark" href="https://www.hcmut.edu.vn/" target="_blank" rel="noreferrer">
+              <img src="/images/hcmut-logo.png" alt="HCMUT logo" width="80" height="81" />
+              <span>
+                <small>VNU-HCM</small>
+                <strong>HCMUT</strong>
+              </span>
+            </a>
+            <div class="education-content">
+              <span class="date">SEP 2022 — OCT 2026</span>
+              <h3 data-en="Ho Chi Minh City University of Technology" data-vi="Trường Đại học Bách khoa — ĐHQG TP.HCM">
+                Ho Chi Minh City University of Technology
+              </h3>
+              <p class="degree" data-en="Information Technology · Software Engineering" data-vi="Công nghệ Thông tin · Kỹ thuật Phần mềm">
+                Information Technology · Software Engineering
+              </p>
+              <p
+                data-en="Expected graduation in October 2026. The program supports a strong base in software design, data systems and collaborative product development."
+                data-vi="Dự kiến tốt nghiệp tháng 10/2026. Chương trình xây dựng nền tảng vững chắc về thiết kế phần mềm, hệ thống dữ liệu và phát triển sản phẩm theo nhóm."
+              >
+                Expected graduation in October 2026. The program supports a strong base in software design, data systems and collaborative product development.
+              </p>
+              <a class="text-link" href="https://www.hcmut.edu.vn/" target="_blank" rel="noreferrer">
+                <span data-en="Visit university website" data-vi="Xem website trường">Visit university website</span><span aria-hidden="true">↗</span>
+              </a>
+            </div>
+          </div>
+          <div class="education-score">
+            <div class="score-ring">
+              <span>3.61</span>
+              <small>/ 4.00 GPA</small>
+            </div>
+            <div class="education-milestone">
+              <span></span>
+              <p>
+                <small data-en="CURRENT MILESTONE" data-vi="CỘT MỐC HIỆN TẠI">CURRENT MILESTONE</small>
+                <strong data-en="Final-year student" data-vi="Sinh viên năm cuối">Final-year student</strong>
+              </p>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="section shell" id="projects">
+        <div class="section-heading">
+          <div>
+            <span class="section-index">02 / SELECTED WORK</span>
+            <h2 data-en="Systems I’ve built" data-vi="Hệ thống đã xây dựng">Systems I’ve built</h2>
+          </div>
+          <p
+            data-en="Two environments, one consistent approach: understand the workflow, design the system and measure the outcome."
+            data-vi="Hai môi trường, một cách tiếp cận nhất quán: hiểu quy trình, thiết kế hệ thống và đo lường kết quả."
+          >
+            Two environments, one consistent approach: understand the workflow, design the system and measure the outcome.
+          </p>
+        </div>
+
+        <div class="project-grid">
+          <article class="project-card project-card--featured panel">
+            <div class="project-topline">
+              <span class="project-id">PROJECT_OMNIMER</span>
+              <span class="status-badge"><i></i><span data-en="Personal project" data-vi="Dự án cá nhân">Personal project</span></span>
+            </div>
+            <div class="project-body">
+              <div class="project-copy">
+                <span class="date">MAR — JUN 2026</span>
+                <h3>Agentic AI Personal Health Management</h3>
+                <p
+                  data-en="A personal health platform combining real-time wearable processing, personalized anomaly detection and a safety-aware HybridRAG agent."
+                  data-vi="Nền tảng sức khỏe cá nhân kết hợp xử lý dữ liệu wearable thời gian thực, phát hiện bất thường cá nhân hóa và HybridRAG agent chú trọng an toàn."
+                >
+                  A personal health platform combining real-time wearable processing, personalized anomaly detection and a safety-aware HybridRAG agent.
+                </p>
+                <div class="tag-row">
+                  <span>FastAPI</span><span>LangGraph</span><span>Kafka</span><span>Qdrant</span><span>Neo4j</span>
+                </div>
+              </div>
+              <div class="project-metrics">
+                <div><strong>0.85</strong><span data-en="Answer relevancy" data-vi="Độ liên quan">Answer relevancy</span></div>
+                <div><strong>0.78</strong><span data-en="Faithfulness" data-vi="Độ trung thực">Faithfulness</span></div>
+                <div><strong>90%</strong><span data-en="Safety recall" data-vi="Safety recall">Safety recall</span></div>
+              </div>
+            </div>
+            <a class="project-link" href="https://github.com/HuynhTri-dev/omnimer_health" target="_blank" rel="noreferrer">
+              <span data-en="Open project dossier" data-vi="Mở hồ sơ dự án">Open project dossier</span><span aria-hidden="true">↗</span>
+            </a>
+          </article>
+
+          <article class="project-card panel">
+            <div class="project-topline">
+              <span class="project-id">WORK_RITAVO</span>
+              <span class="status-badge"><i></i><span data-en="Professional work" data-vi="Kinh nghiệm làm việc">Professional work</span></span>
+            </div>
+            <span class="date">MAR — JUL 2026</span>
+            <h3>ProdID · Odoo 18</h3>
+            <p
+              data-en="An internal product-lifecycle module connecting procurement, manufacturing, marketing, approval and commercial readiness across four business functions."
+              data-vi="Module vòng đời sản phẩm nội bộ kết nối mua hàng, sản xuất, marketing, phê duyệt và sẵn sàng thương mại giữa bốn bộ phận."
+            >
+              An internal product-lifecycle module connecting procurement, manufacturing, marketing, approval and commercial readiness across four business functions.
+            </p>
+            <div class="work-impact">
+              <div><strong>~10K</strong><span data-en="product records" data-vi="bản ghi sản phẩm">product records</span></div>
+              <div><strong>4</strong><span data-en="business functions" data-vi="phòng ban">business functions</span></div>
+            </div>
+            <div class="tag-row">
+              <span>Odoo 18</span><span>Docker</span><span>GitHub Actions</span><span>DFS</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section shell trail-section" id="technical-skill">
+        <div class="section-heading">
+          <div>
+            <span class="section-index">03 / TECHNOLOGY TRAIL</span>
+            <h2 data-en="From service to system" data-vi="Từ service đến hệ thống">From service to system</h2>
+          </div>
+          <p
+            data-en="Skills are grouped by how they were used — in professional work, personal systems or active exploration."
+            data-vi="Kỹ năng được nhóm theo cách sử dụng — trong công việc, hệ thống cá nhân hoặc quá trình khám phá chủ động."
+          >
+            Skills are grouped by how they were used — in professional work, personal systems or active exploration.
+          </p>
+        </div>
+
+        <div class="tech-trail">
+          <div class="trail-path" aria-hidden="true"></div>
+          {techGroups.map((group) => (
+            <article class="trail-stop">
+              <div class="trail-node"><span>{group.short}</span></div>
+              <div class="trail-card panel">
+                <div class="trail-meta">
+                  <span>{group.step}</span>
+                  <small data-en={group.evidenceEn} data-vi={group.evidenceVi}>{group.evidenceEn}</small>
+                </div>
+                <h3 data-en={group.en} data-vi={group.vi}>{group.en}</h3>
+                <div class="tech-list">
+                  {group.technologies.map((technology) => <span>{technology}</span>)}
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section class="section shell" id="soft-skill">
+        <div class="section-heading">
+          <div>
+            <span class="section-index">04 / HOW I WORK</span>
+            <h2 data-en="Soft skills, with evidence" data-vi="Kỹ năng mềm, có minh chứng">Soft skills, with evidence</h2>
+          </div>
+          <p
+            data-en="Behaviors demonstrated through real systems and team contexts — not percentages or abstract claims."
+            data-vi="Hành vi được thể hiện qua hệ thống và bối cảnh đội nhóm thực tế — không dùng phần trăm hay nhận định mơ hồ."
+          >
+            Behaviors demonstrated through real systems and team contexts — not percentages or abstract claims.
+          </p>
+        </div>
+
+        <div class="soft-grid">
+          {softSkills.map((skill) => (
+            <article class="soft-card panel">
+              <span class="soft-number">{skill.number}</span>
+              <h3 data-en={skill.en} data-vi={skill.vi}>{skill.en}</h3>
+              <p data-en={skill.evidenceEn} data-vi={skill.evidenceVi}>{skill.evidenceEn}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section class="section shell" id="achievements">
+        <div class="section-heading">
+          <div>
+            <span class="section-index">05 / MILESTONES</span>
+            <h2 data-en="Achievements" data-vi="Thành tựu">Achievements</h2>
+          </div>
+          <p
+            data-en="Recognition across product thinking, open-source engineering and measurable AI system quality."
+            data-vi="Dấu ấn trong tư duy sản phẩm, kỹ thuật phần mềm nguồn mở và chất lượng hệ thống AI có thể đo lường."
+          >
+            Recognition across product thinking, open-source engineering and measurable AI system quality.
+          </p>
+        </div>
+
+        <div class="achievement-grid">
+          {achievements.map((achievement, index) => (
+            <article class:list={["achievement-card", "panel", { featured: index === 0 }]}>
+              <div class="achievement-visual">
+                <span>{achievement.metric}</span>
+                <i aria-hidden="true"></i>
+              </div>
+              <div class="achievement-copy">
+                <span class="achievement-tag" data-en={achievement.tagEn} data-vi={achievement.tagVi}>{achievement.tagEn}</span>
+                <h3 data-en={achievement.titleEn} data-vi={achievement.titleVi}>{achievement.titleEn}</h3>
+                <small data-en={achievement.metaEn} data-vi={achievement.metaVi}>{achievement.metaEn}</small>
+                <p data-en={achievement.descriptionEn} data-vi={achievement.descriptionVi}>{achievement.descriptionEn}</p>
+                {achievement.href && (
+                  <a class="text-link" href={achievement.href} target="_blank" rel="noreferrer">
+                    <span data-en="View related work" data-vi="Xem dự án liên quan">View related work</span><span aria-hidden="true">↗</span>
+                  </a>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section class="section shell" id="beyond-code">
+        <div class="section-heading">
+          <div>
+            <span class="section-index">06 / BEYOND CODE</span>
+            <h2 data-en="A wider field of view" data-vi="Góc nhìn rộng hơn">A wider field of view</h2>
+          </div>
+          <p
+            data-en="The strongest software decisions come from curiosity about people, systems and the context around the code."
+            data-vi="Những quyết định phần mềm tốt nhất đến từ sự tò mò về con người, hệ thống và bối cảnh xung quanh mã nguồn."
+          >
+            The strongest software decisions come from curiosity about people, systems and the context around the code.
+          </p>
+        </div>
+
+        <div class="beyond-grid">
+          {beyondCards.map((card) => (
+            <article class="beyond-card">
+              <span>{card.label}</span>
+              <h3 data-en={card.en} data-vi={card.vi}>{card.en}</h3>
+              <p data-en={card.descriptionEn} data-vi={card.descriptionVi}>{card.descriptionEn}</p>
+              <i aria-hidden="true">↗</i>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section class="contact shell" id="contact">
+        <div class="contact-copy">
+          <span class="section-index">07 / CONTACT</span>
+          <h2 data-en="Let’s build something useful." data-vi="Cùng xây dựng điều hữu ích.">Let’s build something useful.</h2>
+          <p
+            data-en="Open to Software Engineering opportunities where backend systems, AI and product thinking meet."
+            data-vi="Sẵn sàng cho các cơ hội Kỹ thuật Phần mềm giao thoa giữa backend, AI và tư duy sản phẩm."
+          >
+            Open to Software Engineering opportunities where backend systems, AI and product thinking meet.
+          </p>
+        </div>
+        <div class="contact-links">
+          <a href="mailto:huynhminhtri1109@gmail.com">
+            <small>EMAIL</small>
+            <span>huynhminhtri1109@gmail.com</span>
+            <i aria-hidden="true">↗</i>
+          </a>
+          <a href="tel:+84982294937">
+            <small>PHONE</small>
+            <span>+84 982 294 937</span>
+            <i aria-hidden="true">↗</i>
+          </a>
+          <a href="https://github.com/HuynhTri-dev" target="_blank" rel="noreferrer">
+            <small>GITHUB</small>
+            <span>@HuynhTri-dev</span>
+            <i aria-hidden="true">↗</i>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer shell">
+      <span>© 2026 HUỲNH MINH TRÍ</span>
+      <span data-en="DESIGNED FOR GROWTH · BUILT WITH ASTRO" data-vi="THIẾT KẾ ĐỂ PHÁT TRIỂN · XÂY DỰNG VỚI ASTRO">DESIGNED FOR GROWTH · BUILT WITH ASTRO</span>
+      <a href="#home" data-en="Back to top ↑" data-vi="Lên đầu trang ↑">Back to top ↑</a>
+    </footer>
+
+    <script>
+      const languageButtons = Array.from(document.querySelectorAll("[data-language]"));
+      const translatableElements = Array.from(document.querySelectorAll("[data-en][data-vi]"));
+      const menuButton = document.querySelector(".menu-toggle");
+      const mobileMenu = document.querySelector(".mobile-menu");
+
+      function setLanguage(language) {
+        document.documentElement.lang = language;
+        translatableElements.forEach((element) => {
+          const nextText = element.getAttribute(`data-${language}`);
+          if (nextText) element.textContent = nextText;
+        });
+        languageButtons.forEach((button) => {
+          button.setAttribute("aria-pressed", String(button.getAttribute("data-language") === language));
+        });
+        try {
+          localStorage.setItem("portfolio-language", language);
+        } catch {
+          // Language still works when storage is unavailable.
+        }
+      }
+
+      languageButtons.forEach((button) => {
+        button.addEventListener("click", () => setLanguage(button.getAttribute("data-language") || "en"));
+      });
+
+      menuButton?.addEventListener("click", () => {
+        const isOpen = menuButton.getAttribute("aria-expanded") === "true";
+        menuButton.setAttribute("aria-expanded", String(!isOpen));
+        mobileMenu?.classList.toggle("is-open", !isOpen);
+        document.body.classList.toggle("menu-open", !isOpen);
+      });
+
+      mobileMenu?.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", () => {
+          menuButton?.setAttribute("aria-expanded", "false");
+          mobileMenu.classList.remove("is-open");
+          document.body.classList.remove("menu-open");
+        });
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          menuButton?.setAttribute("aria-expanded", "false");
+          mobileMenu?.classList.remove("is-open");
+          document.body.classList.remove("menu-open");
+        }
+      });
+
+      try {
+        const savedLanguage = localStorage.getItem("portfolio-language");
+        if (savedLanguage === "vi") setLanguage("vi");
+      } catch {
+        // Keep English as the default language.
+      }
+    </script>
+  </body>
 </html>
