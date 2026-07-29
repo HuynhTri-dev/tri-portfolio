@@ -42,8 +42,16 @@ const {
       rel="stylesheet"
     />
     <title>{title}</title>
+    <script is:inline define:vars={{ enableHomeMotion: isHome }}>
+      if (
+        enableHomeMotion &&
+        !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ) {
+        document.documentElement.classList.add("home-motion-ready");
+      }
+    </script>
   </head>
-  <body>
+  <body class:list={{ "home-page": isHome }}>
     <a class="skip-link" href="#main-content">Skip to content</a>
 
     <div class="ambient-layer" aria-hidden="true">

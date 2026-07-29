@@ -16,12 +16,11 @@ import { profileLinks } from "../../data/portfolio";
     <h1>HUỲNH<br />MINH TRÍ</h1>
     <p
       class="hero-summary"
-      data-en="Software Developer focused on building practical, future-ready products across industries using modern software engineering, Artificial Intelligence and IoT."
-      data-vi="Lập trình viên phần mềm định hướng sản phẩm, tập trung xây dựng các giải pháp thực tiễn cho nhiều lĩnh vực bằng kỹ thuật phần mềm hiện đại, Trí tuệ nhân tạo và IoT."
+      data-en="A systems thinker who turns complex problems into practical, working products."
+      data-vi="Người có tư duy hệ thống, biến những vấn đề phức tạp thành sản phẩm thực tiễn có thể vận hành."
     >
-      Software Developer focused on building practical, future-ready products
-      across industries using modern software engineering, Artificial
-      Intelligence and IoT.
+      A systems thinker who turns complex problems into practical, working
+      products.
     </p>
     <div class="hero-actions flex flex-wrap gap-3">
       <a class="button button-primary" href="#projects">
@@ -51,13 +50,30 @@ import { profileLinks } from "../../data/portfolio";
         height="410"
       />
     </div>
-    <div class="portrait-chip chip-left">
-      <span>3.61</span><small>GPA / 4.00</small>
+    <div class="identity-card card-product">
+      <strong>
+        <span data-en="PRODUCT" data-vi="KIẾN TẠO">PRODUCT</span>
+        <span data-en="BUILDER" data-vi="SẢN PHẨM">BUILDER</span>
+      </strong>
+      <small
+        data-en="From problem to working product"
+        data-vi="Từ vấn đề đến sản phẩm thực tế"
+      >
+        From problem to working product
+      </small>
     </div>
-    <div class="portrait-chip chip-right">
-      <span>2026</span>
-      <small data-en="GRADUATION" data-vi="TỐT NGHIỆP">GRADUATION</small>
-    </div>
+    <!-- <div class="identity-card card-systems">
+      <strong>
+        <span data-en="SYSTEMS" data-vi="TƯ DUY">SYSTEMS</span>
+        <span data-en="THINKER" data-vi="HỆ THỐNG">THINKER</span>
+      </strong>
+      <small
+        data-en="People · Process · Technology"
+        data-vi="Con người · Quy trình · Công nghệ"
+      >
+        People · Process · Technology
+      </small>
+    </div> -->
   </div>
 
   <div class="hero-index">
@@ -82,9 +98,12 @@ import { profileLinks } from "../../data/portfolio";
     </div>
   </div>
 
-  <div class="hero-signal" aria-hidden="true">
-    <span>BACKEND</span><i></i><span>AGENTIC AI</span><i></i><span>IoT</span>
-  </div>
+  <a class="hero-scroll" href="#education">
+    <span data-en="Scroll to explore" data-vi="Cuộn để khám phá"
+      >Scroll to explore</span
+    >
+    <span aria-hidden="true">↓</span>
+  </a>
 </section>
 
 <style>
@@ -243,40 +262,63 @@ import { profileLinks } from "../../data/portfolio";
     border-color: rgb(124 183 255 / 9%);
   }
 
-  .portrait-chip {
+  .identity-card {
     position: absolute;
     z-index: 3;
     display: flex;
-    min-width: 94px;
     flex-direction: column;
-    padding: 10px 12px;
     border: 1px solid var(--border-default);
-    border-radius: 10px;
-    background: rgb(5 14 11 / 90%);
-    box-shadow: 0 12px 35px rgb(0 0 0 / 35%);
+    border-radius: 14px;
+    background:
+      linear-gradient(145deg, rgb(24 199 133 / 9%), transparent 55%),
+      rgb(5 14 11 / 94%);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 3%),
+      0 16px 42px rgb(0 0 0 / 42%);
+    backdrop-filter: blur(14px);
   }
 
-  .portrait-chip span {
+  .identity-card strong {
+    display: flex;
+    flex-direction: column;
+    margin: 0 0 10px;
     color: var(--brand-soft);
-    font-family: var(--font-mono);
-    font-size: 0.88rem;
-    font-weight: 600;
+    font-size: 1.28rem;
+    letter-spacing: -0.055em;
+    line-height: 0.9;
   }
 
-  .portrait-chip small {
+  .identity-card small {
     color: var(--text-muted);
-    font-family: var(--font-mono);
-    font-size: 0.48rem;
-    letter-spacing: 0.1em;
+    font-size: 0.54rem;
+    line-height: 1.45;
   }
 
-  .chip-left {
-    bottom: 55px;
-    left: -10px;
+  .card-product {
+    bottom: 18px;
+    left: -48px;
+    width: 202px;
+    padding: 17px 18px 18px;
+    border-color: rgb(24 199 133 / 38%);
   }
-  .chip-right {
-    top: 65px;
-    right: -16px;
+
+  .card-product strong {
+    font-size: 1.55rem;
+  }
+
+  .card-systems {
+    top: 42px;
+    right: -42px;
+    width: 168px;
+    padding: 14px 15px 15px;
+    border-color: rgb(124 183 255 / 28%);
+    background:
+      linear-gradient(145deg, rgb(59 130 246 / 9%), transparent 58%),
+      rgb(5 14 11 / 94%);
+  }
+
+  .card-systems strong {
+    font-size: 1.08rem;
   }
   .hero-index {
     padding-left: 10px;
@@ -342,25 +384,38 @@ import { profileLinks } from "../../data/portfolio";
     transform: translate(4px, 4px);
   }
 
-  .hero-signal {
+  .hero-scroll {
     position: absolute;
-    right: 0;
-    bottom: 18px;
-    left: 0;
+    bottom: 10px;
+    left: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 20px;
-    color: rgb(182 195 188 / 46%);
+    gap: 8px;
+    transform: translateX(-50%);
+    color: rgb(182 195 188 / 48%);
     font-family: var(--font-mono);
-    font-size: 0.56rem;
-    letter-spacing: 0.15em;
+    font-size: 0.5rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    transition: color var(--duration-fast) ease;
   }
 
-  .hero-signal i {
-    width: 34px;
-    height: 1px;
-    background: var(--border-default);
+  .hero-scroll span:last-child {
+    color: var(--brand-green);
+    font-size: 0.62rem;
+    transition: transform var(--duration-fast) ease;
+  }
+
+  .hero-scroll:hover {
+    color: var(--text-secondary);
+  }
+  .hero-scroll:hover span:last-child {
+    transform: translateY(3px);
+  }
+
+  :global(#education) {
+    border-top: 0;
   }
 
   @media (max-width: 1120px) {
@@ -414,13 +469,13 @@ import { profileLinks } from "../../data/portfolio";
       width: 310px;
       height: 360px;
     }
-    .chip-left {
-      bottom: 28px;
-      left: calc(50% - 175px);
+    .card-product {
+      bottom: 4px;
+      left: calc(50% - 194px);
     }
-    .chip-right {
-      top: 40px;
-      right: calc(50% - 178px);
+    .card-systems {
+      top: 25px;
+      right: calc(50% - 188px);
     }
 
     .hero-copy {
@@ -451,8 +506,8 @@ import { profileLinks } from "../../data/portfolio";
       grid-template-columns: repeat(2, 1fr);
       text-align: left;
     }
-    .hero-signal {
-      bottom: 24px;
+    .hero-scroll {
+      bottom: 20px;
     }
   }
 
@@ -477,17 +532,33 @@ import { profileLinks } from "../../data/portfolio";
     .portrait-placeholder strong {
       font-size: 3rem;
     }
-    .portrait-chip {
-      min-width: 84px;
-      padding: 8px 10px;
+    .identity-card {
+      border-radius: 11px;
     }
-    .chip-left {
-      bottom: 25px;
+
+    .card-product {
+      bottom: 5px;
       left: 0;
+      width: 164px;
+      padding: 13px 14px;
     }
-    .chip-right {
-      top: 35px;
+
+    .card-product strong {
+      font-size: 1.25rem;
+    }
+
+    .card-systems {
+      top: 22px;
       right: 0;
+      width: 142px;
+      padding: 12px;
+    }
+
+    .card-systems strong {
+      font-size: 0.94rem;
+    }
+    .identity-card small {
+      font-size: 0.48rem;
     }
     h1 {
       font-size: 2.9rem;
@@ -514,12 +585,8 @@ import { profileLinks } from "../../data/portfolio";
       grid-template-columns: 28px 1fr 14px;
       font-size: 0.7rem;
     }
-    .hero-signal {
-      gap: 10px;
-      font-size: 0.46rem;
-    }
-    .hero-signal i {
-      width: 16px;
+    .hero-scroll {
+      font-size: 0.45rem;
     }
   }
 </style>
