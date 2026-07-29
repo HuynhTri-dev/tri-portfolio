@@ -1,0 +1,250 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ContactSection from "../../components/home/ContactSection.astro";
+
+const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+const formatDate = (date: Date) =>
+  new Intl.DateTimeFormat("vi-VN", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(date);
+---
+
+<BaseLayout
+  title="Blog — Huynh Minh Tri"
+  description="Ghi chép về các dự án phần mềm, Agentic AI, backend engineering và những ý tưởng đang được Huynh Minh Tri khám phá."
+>
+  <section class="blog-index shell" aria-labelledby="blog-title">
+    <header class="blog-hero">
+      <div>
+        <span class="section-index">FIELD NOTES / {String(posts.length).padStart(2, "0")}</span>
+        <h1 id="blog-title" data-en="Projects, ideas & lessons." data-vi="Dự án, ý tưởng & bài học.">
+          Projects, ideas & lessons.
+        </h1>
+      </div>
+      <p
+        data-en="Long-form notes from building software: the decisions, experiments and lessons that do not fit inside a project card."
+        data-vi="Những ghi chép chuyên sâu trong quá trình xây dựng phần mềm: quyết định, thử nghiệm và bài học không thể gói gọn trong một project card."
+      >
+        Long-form notes from building software: the decisions, experiments and
+        lessons that do not fit inside a project card.
+      </p>
+    </header>
+
+    <div class="blog-toolbar">
+      <span>
+        <strong>{String(posts.length).padStart(2, "0")}</strong>
+        <span data-en=" published notes" data-vi=" bài đã đăng"> published notes</span>
+      </span>
+      <span data-en="Newest first" data-vi="Mới nhất trước">Newest first</span>
+    </div>
+
+    <div class="post-list">
+      {posts.map((post, index) => (
+        <article class="post-row">
+          <a class="post-thumbnail" href={`/blog/${post.id}`} aria-label={post.data.title}>
+            <img
+              src={post.data.thumbnail}
+              alt={post.data.thumbnailAlt}
+              loading={index === 0 ? "eager" : "lazy"}
+            />
+            <span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+          </a>
+
+          <div class="post-content">
+            <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+            <h2><a href={`/blog/${post.id}`}>{post.data.title}</a></h2>
+            <p>{post.data.description}</p>
+            <div class="hashtag-list" aria-label="Hashtags">
+              {post.data.hashtags.map((tag) => <span>#{tag}</span>)}
+            </div>
+          </div>
+
+          <a class="post-action" href={`/blog/${post.id}`}>
+            <span data-en="Read article" data-vi="Đọc bài viết">Read article</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+        </article>
+      ))}
+    </div>
+
+    {posts.length === 0 && (
+      <div class="empty panel">
+        <span data-en="The first note is being written." data-vi="Bài viết đầu tiên đang được chuẩn bị.">
+          The first note is being written.
+        </span>
+      </div>
+    )}
+  </section>
+
+  <ContactSection />
+</BaseLayout>
+
+<style>
+  .blog-index {
+    padding-top: 118px;
+    padding-bottom: 120px;
+  }
+
+  .blog-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+    gap: 72px;
+    align-items: end;
+    padding: 58px 0 64px;
+  }
+
+  h1 {
+    max-width: 820px;
+    margin: 20px 0 0;
+    font-size: clamp(3rem, 7vw, 6.8rem);
+    letter-spacing: -0.075em;
+    line-height: 0.96;
+  }
+
+  .blog-hero > p {
+    max-width: 520px;
+    margin: 0 0 8px;
+    color: var(--text-muted);
+    font-size: clamp(0.9rem, 1.5vw, 1.08rem);
+  }
+
+  .blog-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 4px;
+    border-top: 1px solid var(--border-default);
+    border-bottom: 1px solid var(--border-default);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+
+  .blog-toolbar strong { color: var(--brand-soft); }
+
+  .post-row {
+    display: grid;
+    grid-template-columns: minmax(240px, 0.72fr) minmax(0, 1.45fr) 130px;
+    gap: 38px;
+    align-items: center;
+    padding: 32px 4px;
+    border-bottom: 1px solid var(--border-default);
+  }
+
+  .post-thumbnail {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-standard);
+    background: var(--elevated-background);
+  }
+
+  .post-thumbnail::after {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 55%, rgb(24 199 133 / 18%));
+    content: "";
+    pointer-events: none;
+  }
+
+  .post-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 400ms ease;
+  }
+
+  .post-row:hover .post-thumbnail img { transform: scale(1.035); }
+
+  .post-thumbnail > span {
+    position: absolute;
+    z-index: 1;
+    right: 12px;
+    bottom: 10px;
+    color: var(--brand-soft);
+    font-family: var(--font-mono);
+    font-size: 0.56rem;
+  }
+
+  time {
+    color: var(--brand-green);
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    margin: 9px 0 10px;
+    font-size: clamp(1.35rem, 2.6vw, 2.35rem);
+    letter-spacing: -0.05em;
+    line-height: 1.15;
+  }
+
+  h2 a { transition: color var(--duration-fast) ease; }
+  h2 a:hover { color: var(--brand-soft); }
+
+  .post-content > p {
+    max-width: 720px;
+    margin: 0 0 15px;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+  }
+
+  .hashtag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .hashtag-list span {
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.54rem;
+  }
+
+  .post-action {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    color: var(--brand-soft);
+    font-size: 0.68rem;
+    font-weight: 700;
+  }
+
+  .post-action span:last-child { transition: transform var(--duration-fast) ease; }
+  .post-action:hover span:last-child { transform: translate(3px, -3px); }
+
+  .empty {
+    margin-top: 30px;
+    padding: 80px 24px;
+    border-radius: var(--radius-standard);
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  @media (max-width: 980px) {
+    .blog-hero { grid-template-columns: 1fr; gap: 26px; }
+    .post-row { grid-template-columns: minmax(220px, 0.72fr) minmax(0, 1.28fr); }
+    .post-action { grid-column: 2; justify-content: flex-start; }
+  }
+
+  @media (max-width: 680px) {
+    .blog-index { padding-top: 54px; padding-bottom: 80px; }
+    .blog-hero { padding: 42px 0; }
+    h1 { font-size: clamp(2.7rem, 15vw, 4.6rem); }
+    .post-row { grid-template-columns: 1fr; gap: 20px; padding: 26px 0; }
+    .post-action { grid-column: 1; }
+  }
+</style>

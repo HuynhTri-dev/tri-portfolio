@@ -1,0 +1,80 @@
+---
+title: "Building Omnimer Health: từ dữ liệu wearable đến một AI agent an toàn"
+description: "Cách tôi thiết kế pipeline thời gian thực, baseline cá nhân hóa và HybridRAG agent cho một nền tảng quản lý sức khỏe cá nhân."
+pubDate: 2026-07-29
+thumbnail: /og.png
+thumbnailAlt: "Huynh Minh Tri software engineering portfolio"
+hashtags:
+  - AgenticAI
+  - FastAPI
+  - HybridRAG
+  - HealthTech
+draft: false
+---
+
+## Bài toán tôi muốn giải quyết
+
+Dữ liệu sức khỏe từ wearable không chỉ là một chuỗi con số. Nhịp tim 95 BPM có thể bình thường với một người đang vận động, nhưng lại là tín hiệu đáng chú ý nếu baseline nghỉ ngơi của họ thường ở mức thấp hơn nhiều.
+
+Vì vậy, mục tiêu của Omnimer không phải là đưa ra một ngưỡng chung cho tất cả mọi người. Tôi muốn xây dựng một hệ thống có thể:
+
+- tiếp nhận luồng dữ liệu biometric theo thời gian thực;
+- học baseline riêng của từng người;
+- phát hiện các thay đổi có ý nghĩa;
+- và giúp người dùng hiểu dữ liệu bằng một AI agent có lớp bảo vệ an toàn.
+
+> Một hệ thống sức khỏe hữu ích phải hiểu bối cảnh cá nhân trước khi cố gắng đưa ra câu trả lời.
+
+## Kiến trúc tổng thể
+
+Pipeline backend được chia thành những trách nhiệm rõ ràng. **Kafka** tiếp nhận event từ wearable, các service **FastAPI** xử lý nghiệp vụ, **Redis** giữ trạng thái có độ trễ thấp, còn dữ liệu truy xuất được phân bổ giữa **Qdrant** và **Neo4j**.
+
+![Sơ đồ và giao diện dự án Omnimer Health](/og.png)
+
+Luồng xử lý chính:
+
+1. Wearable gửi biometric event vào Kafka.
+2. Service xử lý cập nhật baseline và đánh giá anomaly.
+3. Dữ liệu liên quan được lưu vào operational store, vector store và knowledge graph.
+4. LangGraph agent lập kế hoạch truy xuất và gọi công cụ.
+5. Safety layer kiểm tra các tình huống có rủi ro cao trước khi tạo phản hồi cuối.
+
+## Baseline cá nhân hóa
+
+Thay vì lưu toàn bộ lịch sử chỉ để tính lại trung bình và độ lệch chuẩn, tôi sử dụng **Welford’s online algorithm**. Thuật toán này cập nhật thống kê theo từng event với bộ nhớ cố định:
+
+```python
+count += 1
+delta = value - mean
+mean += delta / count
+delta_2 = value - mean
+m2 += delta * delta_2
+```
+
+Từ baseline đó, Z-score giúp biểu diễn mức độ khác thường của tín hiệu đối với chính người dùng đang được theo dõi.
+
+## Vì sao cần HybridRAG
+
+Một vector index rất mạnh khi tìm nội dung gần nhau về ngữ nghĩa, nhưng có thể bỏ qua thuật ngữ chính xác hoặc mối quan hệ giữa các thực thể. Omnimer kết hợp ba nguồn:
+
+- dense retrieval cho semantic similarity;
+- sparse retrieval cho keyword và thuật ngữ chính xác;
+- graph traversal cho các quan hệ sức khỏe được kết nối.
+
+Kết quả được hợp nhất trước khi agent tạo câu trả lời. Cách tiếp cận này giúp evidence đa dạng hơn và giảm việc phụ thuộc vào một kiểu truy xuất duy nhất.
+
+## Evaluation là một phần của sản phẩm
+
+Tôi xây dựng bộ benchmark gồm 100 câu hỏi và 20 tình huống có rủi ro cao. Hệ thống đạt:
+
+- **0.85** answer relevancy;
+- **0.78** faithfulness;
+- **90%** safety recall.
+
+Các con số không có nghĩa hệ thống đã hoàn hảo. Chúng tạo ra một baseline đo lường để mọi thay đổi sau này đều có thể được so sánh thay vì đánh giá bằng cảm giác.
+
+## Bài học quan trọng
+
+Điều khó nhất không phải là ghép nhiều công nghệ vào cùng một repository. Thách thức thật sự là xác định ranh giới trách nhiệm: dữ liệu nào cần xử lý ngay, dữ liệu nào phục vụ truy xuất, agent được phép làm gì và khi nào hệ thống phải dừng lại để ưu tiên an toàn.
+
+Đây cũng là hướng tôi muốn tiếp tục ghi lại trong Blog: không chỉ sản phẩm cuối cùng trông như thế nào, mà cả những quyết định kỹ thuật đã tạo nên nó.

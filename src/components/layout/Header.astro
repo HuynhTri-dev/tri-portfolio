@@ -50,8 +50,8 @@ const anchor = (id: string) => (isHome ? `#${id}` : `/#${id}`);
         <span>HMT</span>
         <small data-en="Home" data-vi="Trang chủ">Home</small>
       </a>
-      <a href={anchor("beyond-code")}
-        ><span data-en="Journal" data-vi="Góc nhìn">Journal</span></a
+      <a href="/blog"
+        ><span data-en="Blog" data-vi="Blog">Blog</span></a
       >
       <a href={anchor("contact")}
         ><span data-en="Contact" data-vi="Liên hệ">Contact</span></a
@@ -67,6 +67,7 @@ const anchor = (id: string) => (isHome ? `#${id}` : `/#${id}`);
   <nav class="mobile-menu" id="mobile-menu" aria-label="Mobile navigation">
     <a href={anchor("home")} data-en="Home" data-vi="Trang chủ">Home</a>
     <a href="/projects" data-en="Projects" data-vi="Dự án">Projects</a>
+    <a href="/blog" data-en="Blog" data-vi="Blog">Blog</a>
     <a href={anchor("education")} data-en="Education" data-vi="Học vấn"
       >Education</a
     >

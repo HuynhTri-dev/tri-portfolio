@@ -183,58 +183,6 @@ export const projects: ProjectListItem[] = [
     href: "https://github.com/HuynhTri-dev/RiskChance",
   },
   {
-    title: "Email Send",
-    description:
-      "A focused C# implementation for composing and sending email.",
-    descriptionVi:
-      "Ứng dụng C# gọn nhẹ cho quy trình soạn và gửi email.",
-    period: "2024",
-    type: "Learning project",
-    typeVi: "Dự án học tập",
-    category: "desktop",
-    technologies: ["C#", ".NET", "Email"],
-    href: "https://github.com/HuynhTri-dev/EmailSend",
-  },
-  {
-    title: "Hill Climbing",
-    description:
-      "A Python implementation of the hill-climbing search algorithm.",
-    descriptionVi:
-      "Mô phỏng thuật toán tìm kiếm leo đồi bằng Python.",
-    period: "2024",
-    type: "Learning project",
-    typeVi: "Dự án học tập",
-    category: "other",
-    technologies: ["Python", "Algorithms", "AI"],
-    href: "https://github.com/HuynhTri-dev/HillClimbing",
-  },
-  {
-    title: "University Management",
-    description:
-      "An early web project for university information and management workflows.",
-    descriptionVi:
-      "Dự án web ban đầu cho thông tin và quy trình quản lý trường đại học.",
-    period: "2024",
-    type: "Academic project",
-    typeVi: "Dự án học tập",
-    category: "web",
-    technologies: ["HTML", "CSS", "Web"],
-    href: "https://github.com/HuynhTri-dev/QuanLyDaiHoc",
-  },
-  {
-    title: "Project Forum",
-    description:
-      "An early forum interface for sharing and discussing project ideas.",
-    descriptionVi:
-      "Giao diện forum ban đầu để chia sẻ và thảo luận ý tưởng dự án.",
-    period: "2024",
-    type: "Learning project",
-    typeVi: "Dự án học tập",
-    category: "web",
-    technologies: ["HTML", "CSS", "Web"],
-    href: "https://github.com/HuynhTri-dev/ProjectForrum",
-  },
-  {
     title: "Tết Mini Games",
     description:
       "A playful TypeScript collection of small interactive experiences for Tết.",
@@ -259,18 +207,5 @@ export const projects: ProjectListItem[] = [
     category: "web",
     technologies: ["TypeScript", "Web"],
     href: "https://github.com/HuynhTri-dev/flower",
-  },
-  {
-    title: "Portfolio",
-    description:
-      "The open-source portfolio system presenting my work, experience and engineering approach.",
-    descriptionVi:
-      "Mã nguồn portfolio giới thiệu dự án, kinh nghiệm và cách tiếp cận kỹ thuật của mình.",
-    period: "2025",
-    type: "Personal project",
-    typeVi: "Dự án cá nhân",
-    category: "web",
-    technologies: ["TypeScript", "Astro", "UI/UX"],
-    href: "https://github.com/HuynhTri-dev/trihuynh_portfolio",
   },
 ];
