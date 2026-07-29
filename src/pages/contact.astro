@@ -149,10 +149,7 @@ const socialLinks = [
           </a>
           <div class="card-content">
             <small>Email</small>
-            <a
-              class="contact-email"
-              href="mailto:huynhminhtri1109@gmail.com"
-            >
+            <a class="contact-email" href="mailto:huynhminhtri1109@gmail.com">
               huynhminhtri1109@gmail.com
             </a>
             <div class="email-actions">
@@ -179,7 +176,7 @@ const socialLinks = [
               rel={method.external ? "noreferrer" : undefined}
               aria-label={`${method.label}: ${method.value}`}
             >
-              <span class="branch-corner" aria-hidden="true"></span>
+              <span class="branch-corner" aria-hidden="true" />
               <span class="card-mark" aria-hidden="true">
                 {method.mark}
               </span>
@@ -195,10 +192,7 @@ const socialLinks = [
                 </small>
                 <strong>{method.value}</strong>
                 {method.note && (
-                  <span
-                    data-en={method.note}
-                    data-vi={method.noteVi ?? method.note}
-                  >
+                  <span data-en={method.note} data-vi={method.noteVi}>
                     {method.note}
                   </span>
                 )}
@@ -237,7 +231,7 @@ const socialLinks = [
               aria-label={`${social.label}: ${social.value}`}
               style={`--trail-index: ${index}`}
             >
-              <span class="branch-corner" aria-hidden="true"></span>
+              <span class="branch-corner" aria-hidden="true" />
               <span class="card-mark" aria-hidden="true">
                 {social.mark}
               </span>
@@ -620,7 +614,11 @@ const socialLinks = [
   .omnimer-card {
     grid-column: 6 / 13;
     background:
-      radial-gradient(circle at 84% 16%, rgb(24 199 133 / 17%), transparent 40%),
+      radial-gradient(
+        circle at 84% 16%,
+        rgb(24 199 133 / 17%),
+        transparent 40%
+      ),
       linear-gradient(145deg, rgb(168 122 82 / 6%), transparent 52%),
       rgb(7 23 17 / 94%);
   }
@@ -849,10 +847,22 @@ const socialLinks = [
       background var(--duration-fast) ease;
   }
 
-  .forest-trail span:nth-child(1) { top: 35%; left: 8%; }
-  .forest-trail span:nth-child(2) { top: 12%; left: 68%; }
-  .forest-trail span:nth-child(3) { right: 28%; bottom: 8%; }
-  .forest-trail span:nth-child(4) { bottom: 24%; left: 24%; }
+  .forest-trail span:nth-child(1) {
+    top: 35%;
+    left: 8%;
+  }
+  .forest-trail span:nth-child(2) {
+    top: 12%;
+    left: 68%;
+  }
+  .forest-trail span:nth-child(3) {
+    right: 28%;
+    bottom: 8%;
+  }
+  .forest-trail span:nth-child(4) {
+    bottom: 24%;
+    left: 24%;
+  }
 
   .social-grid:has(.fanpage-card:hover) .forest-trail span:nth-child(1),
   .social-grid:has(.youtube-card:hover) .forest-trail span:nth-child(2),
@@ -938,11 +948,31 @@ const socialLinks = [
     transform: rotate(-6deg);
   }
 
-  .vine-left i:nth-child(1) { top: 52px; left: -4px; transform: rotate(-28deg); }
-  .vine-left i:nth-child(2) { top: 154px; left: -1px; transform: scaleX(-1) rotate(-34deg); }
-  .vine-left i:nth-child(3) { top: 270px; left: -7px; transform: rotate(-18deg); }
-  .vine-left i:nth-child(4) { top: 380px; left: 2px; transform: scaleX(-1) rotate(-32deg); }
-  .vine-left i:nth-child(5) { top: 486px; left: -4px; transform: rotate(-24deg); }
+  .vine-left i:nth-child(1) {
+    top: 52px;
+    left: -4px;
+    transform: rotate(-28deg);
+  }
+  .vine-left i:nth-child(2) {
+    top: 154px;
+    left: -1px;
+    transform: scaleX(-1) rotate(-34deg);
+  }
+  .vine-left i:nth-child(3) {
+    top: 270px;
+    left: -7px;
+    transform: rotate(-18deg);
+  }
+  .vine-left i:nth-child(4) {
+    top: 380px;
+    left: 2px;
+    transform: scaleX(-1) rotate(-32deg);
+  }
+  .vine-left i:nth-child(5) {
+    top: 486px;
+    left: -4px;
+    transform: rotate(-24deg);
+  }
 
   .vine-right {
     right: -88px;
@@ -951,10 +981,26 @@ const socialLinks = [
     transform: scaleX(-1) rotate(-9deg);
   }
 
-  .vine-right i:nth-child(1) { top: 40px; left: -4px; transform: rotate(-24deg); }
-  .vine-right i:nth-child(2) { top: 150px; left: 1px; transform: scaleX(-1) rotate(-28deg); }
-  .vine-right i:nth-child(3) { top: 270px; left: -5px; transform: rotate(-18deg); }
-  .vine-right i:nth-child(4) { top: 385px; left: 1px; transform: scaleX(-1) rotate(-35deg); }
+  .vine-right i:nth-child(1) {
+    top: 40px;
+    left: -4px;
+    transform: rotate(-24deg);
+  }
+  .vine-right i:nth-child(2) {
+    top: 150px;
+    left: 1px;
+    transform: scaleX(-1) rotate(-28deg);
+  }
+  .vine-right i:nth-child(3) {
+    top: 270px;
+    left: -5px;
+    transform: rotate(-18deg);
+  }
+  .vine-right i:nth-child(4) {
+    top: 385px;
+    left: 1px;
+    transform: scaleX(-1) rotate(-35deg);
+  }
 
   .forest-floor {
     position: relative;
@@ -1005,11 +1051,31 @@ const socialLinks = [
     content: "";
   }
 
-  .forest-floor span:nth-child(1) { left: 8%; height: 52px; transform: rotate(-8deg); }
-  .forest-floor span:nth-child(2) { left: 22%; height: 34px; transform: rotate(7deg); }
-  .forest-floor span:nth-child(3) { right: 34%; height: 44px; transform: rotate(-5deg); }
-  .forest-floor span:nth-child(4) { right: 16%; height: 62px; transform: rotate(9deg); }
-  .forest-floor span:nth-child(5) { right: 5%; height: 31px; transform: rotate(-12deg); }
+  .forest-floor span:nth-child(1) {
+    left: 8%;
+    height: 52px;
+    transform: rotate(-8deg);
+  }
+  .forest-floor span:nth-child(2) {
+    left: 22%;
+    height: 34px;
+    transform: rotate(7deg);
+  }
+  .forest-floor span:nth-child(3) {
+    right: 34%;
+    height: 44px;
+    transform: rotate(-5deg);
+  }
+  .forest-floor span:nth-child(4) {
+    right: 16%;
+    height: 62px;
+    transform: rotate(9deg);
+  }
+  .forest-floor span:nth-child(5) {
+    right: 5%;
+    height: 31px;
+    transform: rotate(-12deg);
+  }
 
   @media (max-width: 980px) {
     .contact-hero {
@@ -1029,8 +1095,12 @@ const socialLinks = [
       grid-column: auto;
     }
 
-    .vine-left { left: -64px; }
-    .vine-right { right: -65px; }
+    .vine-left {
+      left: -64px;
+    }
+    .vine-right {
+      right: -65px;
+    }
   }
 
   @media (max-width: 720px) {
