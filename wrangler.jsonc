@@ -3,6 +3,7 @@
     "name": "tri-portfolio",
     "compatibility_date": "2026-07-29",
     "assets": {
-        "directory": "./dist"
+        "directory": "./dist",
+        "not_found_handling": "404-page"
     }
 }

@@ -7,10 +7,9 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && npm run build:sites",
-    "build:sites": "node scripts/prepare-sites-build.mjs && cp scripts/static-worker.mjs dist/server/index.js",
+    "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.4",
