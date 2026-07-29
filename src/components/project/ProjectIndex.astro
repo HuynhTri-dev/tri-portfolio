@@ -1,0 +1,455 @@
+---
+import { projects } from "../../data/projects";
+
+const filters = [
+  { value: "all", en: "All work", vi: "Tất cả" },
+  { value: "ai", en: "AI & Data", vi: "AI & Dữ liệu" },
+  { value: "enterprise", en: "Enterprise", vi: "Doanh nghiệp" },
+  { value: "web", en: "Web & Mobile", vi: "Web & Mobile" },
+  { value: "desktop", en: "Desktop", vi: "Desktop" },
+  { value: "other", en: "Other", vi: "Khác" },
+];
+---
+
+<section class="project-index shell" aria-labelledby="project-index-title">
+  <header class="project-hero">
+    <div>
+      <span class="section-index">PROJECT ARCHIVE / {String(projects.length).padStart(2, "0")}</span>
+      <h1 id="project-index-title" data-en="Selected depth. Broader range." data-vi="Dự án nổi bật. Hành trình rộng hơn.">
+        Selected depth. Broader range.
+      </h1>
+    </div>
+    <p
+      data-en="Case studies show the systems in depth. The archive keeps every other product easy to scan—and easy to grow."
+      data-vi="Case study trình bày hệ thống chuyên sâu. Danh sách bên dưới giúp mọi sản phẩm khác dễ xem và dễ mở rộng."
+    >
+      Case studies show the systems in depth. The archive keeps every other
+      product easy to scan—and easy to grow.
+    </p>
+  </header>
+
+  <div class="project-tools panel" aria-label="Project filters">
+    <label class="search-field">
+      <span class="sr-only" data-en="Search projects" data-vi="Tìm dự án">Search projects</span>
+      <span aria-hidden="true">⌕</span>
+      <input
+        type="search"
+        data-project-search
+        placeholder="Search by project or technology"
+        data-placeholder-en="Search by project or technology"
+        data-placeholder-vi="Tìm theo dự án hoặc công nghệ"
+        autocomplete="off"
+      />
+    </label>
+
+    <div class="filter-list" role="group" aria-label="Filter projects by category">
+      {filters.map((filter, index) => (
+        <button
+          type="button"
+          data-project-filter={filter.value}
+          aria-pressed={index === 0 ? "true" : "false"}
+          data-en={filter.en}
+          data-vi={filter.vi}
+        >
+          {filter.en}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <div class="result-bar" aria-live="polite">
+    <span>
+      <strong data-project-count>{projects.length}</strong>
+      <span data-en=" projects" data-vi=" dự án"> projects</span>
+    </span>
+    <a href="https://github.com/HuynhTri-dev?tab=repositories" target="_blank" rel="noreferrer">
+      <span data-en="GitHub profile" data-vi="Trang GitHub">GitHub profile</span>
+      <span aria-hidden="true">↗</span>
+    </a>
+  </div>
+
+  <div class="project-list">
+    {projects.map((project, index) => (
+      <article
+        class:list={["project-row", { "is-featured": project.featured }]}
+        data-project
+        data-category={project.category}
+        data-search={`${project.title} ${project.description} ${project.descriptionVi} ${project.technologies.join(" ")}`.toLowerCase()}
+      >
+        <div class="project-number">{String(index + 1).padStart(2, "0")}</div>
+
+        <div class="project-main">
+          <div class="project-titleline">
+            <h2>{project.title}</h2>
+            {project.featured && (
+              <span class="featured-badge" data-en="Case study" data-vi="Case study">Case study</span>
+            )}
+          </div>
+          <p data-en={project.description} data-vi={project.descriptionVi}>{project.description}</p>
+          <div class="tech-list" aria-label="Technologies">
+            {project.technologies.map((technology) => <span>{technology}</span>)}
+          </div>
+        </div>
+
+        <div class="project-meta">
+          <span>{project.period}</span>
+          <span data-en={project.type} data-vi={project.typeVi}>{project.type}</span>
+        </div>
+
+        <a
+          class="project-action"
+          href={project.href}
+          target={project.href.startsWith("http") ? "_blank" : undefined}
+          rel={project.href.startsWith("http") ? "noreferrer" : undefined}
+          aria-label={`${project.hrefLabel ?? "View repository"}: ${project.title}`}
+        >
+          <span
+            data-en={project.hrefLabel ?? "View repository"}
+            data-vi={project.hrefLabelVi ?? "Xem mã nguồn"}
+          >
+            {project.hrefLabel ?? "View repository"}
+          </span>
+          <span aria-hidden="true">↗</span>
+        </a>
+      </article>
+    ))}
+  </div>
+
+  <p class="empty-state" data-project-empty hidden data-en="No projects match this search." data-vi="Không có dự án phù hợp.">
+    No projects match this search.
+  </p>
+</section>
+
+<script>
+  const search = document.querySelector<HTMLInputElement>("[data-project-search]");
+  const filterButtons = Array.from(
+    document.querySelectorAll<HTMLButtonElement>("[data-project-filter]"),
+  );
+  const rows = Array.from(document.querySelectorAll<HTMLElement>("[data-project]"));
+  const count = document.querySelector<HTMLElement>("[data-project-count]");
+  const empty = document.querySelector<HTMLElement>("[data-project-empty]");
+  let activeFilter = "all";
+
+  const normalize = (value: string) =>
+    value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+
+  function updateProjects() {
+    const query = normalize(search?.value ?? "");
+    let visible = 0;
+
+    rows.forEach((row) => {
+      const matchesFilter =
+        activeFilter === "all" || row.dataset.category === activeFilter;
+      const matchesSearch = normalize(row.dataset.search ?? "").includes(query);
+      const show = matchesFilter && matchesSearch;
+      row.hidden = !show;
+      if (show) visible += 1;
+    });
+
+    if (count) count.textContent = String(visible);
+    if (empty) empty.hidden = visible !== 0;
+  }
+
+  search?.addEventListener("input", updateProjects);
+
+  filterButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      activeFilter = button.dataset.projectFilter ?? "all";
+      filterButtons.forEach((item) =>
+        item.setAttribute("aria-pressed", String(item === button)),
+      );
+      updateProjects();
+    });
+  });
+
+  window.addEventListener("portfolio:language", (event) => {
+    const language = (event as CustomEvent).detail?.language === "vi" ? "vi" : "en";
+    if (search) {
+      search.placeholder =
+        language === "vi"
+          ? search.dataset.placeholderVi ?? ""
+          : search.dataset.placeholderEn ?? "";
+    }
+  });
+
+  try {
+    if (search && localStorage.getItem("portfolio-language") === "vi") {
+      search.placeholder = search.dataset.placeholderVi ?? "";
+    }
+  } catch {
+    // The search remains usable when storage is unavailable.
+  }
+</script>
+
+<style>
+  .project-index {
+    padding-top: 118px;
+    padding-bottom: 120px;
+  }
+
+  .project-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+    gap: 72px;
+    align-items: end;
+    padding: 58px 0 64px;
+  }
+
+  h1 {
+    max-width: 790px;
+    margin: 20px 0 0;
+    font-size: clamp(3rem, 7vw, 6.8rem);
+    letter-spacing: -0.075em;
+    line-height: 0.96;
+  }
+
+  .project-hero > p {
+    max-width: 520px;
+    margin: 0 0 8px;
+    color: var(--text-muted);
+    font-size: clamp(0.9rem, 1.5vw, 1.08rem);
+  }
+
+  .project-tools {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .search-field {
+    display: flex;
+    min-width: min(360px, 100%);
+    align-items: center;
+    gap: 12px;
+    padding: 0 14px;
+    color: var(--brand-soft);
+  }
+
+  .search-field input {
+    width: 100%;
+    padding: 10px 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--text-main);
+    font-size: 0.76rem;
+  }
+
+  .search-field input::placeholder { color: var(--text-muted); }
+
+  .filter-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+
+  .filter-list button {
+    padding: 8px 12px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    transition:
+      color var(--duration-fast) ease,
+      border-color var(--duration-fast) ease,
+      background var(--duration-fast) ease;
+  }
+
+  .filter-list button:hover { color: var(--text-main); }
+
+  .filter-list button[aria-pressed="true"] {
+    border-color: var(--border-active);
+    background: rgb(24 199 133 / 10%);
+    color: var(--brand-soft);
+  }
+
+  .result-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 30px 4px 18px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .result-bar strong { color: var(--brand-soft); }
+
+  .result-bar a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+  }
+
+  .project-list {
+    border-top: 1px solid var(--border-default);
+  }
+
+  .project-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr) 150px 150px;
+    gap: 24px;
+    align-items: start;
+    padding: 30px 20px 30px 4px;
+    border-bottom: 1px solid var(--border-default);
+    transition:
+      border-color var(--duration-normal) ease,
+      background var(--duration-normal) ease;
+  }
+
+  .project-row:hover {
+    border-color: rgb(24 199 133 / 45%);
+    background: linear-gradient(90deg, rgb(24 199 133 / 6%), transparent 70%);
+  }
+
+  .project-row.is-featured {
+    background:
+      linear-gradient(90deg, rgb(24 199 133 / 8%), transparent 66%),
+      rgb(255 255 255 / 1%);
+  }
+
+  .project-number {
+    padding-top: 6px;
+    color: var(--brand-green);
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+  }
+
+  .project-titleline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: clamp(1.25rem, 2.3vw, 2rem);
+    letter-spacing: -0.045em;
+    line-height: 1.15;
+  }
+
+  .featured-badge {
+    padding: 4px 8px;
+    border: 1px solid var(--border-active);
+    border-radius: var(--radius-pill);
+    color: var(--brand-soft);
+    font-family: var(--font-mono);
+    font-size: 0.5rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .project-main p {
+    max-width: 690px;
+    margin: 10px 0 14px;
+    color: var(--text-muted);
+    font-size: 0.76rem;
+  }
+
+  .tech-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+
+  .tech-list span {
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.53rem;
+  }
+
+  .tech-list span:not(:last-child)::after {
+    margin-left: 7px;
+    color: var(--wood-soft);
+    content: "/";
+  }
+
+  .project-meta {
+    display: grid;
+    gap: 6px;
+    padding-top: 6px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.56rem;
+  }
+
+  .project-meta span:first-child { color: var(--brand-green); }
+
+  .project-action {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 4px;
+    color: var(--brand-soft);
+    font-size: 0.66rem;
+    font-weight: 700;
+  }
+
+  .project-action span:last-child {
+    transition: transform var(--duration-fast) ease;
+  }
+
+  .project-action:hover span:last-child { transform: translate(3px, -3px); }
+
+  .empty-state {
+    padding: 80px 20px;
+    border-bottom: 1px solid var(--border-default);
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  [hidden] { display: none; }
+
+  @media (max-width: 980px) {
+    .project-hero { grid-template-columns: 1fr; gap: 26px; }
+    .project-tools { align-items: stretch; flex-direction: column; }
+    .filter-list { justify-content: flex-start; }
+    .project-row { grid-template-columns: 44px minmax(0, 1fr) 130px; }
+    .project-action { grid-column: 2 / -1; justify-content: flex-start; padding-top: 0; }
+  }
+
+  @media (max-width: 680px) {
+    .project-index { padding-top: 54px; padding-bottom: 80px; }
+    .project-hero { padding: 42px 0; }
+    h1 { font-size: clamp(2.7rem, 15vw, 4.6rem); }
+    .project-tools { padding: 12px; }
+    .search-field { min-width: 0; padding: 0 8px; }
+    .filter-list { gap: 4px; }
+    .filter-list button { padding: 7px 9px; }
+    .project-row {
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 14px;
+      padding: 26px 4px;
+    }
+    .project-meta,
+    .project-action { grid-column: 2; }
+    .project-meta { grid-template-columns: auto 1fr; gap: 12px; }
+    .result-bar { padding-top: 24px; }
+    .result-bar a span:first-child { display: none; }
+  }
+</style>

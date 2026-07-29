@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import ProjectsSection from "../../components/home/ProjectsSection.astro";
+import ProjectIndex from "../../components/project/ProjectIndex.astro";
 import ContactSection from "../../components/home/ContactSection.astro";
 ---
 
@@ -9,11 +9,7 @@ import ContactSection from "../../components/home/ContactSection.astro";
   description="Project dossiers covering backend engineering, Odoo, Agentic AI, RAG and real-time data systems."
 >
   <div class="projects-page">
-    <ProjectsSection />
+    <ProjectIndex />
     <ContactSection />
   </div>
 </BaseLayout>
-
-<style>
-  .projects-page { padding-top: 54px; }
-</style>
