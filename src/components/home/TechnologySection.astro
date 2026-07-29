@@ -1,0 +1,16 @@
+---
+import SectionHeading from "../ui/SectionHeading.astro";
+import TechTrail from "../islands/TechTrail";
+import { techGroups } from "../../data/portfolio";
+---
+
+<section class="section shell" id="technical-skill">
+  <SectionHeading
+    index="03 / TECHNOLOGY TRAIL"
+    titleEn="From service to system"
+    titleVi="Từ service đến hệ thống"
+    descriptionEn="Skills are grouped by how they were used — in professional work, personal systems or active exploration."
+    descriptionVi="Kỹ năng được nhóm theo cách sử dụng — trong công việc, hệ thống cá nhân hoặc quá trình khám phá chủ động."
+  />
+  <TechTrail groups={techGroups} client:visible />
+</section>

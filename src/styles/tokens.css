@@ -1,0 +1,35 @@
+:root {
+  color-scheme: dark;
+
+  --forest-black: #050b09;
+  --deep-background: #07110d;
+  --elevated-background: #0b1713;
+  --forest-deep: #0b3d2e;
+  --brand-green: #18c785;
+  --brand-soft: #75e6b2;
+  --technical-blue: #3b82f6;
+  --technical-soft: #7cb7ff;
+  --wood-dark: #4a3022;
+  --wood-natural: #765139;
+  --wood-soft: #a87a52;
+
+  --text-main: #f2f7f4;
+  --text-secondary: #b6c3bc;
+  --text-muted: #83938a;
+
+  --border-default: rgb(142 190 166 / 18%);
+  --border-active: rgb(24 199 133 / 62%);
+  --border-blue: rgb(59 130 246 / 55%);
+  --border-wood: rgb(168 122 82 / 42%);
+
+  --radius-small: 12px;
+  --radius-standard: 18px;
+  --radius-feature: 24px;
+  --radius-pill: 999px;
+
+  --duration-fast: 180ms;
+  --duration-normal: 220ms;
+
+  --font-sans: "Be Vietnam Pro", "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", monospace;
+}

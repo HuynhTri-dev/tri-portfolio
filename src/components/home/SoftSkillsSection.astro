@@ -1,0 +1,56 @@
+---
+import SectionHeading from "../ui/SectionHeading.astro";
+import { softSkills } from "../../data/portfolio";
+---
+
+<section class="section shell" id="soft-skill">
+  <SectionHeading
+    index="04 / HOW I WORK"
+    titleEn="Soft skills, with evidence"
+    titleVi="Kỹ năng mềm, có minh chứng"
+    descriptionEn="Behaviors demonstrated through real systems and team contexts — not percentages or abstract claims."
+    descriptionVi="Hành vi được thể hiện qua hệ thống và bối cảnh đội nhóm thực tế — không dùng phần trăm hay nhận định mơ hồ."
+  />
+
+  <div class="soft-grid grid gap-3.5 md:grid-cols-2 xl:grid-cols-3">
+    {softSkills.map((skill) => (
+      <article class="soft-card panel">
+        <span class="soft-number">{skill.number}</span>
+        <h3 data-en={skill.en} data-vi={skill.vi}>{skill.en}</h3>
+        <p data-en={skill.evidenceEn} data-vi={skill.evidenceVi}>{skill.evidenceEn}</p>
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .soft-card {
+    position: relative;
+    min-height: 245px;
+    padding: 28px;
+    overflow: hidden;
+    border-radius: var(--radius-standard);
+    transition: transform var(--duration-normal) ease, border-color var(--duration-normal) ease;
+  }
+
+  .soft-card:hover { transform: translateY(-4px); border-color: var(--border-active); }
+
+  .soft-number {
+    display: grid;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    color: var(--brand-green);
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+  }
+
+  h3 { margin: 28px 0 12px; font-size: 1.08rem; }
+  p { margin: 0; color: var(--text-muted); font-size: 0.83rem; }
+
+  @media (max-width: 540px) {
+    .soft-card { min-height: 205px; }
+  }
+</style>

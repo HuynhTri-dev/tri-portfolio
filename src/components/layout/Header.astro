@@ -1,0 +1,420 @@
+---
+interface Props {
+  isHome?: boolean;
+}
+
+const { isHome = false } = Astro.props;
+const anchor = (id: string) => (isHome ? `#${id}` : `/#${id}`);
+---
+
+<header class="site-header" data-header>
+  <div class="mobile-bar shell">
+    <a
+      href={anchor("home")}
+      class="mobile-brand"
+      aria-label="Huynh Minh Tri home">HMT</a
+    >
+    <div class="mobile-actions">
+      <div
+        class="language-switcher language-switcher--mobile"
+        aria-label="Language"
+      >
+        <button type="button" data-language="en" aria-pressed="true">EN</button>
+        <span aria-hidden="true">/</span>
+        <button type="button" data-language="vi" aria-pressed="false">VI</button
+        >
+      </div>
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+      >
+        <span class="menu-label">Menu</span>
+        <span class="menu-icon" aria-hidden="true"><i></i><i></i></span>
+      </button>
+    </div>
+  </div>
+
+  <nav class="desktop-nav shell" aria-label="Primary navigation">
+    <div class="nav-frame">
+      <a href="/Huynh-Minh-Tri-Software-Engineer-CV.pdf" target="_blank">CV</a>
+      <a href="/projects"
+        ><span data-en="Projects" data-vi="Dự án">Projects</span></a
+      >
+      <a
+        href={anchor("home")}
+        class="home-medallion"
+        aria-current={isHome ? "page" : undefined}
+      >
+        <span>HMT</span>
+        <small data-en="Home" data-vi="Trang chủ">Home</small>
+      </a>
+      <a href={anchor("beyond-code")}
+        ><span data-en="Journal" data-vi="Góc nhìn">Journal</span></a
+      >
+      <a href={anchor("contact")}
+        ><span data-en="Contact" data-vi="Liên hệ">Contact</span></a
+      >
+    </div>
+    <div class="language-switcher" aria-label="Language">
+      <button type="button" data-language="en" aria-pressed="true">EN</button>
+      <span aria-hidden="true">/</span>
+      <button type="button" data-language="vi" aria-pressed="false">VI</button>
+    </div>
+  </nav>
+
+  <nav class="mobile-menu" id="mobile-menu" aria-label="Mobile navigation">
+    <a href={anchor("home")} data-en="Home" data-vi="Trang chủ">Home</a>
+    <a href="/projects" data-en="Projects" data-vi="Dự án">Projects</a>
+    <a href={anchor("education")} data-en="Education" data-vi="Học vấn"
+      >Education</a
+    >
+    <a
+      href={anchor("technical-skill")}
+      data-en="Technical Skills"
+      data-vi="Kỹ năng kỹ thuật">Technical Skills</a
+    >
+    <a href={anchor("contact")} data-en="Contact" data-vi="Liên hệ">Contact</a>
+  </nav>
+</header>
+
+<script>
+  const buttons = Array.from(
+    document.querySelectorAll<HTMLButtonElement>("[data-language]"),
+  );
+  const menuButton = document.querySelector<HTMLButtonElement>(".menu-toggle");
+  const mobileMenu = document.querySelector<HTMLElement>(".mobile-menu");
+
+  function setLanguage(language: "en" | "vi") {
+    document.documentElement.lang = language;
+    document
+      .querySelectorAll<HTMLElement>("[data-en][data-vi]")
+      .forEach((element) => {
+        const value = element.dataset[language];
+        if (value) element.textContent = value;
+      });
+    buttons.forEach((button) => {
+      button.setAttribute(
+        "aria-pressed",
+        String(button.dataset.language === language),
+      );
+    });
+    window.dispatchEvent(
+      new CustomEvent("portfolio:language", { detail: { language } }),
+    );
+    try {
+      localStorage.setItem("portfolio-language", language);
+    } catch {
+      // The language toggle still works without storage.
+    }
+  }
+
+  buttons.forEach((button) => {
+    button.addEventListener("click", () =>
+      setLanguage(button.dataset.language === "vi" ? "vi" : "en"),
+    );
+  });
+
+  menuButton?.addEventListener("click", () => {
+    const open = menuButton.getAttribute("aria-expanded") !== "true";
+    menuButton.setAttribute("aria-expanded", String(open));
+    mobileMenu?.classList.toggle("is-open", open);
+    document.body.classList.toggle("menu-open", open);
+  });
+
+  mobileMenu?.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      menuButton?.setAttribute("aria-expanded", "false");
+      mobileMenu.classList.remove("is-open");
+      document.body.classList.remove("menu-open");
+    });
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      menuButton?.setAttribute("aria-expanded", "false");
+      mobileMenu?.classList.remove("is-open");
+      document.body.classList.remove("menu-open");
+    }
+  });
+
+  try {
+    setLanguage(
+      localStorage.getItem("portfolio-language") === "vi" ? "vi" : "en",
+    );
+  } catch {
+    setLanguage("en");
+  }
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    padding-top: 18px;
+    background: linear-gradient(
+      to bottom,
+      rgb(5 11 9 / 93%),
+      rgb(5 11 9 / 68%),
+      transparent
+    );
+    backdrop-filter: blur(16px);
+  }
+
+  .desktop-nav {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  .nav-frame {
+    position: relative;
+    display: grid;
+    width: min(810px, calc(100% - 130px));
+    height: 64px;
+    grid-template-columns: 1fr 1.25fr 116px 1.25fr 1fr;
+    grid-template-rows: 64px;
+    align-items: center;
+    justify-content: center;
+    padding-inline: 16px;
+    border: 1px solid var(--border-wood);
+    border-radius: var(--radius-pill);
+    background: rgb(5 13 10 / 84%);
+    box-shadow:
+      inset 0 0 0 1px rgb(24 199 133 / 4%),
+      0 16px 50px rgb(0 0 0 / 28%);
+  }
+
+  .nav-frame > a:not(.home-medallion) {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    transition: color var(--duration-fast) ease;
+  }
+
+  .nav-frame > a:not(.home-medallion)::after {
+    position: absolute;
+    bottom: 12px;
+    width: 0;
+    height: 2px;
+    border-radius: var(--radius-pill);
+    background: var(--brand-green);
+    content: "";
+    transition: width var(--duration-fast) ease;
+  }
+
+  .nav-frame > a:not(.home-medallion):hover {
+    color: var(--text-main);
+  }
+  .nav-frame > a:not(.home-medallion):hover::after {
+    width: 20px;
+  }
+
+  .home-medallion {
+    position: relative;
+    z-index: 3;
+    display: grid;
+    width: 102px;
+    height: 102px;
+    place-items: center;
+    justify-self: center;
+    align-self: center;
+    border: 7px solid #3e291d;
+    border-radius: 50%;
+    background:
+      radial-gradient(
+        circle at 45% 35%,
+        rgb(24 199 133 / 20%),
+        transparent 42%
+      ),
+      #081610;
+    box-shadow:
+      inset 0 0 0 1px rgb(168 122 82 / 60%),
+      inset 0 0 0 5px rgb(24 199 133 / 10%),
+      0 0 0 1px rgb(24 199 133 / 45%),
+      0 14px 40px rgb(0 0 0 / 45%);
+  }
+
+  .home-medallion span {
+    margin-top: 8px;
+    color: var(--brand-soft);
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+  }
+
+  .home-medallion small {
+    margin-top: -28px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.52rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .language-switcher {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 0;
+    display: flex;
+    height: 44px;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+  }
+
+  .language-switcher button {
+    min-width: 32px;
+    padding: 8px 4px;
+    border: 0;
+    background: none;
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+
+  .language-switcher button[aria-pressed="true"] {
+    color: var(--brand-soft);
+  }
+  .mobile-bar,
+  .mobile-menu {
+    display: none;
+  }
+
+  @media (max-width: 820px) {
+    .site-header {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-default);
+      background: rgb(5 11 9 / 88%);
+    }
+
+    .desktop-nav {
+      display: none;
+    }
+
+    .mobile-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .mobile-brand {
+      display: grid;
+      width: 46px;
+      height: 46px;
+      place-items: center;
+      border: 4px solid var(--wood-dark);
+      border-radius: 50%;
+      background: #0a1812;
+      box-shadow: inset 0 0 0 1px rgb(24 199 133 / 45%);
+      color: var(--brand-soft);
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+    }
+
+    .mobile-actions,
+    .menu-toggle {
+      display: flex;
+      align-items: center;
+    }
+
+    .mobile-actions {
+      gap: 12px;
+    }
+
+    .language-switcher--mobile {
+      position: static;
+      display: flex;
+    }
+
+    .menu-toggle {
+      min-width: 70px;
+      min-height: 44px;
+      justify-content: flex-end;
+      gap: 9px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .menu-label {
+      color: var(--text-secondary);
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .menu-icon {
+      display: flex;
+      width: 24px;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .menu-icon i {
+      width: 100%;
+      height: 1px;
+      background: var(--text-main);
+      transition: transform var(--duration-fast) ease;
+    }
+
+    .menu-toggle[aria-expanded="true"] .menu-icon i:first-child {
+      transform: translateY(3.5px) rotate(45deg);
+    }
+    .menu-toggle[aria-expanded="true"] .menu-icon i:last-child {
+      transform: translateY(-3.5px) rotate(-45deg);
+    }
+
+    .mobile-menu {
+      position: fixed;
+      inset: 71px 0 auto;
+      display: grid;
+      max-height: 0;
+      overflow: hidden;
+      background: rgb(5 11 9 / 97%);
+      opacity: 0;
+      visibility: hidden;
+      transition:
+        max-height 260ms ease,
+        opacity var(--duration-fast) ease,
+        visibility var(--duration-fast) ease;
+    }
+
+    .mobile-menu.is-open {
+      max-height: calc(100vh - 71px);
+      padding: 22px 20px 32px;
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .mobile-menu a {
+      display: flex;
+      min-height: 58px;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-default);
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .mobile-menu a::after {
+      color: var(--brand-green);
+      content: "↘";
+    }
+  }
+</style>

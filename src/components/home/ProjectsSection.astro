@@ -1,0 +1,195 @@
+---
+import { getCollection } from "astro:content";
+import SectionHeading from "../ui/SectionHeading.astro";
+
+const projects = (await getCollection("projects")).sort((a, b) => a.data.order - b.data.order);
+---
+
+<section class="section shell" id="projects">
+  <SectionHeading
+    index="02 / SELECTED WORK"
+    titleEn="Systems I’ve built"
+    titleVi="Hệ thống đã xây dựng"
+    descriptionEn="Two environments, one consistent approach: understand the workflow, design the system and measure the outcome."
+    descriptionVi="Hai môi trường, một cách tiếp cận nhất quán: hiểu quy trình, thiết kế hệ thống và đo lường kết quả."
+  />
+
+  <div class="project-grid">
+    {projects.map((project) => (
+      <article class:list={["project-card", "panel", { featured: project.data.featured }]}>
+        <div class="project-topline">
+          <span class="project-id">{project.data.projectId}</span>
+          <span class="status-badge">
+            <i></i>
+            <span data-en={project.data.type} data-vi={project.data.typeVi}>{project.data.type}</span>
+          </span>
+        </div>
+
+        <div class:list={["project-content", { "project-content--featured": project.data.featured }]}>
+          <div>
+            <span class="date">{project.data.period}</span>
+            <h3>{project.data.title}</h3>
+            <p data-en={project.data.summary} data-vi={project.data.summaryVi}>{project.data.summary}</p>
+            <div class="tag-row flex flex-wrap gap-2">
+              {project.data.technologies.slice(0, project.data.featured ? 5 : 4).map((technology) => (
+                <span>{technology}</span>
+              ))}
+            </div>
+          </div>
+
+          <div class="project-metrics">
+            {project.data.metrics.map((metric) => (
+              <div>
+                <strong>{metric.value}</strong>
+                <span data-en={metric.label} data-vi={metric.labelVi}>{metric.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <a class="project-link" href={`/projects/${project.id}`}>
+          <span data-en="Open project dossier" data-vi="Mở hồ sơ dự án">Open project dossier</span>
+          <span aria-hidden="true">↗</span>
+        </a>
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .project-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(330px, 0.72fr);
+    gap: 20px;
+  }
+
+  .project-card {
+    position: relative;
+    display: flex;
+    min-height: 420px;
+    flex-direction: column;
+    padding: 34px;
+    overflow: hidden;
+    border-radius: 22px;
+    transition: transform var(--duration-normal) ease, border-color var(--duration-normal) ease;
+  }
+
+  .project-card:hover { transform: translateY(-4px); border-color: rgb(24 199 133 / 48%); }
+
+  .project-card::after {
+    position: absolute;
+    right: -100px;
+    bottom: -100px;
+    width: 260px;
+    height: 260px;
+    border: 1px solid rgb(117 230 178 / 6%);
+    border-radius: 50%;
+    box-shadow: 0 0 0 40px rgb(117 230 178 / 1.8%), 0 0 0 80px rgb(117 230 178 / 1.2%);
+    content: "";
+  }
+
+  .project-card.featured {
+    background:
+      radial-gradient(circle at 80% 20%, rgb(29 78 216 / 12%), transparent 35%),
+      linear-gradient(135deg, rgb(18 128 92 / 10%), transparent 42%),
+      rgb(8 22 17 / 86%);
+  }
+
+  .project-topline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .project-id {
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.56rem;
+    letter-spacing: 0.1em;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-pill);
+    color: var(--text-secondary);
+    font-size: 0.62rem;
+  }
+
+  .status-badge i { width: 6px; height: 6px; border-radius: 50%; background: var(--brand-green); }
+  .project-content--featured { display: grid; grid-template-columns: minmax(0, 1fr) 185px; gap: 38px; }
+
+  h3 {
+    margin: 12px 0 14px;
+    font-size: clamp(1.45rem, 2.5vw, 2.2rem);
+    letter-spacing: -0.045em;
+    line-height: 1.14;
+  }
+
+  p { color: var(--text-muted); font-size: 0.9rem; }
+
+  .tag-row span {
+    padding: 5px 9px;
+    border: 1px solid var(--border-default);
+    border-radius: 7px;
+    background: rgb(255 255 255 / 2%);
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+  }
+
+  .project-metrics {
+    display: grid;
+    gap: 8px;
+    margin-top: auto;
+  }
+
+  .project-metrics div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 14px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-small);
+    background: rgb(5 11 9 / 38%);
+  }
+
+  .project-metrics strong { color: var(--brand-soft); font-family: var(--font-mono); font-size: 1.25rem; }
+  .project-metrics span { color: var(--text-muted); font-size: 0.58rem; }
+
+  .project-link {
+    z-index: 2;
+    display: flex;
+    width: max-content;
+    align-items: center;
+    gap: 12px;
+    margin-top: auto;
+    padding-top: 28px;
+    color: var(--brand-soft);
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  @media (max-width: 1120px) {
+    .project-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 820px) {
+    .project-content--featured { grid-template-columns: 1fr; }
+    .project-metrics { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (max-width: 540px) {
+    .project-card { min-height: 0; padding: 25px; }
+    .project-topline { align-items: flex-start; margin-bottom: 30px; }
+    .status-badge { max-width: 126px; border-radius: var(--radius-small); }
+    h3 { font-size: 1.6rem; }
+    .project-metrics { grid-template-columns: 1fr; margin-top: 24px; }
+    .project-metrics div { flex-direction: row; align-items: baseline; justify-content: space-between; }
+  }
+</style>

@@ -1,0 +1,43 @@
+---
+interface Props {
+  isHome?: boolean;
+}
+
+const { isHome = false } = Astro.props;
+---
+
+<footer class="site-footer shell">
+  <span>© 2026 HUỲNH MINH TRÍ</span>
+  <span data-en="DESIGNED FOR GROWTH · BUILT WITH ASTRO" data-vi="THIẾT KẾ ĐỂ PHÁT TRIỂN · XÂY DỰNG VỚI ASTRO">
+    DESIGNED FOR GROWTH · BUILT WITH ASTRO
+  </span>
+  <a href={isHome ? "#home" : "/#home"} data-en="Back to top ↑" data-vi="Lên đầu trang ↑">Back to top ↑</a>
+</footer>
+
+<style>
+  .site-footer {
+    display: flex;
+    min-height: 80px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    border-top: 1px solid var(--border-default);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.52rem;
+    letter-spacing: 0.08em;
+  }
+
+  .site-footer a { color: var(--text-secondary); }
+
+  @media (max-width: 540px) {
+    .site-footer {
+      min-height: 120px;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .site-footer span:nth-child(2) { display: none; }
+  }
+</style>

@@ -1,0 +1,19 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ProjectsSection from "../../components/home/ProjectsSection.astro";
+import ContactSection from "../../components/home/ContactSection.astro";
+---
+
+<BaseLayout
+  title="Projects — Huynh Minh Tri"
+  description="Project dossiers covering backend engineering, Odoo, Agentic AI, RAG and real-time data systems."
+>
+  <div class="projects-page">
+    <ProjectsSection />
+    <ContactSection />
+  </div>
+</BaseLayout>
+
+<style>
+  .projects-page { padding-top: 54px; }
+</style>

@@ -1,0 +1,71 @@
+---
+title: Agentic AI Personal Health Management
+projectId: PROJECT_OMNIMER
+order: 1
+featured: true
+type: Personal project
+typeVi: Dự án cá nhân
+period: MAR — JUN 2026
+role: Solo Developer
+summary: A personal health platform combining real-time wearable processing, personalized anomaly detection and a safety-aware HybridRAG agent.
+summaryVi: Nền tảng sức khỏe cá nhân kết hợp xử lý dữ liệu wearable thời gian thực, phát hiện bất thường cá nhân hóa và HybridRAG agent chú trọng an toàn.
+technologies:
+  - FastAPI
+  - LangGraph
+  - Kafka
+  - Redis
+  - Qdrant
+  - Neo4j
+  - Flutter
+metrics:
+  - value: "0.85"
+    label: Answer relevancy
+    labelVi: Độ liên quan
+  - value: "0.78"
+    label: Faithfulness
+    labelVi: Độ trung thực
+  - value: "90%"
+    label: Safety recall
+    labelVi: Safety recall
+links:
+  source: https://github.com/HuynhTri-dev/omnimer_health
+---
+
+## Project overview
+
+Omnimer is a personal health management platform designed around continuous wearable data, personalized baselines and an AI agent that can reason across both semantic and connected health knowledge.
+
+The backend uses **FastAPI** for application services, **Kafka** for real-time biometric events, **Redis** for low-latency state, **Qdrant** for semantic retrieval and **Neo4j** for graph traversal. A Flutter client consumes the platform’s health and assistant workflows.
+
+## My role
+
+As the solo developer, I owned the backend and Agentic AI architecture from system design to containerized delivery:
+
+- Designed service boundaries and the event-driven data pipeline.
+- Implemented Z-score anomaly detection and Welford’s algorithm for personalized baselines.
+- Built a multi-step ReAct agent in LangGraph.
+- Developed a HybridRAG pipeline combining dense, sparse and graph retrieval.
+- Designed evaluation datasets, safety scenarios and RAGAS-based quality checks.
+
+## Architecture and workflow
+
+1. Wearable signals enter Kafka as real-time biometric events.
+2. A processing service updates personalized baselines and detects anomalies.
+3. Health context is stored across operational, vector and graph data stores.
+4. The LangGraph agent plans retrieval and tool calls.
+5. HybridRAG combines BGE-M3 embeddings, BM25 retrieval, WRRF fusion, Qdrant semantic search and Neo4j graph traversal.
+6. Safety checks guard responses for high-risk scenarios.
+
+## Challenges and decisions
+
+### Personalized anomalies instead of static thresholds
+
+Health signals vary significantly between users. Welford’s online algorithm maintains a stable rolling baseline without keeping the full event history in memory, while Z-score checks surface deviations relative to each person.
+
+### Hybrid retrieval instead of one index
+
+Dense retrieval is strong for semantic similarity but can miss exact terms and connected facts. The final pipeline fuses dense, sparse and graph signals so the agent can use the most appropriate evidence for each question.
+
+### Evaluation as a product feature
+
+Quality was measured on a 100-question benchmark with 20 high-risk scenarios. The system achieved **0.85 answer relevancy**, **0.78 faithfulness** and **90% safety recall**.

@@ -1,0 +1,66 @@
+---
+import SectionHeading from "../ui/SectionHeading.astro";
+import { beyondCards } from "../../data/portfolio";
+---
+
+<section class="section shell" id="beyond-code">
+  <SectionHeading
+    index="06 / BEYOND CODE"
+    titleEn="A wider field of view"
+    titleVi="Góc nhìn rộng hơn"
+    descriptionEn="The strongest software decisions come from curiosity about people, systems and the context around the code."
+    descriptionVi="Những quyết định phần mềm tốt nhất đến từ sự tò mò về con người, hệ thống và bối cảnh xung quanh mã nguồn."
+  />
+
+  <div class="beyond-grid">
+    {beyondCards.map((card) => (
+      <article class="beyond-card">
+        <span>{card.label}</span>
+        <h3 data-en={card.en} data-vi={card.vi}>{card.en}</h3>
+        <p data-en={card.descriptionEn} data-vi={card.descriptionVi}>{card.descriptionEn}</p>
+        <i aria-hidden="true">↗</i>
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .beyond-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    overflow: hidden;
+    border: 1px solid var(--border-default);
+    border-radius: 22px;
+    background: var(--border-default);
+  }
+
+  .beyond-card {
+    position: relative;
+    min-height: 330px;
+    padding: 34px;
+    overflow: hidden;
+    background: radial-gradient(circle at 120% 100%, rgb(24 199 133 / 13%), transparent 44%), var(--deep-background);
+    transition: background var(--duration-normal) ease;
+  }
+
+  .beyond-card:nth-child(2) {
+    background: radial-gradient(circle at 120% 100%, rgb(59 130 246 / 12%), transparent 44%), var(--deep-background);
+  }
+
+  .beyond-card:hover { background-color: var(--elevated-background); }
+  .beyond-card > span { color: var(--text-muted); font-family: var(--font-mono); font-size: 0.56rem; letter-spacing: 0.1em; }
+  h3 { margin: 100px 0 15px; font-size: 1.35rem; }
+  p { margin: 0; color: var(--text-muted); font-size: 0.82rem; }
+  i { position: absolute; top: 30px; right: 30px; color: var(--brand-green); font-style: normal; }
+
+  @media (max-width: 820px) {
+    .beyond-grid { grid-template-columns: 1fr; }
+    .beyond-card { min-height: 260px; }
+    h3 { margin-top: 54px; }
+  }
+
+  @media (max-width: 540px) {
+    .beyond-card { padding: 28px; }
+  }
+</style>

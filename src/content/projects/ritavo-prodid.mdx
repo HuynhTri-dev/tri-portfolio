@@ -1,0 +1,57 @@
+---
+title: ProdID · Odoo 18
+projectId: WORK_RITAVO
+order: 2
+featured: false
+type: Professional work
+typeVi: Kinh nghiệm làm việc
+period: MAR — JUL 2026
+role: Software Engineer — Odoo Developer
+summary: An internal product-lifecycle module connecting procurement, manufacturing, marketing, approval and commercial readiness across four business functions.
+summaryVi: Module vòng đời sản phẩm nội bộ kết nối mua hàng, sản xuất, marketing, phê duyệt và sẵn sàng thương mại giữa bốn bộ phận.
+technologies:
+  - Odoo 18
+  - Python
+  - PostgreSQL
+  - Docker Compose
+  - GitHub Actions
+metrics:
+  - value: "~10K"
+    label: Product records
+    labelVi: Bản ghi sản phẩm
+  - value: "4"
+    label: Business functions
+    labelVi: Phòng ban
+---
+
+## Project overview
+
+ProdID is an internal Odoo 18 module for managing the product lifecycle from procurement or manufacturing through marketing, approval and commercial readiness.
+
+It creates one traceable workflow across **R&D, Marketing, Sales and Purchasing**, reducing the gap between product data and the teams responsible for bringing a product to market.
+
+## My role
+
+As a Software Engineer and Odoo Developer at Rita Võ, I translated business requirements into modules, data rules and delivery automation:
+
+- Built product management and dynamic attribute capabilities.
+- Implemented Excel import and export workflows.
+- Added approval flows, audit tracking and access control.
+- Managed product media and commercial-readiness data.
+- Added DFS-based bill-of-materials cycle detection.
+- Deployed the system to staging with Docker Compose.
+- Created a GitHub Actions pipeline for automated tests and build validation.
+
+## Scale and constraints
+
+The module operated across approximately **10,000 product records**. Data quality and access control were therefore core product requirements rather than secondary technical details.
+
+## Key engineering decision
+
+### Detecting cycles before a BOM becomes invalid
+
+A recursive bill of materials can create non-terminating calculations and unreliable manufacturing data. A depth-first-search check detects cycles while the structure is being validated, preventing invalid relationships from entering the product lifecycle.
+
+## Delivery outcome
+
+The resulting workflow connected multiple business functions in one traceable system and reached a containerized staging environment with continuous build validation.

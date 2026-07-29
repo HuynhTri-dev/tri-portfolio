@@ -1,0 +1,162 @@
+.tech-island {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.72fr) minmax(0, 1.28fr);
+  gap: 22px;
+}
+
+.trail-tabs {
+  position: relative;
+  display: grid;
+  gap: 10px;
+}
+
+.trail-line {
+  position: absolute;
+  top: 30px;
+  bottom: 30px;
+  left: 30px;
+  width: 1px;
+  background: linear-gradient(var(--wood-natural), var(--brand-green), var(--technical-blue));
+  box-shadow: 0 0 18px rgb(24 199 133 / 20%);
+}
+
+.trail-tab {
+  position: relative;
+  display: grid;
+  min-height: 72px;
+  grid-template-columns: 62px 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px 0 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-standard);
+  background: transparent;
+  color: var(--text-secondary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.trail-tab[aria-selected="true"] {
+  border-color: var(--border-default);
+  background: rgb(24 199 133 / 4%);
+  color: var(--text-main);
+}
+
+.trail-node {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 62px;
+  height: 62px;
+  place-items: center;
+  border: 5px solid #3e291d;
+  border-radius: 50%;
+  background: #091812;
+  box-shadow: 0 0 0 1px rgb(24 199 133 / 38%);
+}
+
+.trail-node i {
+  position: absolute;
+  inset: -6px;
+  border: 1px solid var(--brand-green);
+  border-radius: 50%;
+  box-shadow: 0 0 24px rgb(24 199 133 / 24%);
+}
+
+.trail-node b {
+  color: var(--brand-soft);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+}
+
+.trail-label {
+  display: flex;
+  flex-direction: column;
+}
+
+.trail-label small,
+.trail-step {
+  color: var(--brand-green);
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+}
+
+.trail-label strong {
+  margin-top: 4px;
+  font-size: 0.84rem;
+}
+
+.trail-panel {
+  min-height: 405px;
+  padding: 42px;
+  border-radius: var(--radius-feature);
+  background:
+    radial-gradient(circle at 85% 12%, rgb(59 130 246 / 11%), transparent 36%),
+    linear-gradient(135deg, rgb(18 128 92 / 9%), transparent 46%),
+    rgb(8 22 17 / 84%);
+}
+
+.trail-panel-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.trail-panel h3 {
+  margin: 12px 0 0;
+  font-size: clamp(1.7rem, 3vw, 2.65rem);
+  letter-spacing: -0.05em;
+}
+
+.trail-evidence {
+  padding: 7px 11px;
+  border: 1px solid var(--border-active);
+  border-radius: var(--radius-pill);
+  color: var(--brand-soft);
+  font-size: 0.64rem;
+  white-space: nowrap;
+}
+
+.trail-panel p {
+  max-width: 660px;
+  margin: 28px 0;
+  color: var(--text-muted);
+}
+
+.tech-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.tech-list span {
+  padding: 7px 11px;
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  background: rgb(255 255 255 / 2%);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+}
+
+@media (max-width: 820px) {
+  .tech-island { grid-template-columns: 1fr; }
+  .trail-tabs { grid-template-columns: repeat(5, minmax(100px, 1fr)); overflow-x: auto; padding-bottom: 6px; }
+  .trail-line { top: 31px; right: 50px; bottom: auto; left: 50px; width: auto; height: 1px; }
+  .trail-tab { grid-template-columns: 1fr; justify-items: center; gap: 9px; padding: 0 6px 12px; text-align: center; }
+  .trail-label strong { font-size: 0.7rem; }
+  .trail-panel { min-height: 350px; }
+}
+
+@media (max-width: 540px) {
+  .trail-tabs { grid-template-columns: 1fr; overflow: visible; }
+  .trail-line { top: 30px; right: auto; bottom: 30px; left: 27px; width: 1px; height: auto; }
+  .trail-tab { grid-template-columns: 54px 1fr; justify-items: stretch; padding: 0 12px 0 0; text-align: left; }
+  .trail-node { width: 54px; height: 54px; }
+  .trail-label strong { font-size: 0.78rem; }
+  .trail-panel { min-height: 390px; padding: 26px; }
+  .trail-panel-heading { flex-direction: column; gap: 16px; }
+  .trail-evidence { white-space: normal; }
+}
