@@ -16,14 +16,14 @@ interface Props {
 }
 
 const { entry } = Astro.props;
-const { Content } = await render(entry);
+const { Content, headings } = await render(entry);
 ---
 
 <BaseLayout
   title={`${entry.data.title} — Huynh Minh Tri`}
   description={entry.data.summary}
 >
-  <ProjectDossier project={entry.data}>
+  <ProjectDossier project={entry.data} headings={headings}>
     <Content />
   </ProjectDossier>
 </BaseLayout>

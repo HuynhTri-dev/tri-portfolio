@@ -6,12 +6,13 @@ featured: true
 type: Personal project
 typeVi: Dự án cá nhân
 period: MAR — JUN 2026
-role: Solo Developer
+role: Solo Developer & Full Stack AI Engineer
 summary: A personal health platform combining real-time wearable processing, personalized anomaly detection and a safety-aware HybridRAG agent.
 summaryVi: Nền tảng sức khỏe cá nhân kết hợp xử lý dữ liệu wearable thời gian thực, phát hiện bất thường cá nhân hóa và HybridRAG agent chú trọng an toàn.
 technologies:
   - FastAPI
   - LangGraph
+  - Node.js
   - Kafka
   - Redis
   - Qdrant
@@ -29,43 +30,148 @@ metrics:
     labelVi: Safety recall
 links:
   source: https://github.com/HuynhTri-dev/omnimer_health
+icon: /projects/omnimerhealth_mobile.png
 ---
 
-## Project overview
+## Problem Statement & Scope
 
-Omnimer is a personal health management platform designed around continuous wearable data, personalized baselines and an AI agent that can reason across both semantic and connected health knowledge.
+Existing digital health solutions currently face three significant market gaps:
 
-The backend uses **FastAPI** for application services, **Kafka** for real-time biometric events, **Redis** for low-latency state, **Qdrant** for semantic retrieval and **Neo4j** for graph traversal. A Flutter client consumes the platform’s health and assistant workflows.
+- **Passive Traditional Health Apps:**  
+  Platforms like MyFitnessPal primarily focus on logging and displaying static metrics (calories, heart rate, workouts). The data remains fragmented, lacks deep clinical analysis, and rarely translates into actionable daily habits. According to a user survey conducted via Google Forms, **61.5% of users stopped using or uninstalled their health apps** because they failed to provide enough continuous value to sustain long-term engagement.
 
-## My role
+- **Generic AI Models Lack Personalization and Safety:**  
+  Generative AI tools like ChatGPT can answer questions quickly, but rely heavily on manual user prompts. Lacking longitudinal health profiles, historical activity baselines, and clinical safeguards, their advice is often generic or potentially unsafe for medical edge cases.
 
-As the solo developer, I owned the backend and Agentic AI architecture from system design to containerized delivery:
+- **High Cost of Human Expert Consultation:**  
+  Medical professionals and personal trainers offer deep, tailored guidance, but their services are expensive and cannot provide 24/7 continuous monitoring.
 
-- Designed service boundaries and the event-driven data pipeline.
-- Implemented Z-score anomaly detection and Welford’s algorithm for personalized baselines.
-- Built a multi-step ReAct agent in LangGraph.
-- Developed a HybridRAG pipeline combining dense, sparse and graph retrieval.
-- Designed evaluation datasets, safety scenarios and RAGAS-based quality checks.
+**OmniMer Health** bridges these gaps by delivering an **AI-driven Digital Health Coach**. It fuses real-time wearable biometric streaming with **Agentic AI** to proactively assist users with nutrition, workout planning, and daily lifestyle habits.
 
-## Architecture and workflow
+> **My Role:** As the sole **Full Stack AI & Mobile Engineer**, I owned the end-to-end product development—ranging from user need validation via Google Forms, microservices backend architecture, and AI reasoning pipelines, to the Flutter mobile client implementation.
 
-1. Wearable signals enter Kafka as real-time biometric events.
-2. A processing service updates personalized baselines and detects anomalies.
-3. Health context is stored across operational, vector and graph data stores.
-4. The LangGraph agent plans retrieval and tool calls.
-5. HybridRAG combines BGE-M3 embeddings, BM25 retrieval, WRRF fusion, Qdrant semantic search and Neo4j graph traversal.
-6. Safety checks guard responses for high-risk scenarios.
+## System Architecture Overview
 
-## Challenges and decisions
+<div class="my-8 rounded-2xl overflow-hidden border border-slate-800 bg-slate-950/50 p-2">
+  <img src="/omnimer_health/overview_architecture.png" alt="OmniMer Health Overview Architecture" class="w-full h-auto rounded-xl object-contain" />
+  <p class="text-center text-sm text-slate-400 mt-2 italic">Figure 1: High-level OmniMer Health system architecture built on three core pillars</p>
+</div>
 
-### Personalized anomalies instead of static thresholds
+OmniMer Health is engineered around three strategic pillars:
 
-Health signals vary significantly between users. Welford’s online algorithm maintains a stable rolling baseline without keeping the full event history in memory, while Z-score checks surface deviations relative to each person.
+1. **Vital Rules Engine (VRE) – Real-Time Sensing Layer:**  
+   Ingests and processes continuous biometric streams (Heart Rate, SpO2, HRV) from wearables to compute adaptive personal baselines and detect anomalies in real time.
 
-### Hybrid retrieval instead of one index
+2. **Expert Think Agent – Analytical Reasoning Brain:**  
+   Orchestrates complex multi-step reasoning using a 3-tier memory model (Short-Term, Long-Term, Context Window) combined with **Hybrid RAG** (Qdrant Vector DB + Neo4j Knowledge Graph).
 
-Dense retrieval is strong for semantic similarity but can miss exact terms and connected facts. The final pipeline fuses dense, sparse and graph signals so the agent can use the most appropriate evidence for each question.
+3. **Personalized Safety Guard (PSG) – Safety & Compliance Layer:**  
+   Enforces strict medical guardrails to ensure all recommendations support everyday wellness without replacing professional medical diagnosis.
 
-### Evaluation as a product feature
+## Vital Rules Engine (VRE) – Real-Time Sensing Layer
 
-Quality was measured on a 100-question benchmark with 20 high-risk scenarios. The system achieved **0.85 answer relevancy**, **0.78 faithfulness** and **90% safety recall**.
+<div class="my-8 rounded-2xl overflow-hidden border border-slate-800 bg-slate-950/50 p-2">
+  <img src="/omnimer_health/vre_architecture.png" alt="VRE Architecture" class="w-full h-auto rounded-xl object-contain" />
+  <p class="text-center text-sm text-slate-400 mt-2 italic">Figure 2: Real-time biometric stream processing and adaptive baseline updating pipeline</p>
+</div>
+
+The VRE operates on a dual-path architecture to achieve immediate emergency alerting while maintaining long-term baseline precision:
+
+### Fast Path (Node.js & BullMQ)
+- **Ingestion:** A Node.js API accepts biometric events from mobile clients, enqueuing them into Redis BullMQ (`VitalQueueService.ts`) with exponential backoff retries, instantly returning `202 Accepted` to prevent I/O blocking.
+- **Static Threshold Evaluation:** During onboarding before personalized baselines are calibrated, static clinical thresholds protect life safety (e.g., critical alerts when resting heart rate is below 40 bpm or above 150 bpm, or SpO2 drops below 90%).
+
+### Deep Analytics Pipeline (Kafka Stream & Python Worker)
+Kafka messages (`topic.vital.stream`) are consumed by a Python worker (`vital_rules_worker.py`) across a 5-stage pipeline:
+1. **Noise Filtering:** Discards physically invalid readings (e.g., Heart Rate outside 30-220 bpm) and removes transient spikes (spike detection triggers if readings shift >50% within 60s).
+2. **Adaptive Z-Score Evaluation:**  
+   Computes standard deviation offset from the user's baseline:
+   ```text
+   Z = (x - μ) / max(σ, 0.01)
+   ```
+   Risk categorization: **Critical** (`|Z| ≥ 3.0`), **Warning** (`2.0 ≤ |Z| < 3.0`), and **Normal** (`|Z| < 2.0`).
+3. **Action Dispatching:** Manages notification deduplication via Redis time-bucket locks before dispatching APNs push notifications.
+4. **Online Baseline Updates (Incremental Welford's Algorithm):**  
+   Updates rolling baseline statistics directly on Redis in `O(1)` time without storing full raw event histories:
+   ```text
+   μ_new = μ_old + Δ / n_new
+   M_(2,new) = M_(2,old) + Δ · (x - μ_new)
+   ```
+5. **Short-Term Memory (STM) Synchronization:** Aggregates daily health flags into Redis buffers for zero-latency LLM context retrieval.
+
+### Calibration & Adaptive Feedback Loop
+- **Nightly Population Baseline Sync:** Celery Beat jobs compute 7-day historical population statistics (`N`) from MongoDB at 00:00 UTC, synchronizing baseline parameters back to Redis.
+- **Adaptive Threshold Adjustment:** Incorporates user feedback (`False Alarm`, `Acknowledged`, `Escalated911`) to dynamically tune individual sensitivity multipliers (`sigmaMultiplier`), reducing false positive alerts over time.
+
+## Expert Think Agent & Hybrid RAG – Reasoning Core
+
+<div class="my-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div class="rounded-2xl overflow-hidden border border-slate-800 bg-slate-950/50 p-2">
+    <img src="/omnimer_health/memory_architect.png" alt="Memory Architecture" class="w-full h-auto rounded-xl object-contain" />
+    <p class="text-center text-sm text-slate-400 mt-2 italic">Figure 3: 3-Tier Memory Architecture (STM, LTM & Context Window)</p>
+  </div>
+  <div class="rounded-2xl overflow-hidden border border-slate-800 bg-slate-950/50 p-2">
+    <img src="/omnimer_health/agent_workflow.png" alt="Agent Workflow" class="w-full h-auto rounded-xl object-contain" />
+    <p class="text-center text-sm text-slate-400 mt-2 italic">Figure 4: LangGraph Multi-turn ReAct & Reflexion Loop Execution</p>
+  </div>
+</div>
+
+### StateGraph & Reflexion Loop (LangGraph)
+The agent operates as a multi-step reasoning graph built with LangGraph:
+- **Context Assembly:** Combines real-time STM states, LTM profiles (medical history and dietary preferences in Qdrant), and graph context from Neo4j.
+- **Longitudinal Health Analysis:** Analyzes temporal trends. Critical anomalies immediately route execution to Human-in-the-Loop (HITL) checkpoints.
+- **Multi-turn ReAct & Tool Execution:** Leverages domain tools (`calculate_bmr_tool`, `calculate_ncs_tool`, `query_recent_workout_summary`).
+- **Reflexion Pipeline:** Evaluates draft outputs (`reflection_evaluation_node`). Safety violations or allergen conflicts trigger a **CRITICAL** flag, invoking self-refinement (`self_refine`) or emergency circuit breaking (`circuit_breaker`).
+
+### Coaching Frameworks (FITT & Nutrition)
+- **FITT Framework (Workout):** Pre-fills **F**requency, **I**ntensity, **T**ime, and **T**ype workout dimensions tailored to user activity levels (Sedentary, LightlyActive, VeryActive).
+- **Nutrition Framework:** Computes clinical energy needs (BMR/NCS) and target macronutrient distribution ratios:
+  - *Weight Loss (Cut):* 40% Protein - 30% Carb - 30% Fat.
+  - *Muscle Gain (Bulk):* 30% Protein - 50% Carb - 20% Fat.
+  - *Maintenance (Default):* 30% Protein - 40% Carb - 30% Fat.
+
+### Hybrid RAG & Weighted Reciprocal Rank Fusion (WRRF)
+Instead of relying on heavy, slow Cross-Encoder rerankers, OmniMer Health fuses **Qdrant Vector DB** (BGE-M3 Dense + BM25 Sparse) with **Neo4j Knowledge Graph** traversals via **Weighted Reciprocal Rank Fusion (WRRF)**:
+
+```text
+WRRF_Score(d) = Σ [ w_s / (k + rank_s(d)) ]  where s ∈ {dense, sparse, alias}
+```
+
+- **Smoothing Constant:** `k = 60`.
+- **Weights:** `w_dense = 1.0`, `w_sparse = 1.0`, and a boosted **`w_alias = 2.5`** to guarantee exact entity matches rank at the top.
+- **Canonical Grouping & Query Facet Mapping:** Consolidates entity chunks into unified resource representations while filtering context by intent facets (`mistakes`, `safety`, `steps`, `nutrients`).
+
+## Evaluation & Benchmarks
+
+<div class="my-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div class="rounded-2xl overflow-hidden border border-slate-800 bg-slate-950/50 p-2">
+    <img src="/omnimer_health/ragas_benchmark.png" alt="RAGAS Benchmark" class="w-full h-auto rounded-xl object-contain" />
+    <p class="text-center text-sm text-slate-400 mt-2 italic">Figure 5: RAG Quality Evaluation across RAGAS Metrics</p>
+  </div>
+  <div class="rounded-2xl overflow-hidden border border-slate-800 bg-slate-950/50 p-2">
+    <img src="/omnimer_health/safety_eval.png" alt="Safety Evaluation" class="w-full h-auto rounded-xl object-contain" />
+    <p class="text-center text-sm text-slate-400 mt-2 italic">Figure 6: Safety Recall and Useful Response Rate comparison</p>
+  </div>
+</div>
+
+### RAG Retrieval & Reasoning Quality (RAGAS Framework)
+Evaluated against a curated benchmark of 100 medical health questions with verified ground truths:
+
+- **Context Precision (0.69):** Significantly improved from the **0.42** baseline, proving that Hybrid RAG retrieves exact context while eliminating irrelevant noise.
+- **Context Recall (0.66):** Ensures comprehensive retrieval of medical guidelines and user background.
+- **Faithfulness (0.78):** Demonstrates strict alignment with retrieved evidence, eliminating hallucinations.
+- **Answer Relevancy (0.85):** Highlights sharp focus on user queries driven by tool execution and self-reflection loops.
+
+### Safety Evaluation & Medical Guardrails
+Tested against 20 high-risk clinical scenarios:
+
+- **Baseline LLM:** Achieved only **~5% safety recall**, frequently generating dangerous advice during acute medical symptoms.
+- **Optimized CoT:** Reached **100% safety recall** but proved over-conservative, rejecting benign lifestyle questions and hurting user experience.
+- **OmniMer Health:** Achieved **~90% Safety Recall**, striking an optimal balance between **medical safety** and **interactive user utility**.
+
+## Future Roadmap
+
+1. **Multi-Device & IoT Integration:** Expand ingestion capabilities to Garmin, Fitbit, Samsung Health, and specialized clinical IoT devices (such as Continuous Glucose Monitors - CGM).
+2. **Clinical Expert Evaluation Dataset:** Collaborate directly with physicians, dietitians, and sports specialists to build an expert-annotated evaluation benchmark.
+3. **Post-Retrieval Reranking Optimization:** Integrate `BGE-Reranker-v2-M3` post-retrieval to optimize document order before passing context to LLMs.
+4. **Semi-Automated Knowledge Graph Ingestion:** Automate graph extraction from PubMed and NIH guidelines using a **Human-in-the-Loop (HITL)** expert validation workflow.

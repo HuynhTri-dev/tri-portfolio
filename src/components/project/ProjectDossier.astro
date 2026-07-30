@@ -3,9 +3,20 @@ import type { CollectionEntry } from "astro:content";
 
 interface Props {
   project: CollectionEntry<"projects">["data"];
+  headings: {
+    depth: number;
+    slug: string;
+    text: string;
+  }[];
 }
 
-const { project } = Astro.props;
+const { project, headings } = Astro.props;
+const documentHeadings = headings.filter(
+  (heading) => heading.depth >= 1 && heading.depth <= 3,
+);
+const baseHeadingDepth = documentHeadings.length
+  ? Math.min(...documentHeadings.map((heading) => heading.depth))
+  : 1;
 ---
 
 <article class="dossier shell">
@@ -14,7 +25,13 @@ const { project } = Astro.props;
   <header class="dossier-hero panel">
     <div class="project-identity">
       <span class="project-id">{project.projectId}</span>
-      <span class="project-emblem">{project.projectId.slice(-2)}</span>
+      <span class="project-emblem">
+        {project.icon ? (
+          <img src={project.icon} alt={project.title} class="project-icon-img" />
+        ) : (
+          project.projectId.slice(-2)
+        )}
+      </span>
       <span class="status-badge"><i></i><span data-en={project.type} data-vi={project.typeVi}>{project.type}</span></span>
     </div>
 
@@ -35,6 +52,11 @@ const { project } = Astro.props;
           <small>SOURCE</small><strong>GitHub ↗</strong>
         </a>
       )}
+      {project.links?.live && (
+        <a href={project.links.live} target="_blank" rel="noreferrer">
+          <small>DEMO</small><strong>YouTube ↗</strong>
+        </a>
+      )}
     </aside>
   </header>
 
@@ -50,13 +72,27 @@ const { project } = Astro.props;
   <div class="dossier-body">
     <aside class="dossier-index panel">
       <span class="section-index">DOCUMENT INDEX</span>
-      <ol>
-        <li>Overview</li>
-        <li>Role & ownership</li>
-        <li>Architecture</li>
-        <li>Engineering decisions</li>
-        <li>Outcomes</li>
-      </ol>
+      <nav aria-label="Document index">
+        <ol>
+          {documentHeadings.map((heading, index) => (
+            <li
+              class:list={[
+                "index-item",
+                `index-level-${heading.depth - baseHeadingDepth}`,
+              ]}
+            >
+              <a
+                href={`#${heading.slug}`}
+                data-heading-link={heading.slug}
+                aria-current={index === 0 ? "location" : undefined}
+              >
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <strong>{heading.text}</strong>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
       <a href="/Huynh-Minh-Tri-Software-Engineer-CV.pdf" download>
         <span data-en="Download CV" data-vi="Tải CV">Download CV</span> ↓
       </a>
@@ -67,6 +103,59 @@ const { project } = Astro.props;
     </div>
   </div>
 </article>
+
+<script>
+  const indexLinks = Array.from(
+    document.querySelectorAll<HTMLAnchorElement>("[data-heading-link]"),
+  );
+  const indexedHeadings = indexLinks
+    .map((link) => {
+      const slug = link.dataset.headingLink;
+      return slug ? document.getElementById(slug) : null;
+    })
+    .filter((heading): heading is HTMLElement => heading !== null);
+
+  function setActiveHeading(slug: string) {
+    indexLinks.forEach((link) => {
+      if (link.dataset.headingLink === slug) {
+        link.setAttribute("aria-current", "location");
+      } else {
+        link.removeAttribute("aria-current");
+      }
+    });
+  }
+
+  indexLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+      const slug = link.dataset.headingLink;
+      if (slug) setActiveHeading(slug);
+    });
+  });
+
+  if ("IntersectionObserver" in window) {
+    const visibleHeadings = new Map<string, IntersectionObserverEntry>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const slug = (entry.target as HTMLElement).id;
+          if (entry.isIntersecting) {
+            visibleHeadings.set(slug, entry);
+          } else {
+            visibleHeadings.delete(slug);
+          }
+        });
+
+        const active = [...visibleHeadings.values()].sort(
+          (a, b) => a.boundingClientRect.top - b.boundingClientRect.top,
+        )[0];
+        if (active) setActiveHeading((active.target as HTMLElement).id);
+      },
+      { rootMargin: "-150px 0px -65% 0px", threshold: [0, 1] },
+    );
+
+    indexedHeadings.forEach((heading) => observer.observe(heading));
+  }
+</script>
 
 <style>
   .dossier { padding-top: 96px; padding-bottom: 110px; }
@@ -115,6 +204,13 @@ const { project } = Astro.props;
     color: var(--brand-soft);
     font-family: var(--font-mono);
     font-size: 1.2rem;
+    overflow: hidden;
+  }
+
+  .project-icon-img {
+    width: 76px;
+    height: 76px;
+    object-fit: contain;
   }
 
   .status-badge {
@@ -185,20 +281,74 @@ const { project } = Astro.props;
     position: sticky;
     top: 118px;
     align-self: start;
+    max-height: calc(100vh - 140px);
+    overflow-y: auto;
     padding: 26px;
     border-radius: var(--radius-standard);
+    scrollbar-color: rgb(117 230 178 / 24%) transparent;
+    scrollbar-width: thin;
   }
 
   .dossier-index ol {
     display: grid;
-    gap: 13px;
+    gap: 5px;
     margin: 24px 0 34px;
-    padding-left: 20px;
+    padding: 0;
+    list-style: none;
     color: var(--text-muted);
     font-size: 0.72rem;
   }
 
-  .dossier-index a {
+  .index-item > a {
+    position: relative;
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr);
+    gap: 8px;
+    align-items: start;
+    padding: 8px 8px 8px 10px;
+    border-left: 1px solid var(--border-default);
+    color: var(--text-muted);
+    transition:
+      border-color var(--duration-fast) ease,
+      background var(--duration-fast) ease,
+      color var(--duration-fast) ease;
+  }
+
+  .index-item > a:hover {
+    border-color: rgb(117 230 178 / 42%);
+    background: rgb(117 230 178 / 4%);
+    color: var(--text-secondary);
+  }
+
+  .index-item > a[aria-current="location"] {
+    border-color: var(--brand-green);
+    background: linear-gradient(90deg, rgb(24 199 133 / 9%), transparent);
+    color: var(--text-main);
+  }
+
+  .index-item > a > span {
+    padding-top: 2px;
+    color: var(--brand-green);
+    font-family: var(--font-mono);
+    font-size: 0.48rem;
+    letter-spacing: 0.05em;
+  }
+
+  .index-item > a > strong {
+    font-size: 0.68rem;
+    font-weight: 500;
+    line-height: 1.45;
+  }
+
+  .index-level-1 > a {
+    padding-left: 22px;
+  }
+
+  .index-level-2 > a {
+    padding-left: 34px;
+  }
+
+  .dossier-index > a {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -212,6 +362,18 @@ const { project } = Astro.props;
   .mdx-content {
     padding: clamp(30px, 5vw, 64px);
     border-radius: var(--radius-feature);
+  }
+
+  .mdx-content :global(h1),
+  .mdx-content :global(h2),
+  .mdx-content :global(h3) {
+    scroll-margin-top: 150px;
+  }
+
+  .mdx-content :global(h1) {
+    margin: 0 0 24px;
+    font-size: clamp(1.85rem, 3.6vw, 3rem);
+    letter-spacing: -0.05em;
   }
 
   .mdx-content :global(h2) {
@@ -232,7 +394,7 @@ const { project } = Astro.props;
 
   @media (max-width: 960px) {
     .dossier-hero { grid-template-columns: 150px 1fr; }
-    .project-meta { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); }
+    .project-meta { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
     .project-meta > * { padding-inline: 14px; }
   }
 
@@ -243,6 +405,6 @@ const { project } = Astro.props;
     .project-emblem { width: 82px; height: 82px; }
     .project-meta { grid-column: auto; grid-template-columns: 1fr; }
     .dossier-body { grid-template-columns: 1fr; }
-    .dossier-index { position: static; }
+    .dossier-index { position: static; max-height: none; overflow: visible; }
   }
 </style>

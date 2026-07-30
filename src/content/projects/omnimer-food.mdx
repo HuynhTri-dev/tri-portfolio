@@ -1,0 +1,437 @@
+---
+title: OmniMer Food · Multimodal Nutrition Assistant
+projectId: PROJECT_OMNIMER_FOOD
+order: 3
+featured: false
+type: Team project
+typeVi: Dự án nhóm
+period: "2026"
+role: Project Leader & Full Stack Developer
+summary: A multimodal nutrition assistant that turns food images, personal health context and voice interactions into explainable meal guidance.
+summaryVi: Trợ lý dinh dưỡng đa phương thức chuyển hình ảnh món ăn, hồ sơ sức khỏe và tương tác giọng nói thành hướng dẫn bữa ăn có thể giải thích.
+technologies:
+  - Flutter
+  - Node.js
+  - TypeScript
+  - FastAPI
+  - AI Vision
+  - GraphRAG
+  - Knowledge Graph
+  - Speech AI
+metrics:
+  - value: "3 INPUTS"
+    label: Text, image and voice
+    labelVi: Văn bản, hình ảnh và giọng nói
+  - value: "2 LAYERS"
+    label: Meal safety validation
+    labelVi: Kiểm tra an toàn bữa ăn
+  - value: "E2E"
+    label: Food-to-cooking journey
+    labelVi: Hành trình từ món ăn đến nấu ăn
+links:
+  source: https://github.com/omnimerteam/omnimerFood.git
+  live: https://www.youtube.com/watch?v=obmTFMHNa2c
+---
+
+## Product Context and Vision
+
+**OmniMer Food** is a multimodal nutrition assistant designed to connect the decisions around a meal in one continuous product experience:
+
+```text
+Capture a food image
+        ↓
+Identify the dish
+        ↓
+Retrieve nutrition and recipe data
+        ↓
+Evaluate personal safety and suitability
+        ↓
+Recommend an explainable alternative
+        ↓
+Guide the user through cooking
+```
+
+The product goes beyond calorie lookup or recipe search. Users can interact through **text, images and voice**, while the system combines food recognition, structured nutrition data, GraphRAG, deterministic safety rules and personalized recommendations.
+
+The long-term product direction is a **Nutrition Digital Twin**: a continuously updated representation of the user’s dietary context that makes each response more relevant than a generic nutrition table.
+
+> **Product principle:** AI should not appear as a collection of disconnected demos. Vision, retrieval, recommendation and speech must contribute to one understandable user journey.
+
+<div class="my-8 overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/60">
+  <div class="aspect-video">
+    <iframe
+      class="h-full w-full"
+      src="https://www.youtube-nocookie.com/embed/obmTFMHNa2c"
+      title="OmniMer Food project demo"
+      loading="lazy"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowfullscreen
+    ></iframe>
+  </div>
+</div>
+
+## Problem Statement
+
+Traditional nutrition applications often require users to search for a food, estimate a serving, select ingredients and manually enter quantities. That workflow is slow for unfamiliar dishes and becomes especially difficult when a meal contains several ingredients.
+
+Generic AI assistants reduce the effort of asking a question, but they introduce a different problem: their answers are not automatically grounded in verified nutrition records, a user’s remaining daily targets or deterministic allergy rules.
+
+OmniMer Food addresses three connected gaps:
+
+1. **High-friction food logging:** users should be able to begin with a photo instead of a perfectly formatted food name.
+2. **Context-free nutrition advice:** the same meal can be suitable for one user and unsafe or poorly timed for another.
+3. **Fragmented meal preparation:** discovering a dish, checking ingredients, creating a shopping list and following a recipe should not require separate tools.
+
+The assistant therefore supports decisions rather than medical diagnosis. It provides evidence, warnings and alternatives, but does not replace a physician or registered dietitian.
+
+## My Role and Ownership
+
+I worked on OmniMer Food as both **Project Leader** and **Full Stack Developer**.
+
+### Product and technical leadership
+
+My leadership responsibilities focused on keeping the system product-driven:
+
+- Defined the product vision, scope and priority of each module.
+- Translated nutrition problems into concrete mobile, backend and AI workflows.
+- Designed the service boundaries between Flutter, Node.js and FastAPI.
+- Divided work by module and coordinated integration across the team.
+- Established codebase conventions and reviewed technical solutions.
+- Balanced implementation time, technical complexity and user value.
+- Kept Vision AI, GraphRAG, recommendation and speech aligned to the same end-to-end experience.
+
+### Full-stack implementation
+
+I also contributed directly across the main application layers:
+
+- Built Flutter flows for food discovery, image capture, food details, meal creation and guided cooking.
+- Developed Node.js and TypeScript APIs for food, ingredients, nutrients, meals and user nutrition profiles.
+- Integrated authentication, authorization and nutrition calculations into the backend workflow.
+- Built FastAPI interfaces for image recognition and AI orchestration.
+- Normalized model confidence and top-k predictions before matching results against the food database.
+- Connected AI outputs to deterministic business rules instead of returning model output directly to users.
+- Integrated text-to-speech and voice commands into the cooking experience.
+
+## System Architecture
+
+The system separates product logic from model-specific implementation:
+
+```text
+Flutter Mobile Application
+        │
+        ├── Text query
+        ├── Food image
+        ├── User action
+        └── Voice command
+        │
+        ▼
+Node.js / TypeScript Backend
+        │
+        ├── Authentication and authorization
+        ├── User nutrition profile
+        ├── Food and meal management
+        ├── Nutrition calculation
+        ├── Meal Police
+        └── AI orchestration
+        │
+        ├──────────────────────────┐
+        ▼                          ▼
+FastAPI AI Service          Data and Knowledge Layer
+        │                          │
+        ├── Vision inference       ├── Food database
+        ├── GraphRAG               ├── Nutrition records
+        ├── Recommendation         ├── Knowledge graph
+        └── Speech processing      └── Vector database
+        │                          │
+        └────────────┬─────────────┘
+                     ▼
+           Personalized response
+                     │
+                     ▼
+       Nutrition · Alert · Recipe · Suggestion
+```
+
+The backend remains the owner of application rules and workflow state. The AI service supplies perception and reasoning capabilities, while structured databases remain the source of quantitative nutrition values.
+
+This boundary allows the team to replace a vision, embedding or speech model without rewriting the mobile application or core meal-management logic.
+
+## Food Recognition from Images
+
+Food recognition is the entry point for reducing manual input. A user can capture a photo, select an existing image or send an image through the assistant.
+
+### Confidence-aware recognition pipeline
+
+```text
+Food image
+    ↓
+Format and size validation
+    ↓
+Image preprocessing
+    ↓
+Vision model inference
+    ↓
+Top-k food predictions
+    ↓
+Food database matching
+    ↓
+Nutrition and recipe retrieval
+    ↓
+Personalized analysis
+```
+
+The pipeline does not treat the highest-scoring label as unquestionably correct. It preserves confidence information and alternative predictions.
+
+When confidence is high, the application can move directly to the matched food record. When confidence is lower, it asks the user to confirm among likely candidates before nutrition data is attached to the meal.
+
+This confirmation step is important for two reasons:
+
+- It prevents a visual classification error from becoming an incorrect nutrition record.
+- It creates feedback that can support later model evaluation and improvement.
+
+The model boundary supports CNN, EfficientNet, Vision Transformer or image-text embedding approaches. The application workflow depends on a normalized prediction contract rather than a specific model family.
+
+## Nutrition Digital Twin
+
+The Nutrition Digital Twin represents the context that can affect a user’s food decisions:
+
+- Height, weight, age and BMI.
+- Activity level and energy target.
+- Weight-loss, maintenance or muscle-gain goals.
+- Dietary preferences and restrictions.
+- Food allergies and ingredients to limit.
+- Meal history and daily nutrient totals.
+- Saved foods, rejected suggestions and cooking behavior.
+
+Instead of answering only “How many calories does this contain?”, the assistant can evaluate:
+
+- Whether the serving fits the user’s remaining energy target.
+- Whether the recipe contains an allergen or related ingredient.
+- Whether sodium, sugar or another nutrient exceeds a configured threshold.
+- Whether a higher-protein or otherwise more suitable alternative is available.
+
+The same dish can therefore produce different guidance for different users without changing its verified underlying nutrition data.
+
+## GraphRAG for Nutrition Knowledge
+
+Vector similarity alone is useful for retrieving related text, but nutrition questions often require explicit relationships across several entities.
+
+For example, answering whether a dish is suitable for a user with a dairy allergy and a sodium restriction can require the system to connect:
+
+- The user profile.
+- The dish and serving size.
+- Its ingredients and ingredient aliases.
+- Allergens associated with those ingredients.
+- Sodium content and the user’s daily limit.
+- Replacement ingredients and alternative dishes.
+
+OmniMer Food combines vector retrieval, structured database queries and graph traversal.
+
+### Knowledge model
+
+The knowledge graph can represent entities such as:
+
+```text
+Food
+Ingredient
+Nutrient
+Allergen
+HealthCondition
+Diet
+Medicine
+CookingMethod
+UserProfile
+```
+
+Representative relationships include:
+
+```text
+Food CONTAINS Ingredient
+Ingredient PROVIDES Nutrient
+Ingredient MAY_TRIGGER Allergen
+Nutrient AFFECTS HealthCondition
+Food SUITABLE_FOR Diet
+Ingredient INTERACTS_WITH Medicine
+CookingMethod CHANGES Nutrient
+Ingredient CAN_REPLACE Ingredient
+```
+
+### Retrieval and response flow
+
+```text
+User question
+      ↓
+Intent and entity extraction
+      ↓
+Vector search + graph traversal + database query
+      ↓
+Evidence aggregation
+      ↓
+Response generation
+      ↓
+Explanation + alert + suggested action
+```
+
+The LLM is not treated as the source of nutrition truth. It is used to understand intent, extract entities, select tools and explain retrieved evidence in natural language.
+
+Quantitative values come from the food database. Threshold alerts come from the rule engine. Relationships come from the knowledge graph or curated supporting documents.
+
+## Meal Police: Two-Layer Safety Validation
+
+**Meal Police** is the validation layer between a food record and the final recommendation.
+
+### Layer 1 — Deterministic rules
+
+The first layer handles conditions that can be tested predictably:
+
+- Total energy and serving limits.
+- Protein, carbohydrate and fat targets.
+- Sodium and sugar thresholds.
+- Known food allergens.
+- Remaining daily nutrition allowances.
+
+Rule-based checks are testable, traceable and independent of an LLM.
+
+### Layer 2 — GraphRAG relationships
+
+The second layer handles relationships that are difficult to express as a single numeric threshold:
+
+- Ingredient interactions.
+- Effects of cooking methods.
+- Food relationships with health conditions.
+- Food and medicine interactions.
+- Ingredient aliases that share an allergen source.
+- Context that requires evidence from several connected entities.
+
+The two layers produce structured alerts with a severity of `INFO`, `WARNING` or `DANGER`. Each alert can carry the cause, related ingredient, suggested action and the rule or evidence that triggered it.
+
+This design keeps safety-critical checks explainable while still allowing the assistant to answer complex questions.
+
+## Personalized Recommendation
+
+Recommendation begins only after unsafe or unsuitable candidates have been filtered or downgraded.
+
+Candidate generation can use:
+
+- The nutrition profile and current goal.
+- Meal history and recent food variety.
+- Remaining energy and nutrient requirements.
+- Available ingredients.
+- Saved, cooked, accepted and rejected foods.
+- Time available for cooking.
+- Current meal context such as breakfast, lunch or dinner.
+
+The initial approach prioritizes **rule-based** and **content-based ranking** because both are easier to inspect and explain. Collaborative filtering can be introduced later when the product has enough reliable interaction data.
+
+Every recommendation should answer “why,” for example:
+
+> This dish is recommended because it is high in protein, avoids your recorded allergens and fits the energy remaining for dinner.
+
+An explanation turns ranking output into a decision the user can understand.
+
+## Hands-Free Cooking Assistant
+
+After selecting a suitable meal, the user can enter a guided cooking mode that presents:
+
+- Required ingredients and quantities.
+- The current preparation step.
+- Supporting images or video.
+- Timers and contextual warnings.
+- Text-to-speech narration.
+
+Voice commands allow the user to continue without repeatedly touching the device:
+
+```text
+“Hey Cheff, next step.”
+“Hey Cheff, previous step.”
+“Hey Cheff, repeat this step.”
+“Hey Cheff, start timer.”
+“Hey Cheff, how much salt?”
+```
+
+Fixed commands such as next, previous and repeat can be handled by a lightweight command classifier. Only open questions need to reach the assistant or retrieval pipeline.
+
+The cooking session maintains explicit state: the selected recipe, current step, previous step, active timers, current ingredients and unacknowledged warnings.
+
+## End-to-End User Journey
+
+A complete OmniMer Food workflow can move through the following steps:
+
+1. The user opens the assistant and captures a food image.
+2. The vision service returns top-k dish candidates.
+3. The user confirms the correct result when necessary.
+4. The backend retrieves the recipe, ingredients and nutrition records.
+5. GraphRAG gathers relevant relationships and supporting evidence.
+6. Meal Police evaluates deterministic and relational safety conditions.
+7. The recommendation layer scores suitability for the current user.
+8. The assistant explains the result and possible alternatives.
+9. The user confirms a meal and serving size.
+10. The system compares required ingredients with those available at home.
+11. Missing ingredients are added to a shopping list.
+12. Voice-guided cooking leads the user through the recipe.
+13. The completed meal is saved to nutrition history.
+14. The Nutrition Digital Twin is updated for future decisions.
+
+This produces a learning loop:
+
+```text
+User profile
+     ↓
+Food selection
+     ↓
+Nutrition analysis
+     ↓
+Meal decision
+     ↓
+Meal history
+     ↓
+Updated personalization
+```
+
+## Key Engineering Decisions
+
+### Keep model output behind application contracts
+
+Vision predictions, retrieval results and generated explanations are normalized before they enter product workflows. This reduces coupling between the application and any individual AI provider or model.
+
+### Separate facts, rules and language generation
+
+The food database owns numeric nutrition facts. The rule engine owns deterministic constraints. GraphRAG owns evidence retrieval. The LLM turns those results into a conversational explanation.
+
+This separation makes incorrect behavior easier to trace and test.
+
+### Design fallbacks into every AI feature
+
+The vision workflow supports top-k confirmation. Fixed voice commands do not require an LLM. Recommendation begins with explainable ranking. These fallbacks keep the application useful when confidence is limited or a model service is unavailable.
+
+## Data Foundation
+
+The project architecture supports standardized nutrition and recipe sources such as:
+
+- USDA FoodData Central.
+- Recipe1M+.
+- Food-101.
+- Food.com Recipes and Interactions.
+- Curated documents describing nutrition and food interactions.
+
+External records must be normalized into consistent entities, units, serving definitions and ingredient names before they can safely participate in rules or graph relationships.
+
+## Current Scope and Future Direction
+
+The repository establishes the product modules and working flows for food and nutrition management, food search from images, meal creation, ingredient checking and voice-supported cooking.
+
+The next stages focus on strengthening rather than simply adding more AI:
+
+- Evaluate food-recognition confidence on a representative dataset.
+- Expand Vietnamese food coverage and ingredient aliases.
+- Improve portion estimation and user confirmation flows.
+- Add traceable sources to GraphRAG explanations.
+- Build automated tests for allergy and nutrient-limit rules.
+- Measure recommendation acceptance and rejection.
+- Extend Vietnamese speech support after command accuracy is validated.
+
+The broader goal remains consistent: turn a food image into **data that can be evaluated, a recommendation that can be explained and an action the user can complete**.
+
+## Project Links
+
+- [View the OmniMer Food source code](https://github.com/omnimerteam/omnimerFood.git)
+- [Watch the project demo](https://www.youtube.com/watch?v=obmTFMHNa2c)

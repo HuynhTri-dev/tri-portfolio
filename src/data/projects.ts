@@ -53,20 +53,23 @@ export const projects: ProjectListItem[] = [
     featured: true,
   },
   {
-    title: "Omnimer Health",
+    title: "OmniMer Food",
     description:
-      "The public backend and AI system behind the Omnimer personal health platform.",
+      "A multimodal nutrition assistant combining food-image recognition, GraphRAG safety checks and voice-guided cooking.",
     descriptionVi:
-      "Backend và hệ thống AI mã nguồn public của nền tảng sức khỏe cá nhân Omnimer.",
+      "Trợ lý dinh dưỡng đa phương thức kết hợp nhận diện món ăn, kiểm tra an toàn bằng GraphRAG và hướng dẫn nấu ăn bằng giọng nói.",
     period: "2026",
-    type: "Open source",
-    typeVi: "Mã nguồn mở",
+    type: "Team project",
+    typeVi: "Dự án nhóm",
     category: "ai",
-    technologies: ["Python", "FastAPI", "Agentic AI", "RAG"],
-    href: "https://github.com/HuynhTri-dev/omnimer_health",
+    technologies: ["Flutter", "Node.js", "FastAPI", "GraphRAG", "AI Vision"],
+    href: "/projects/omnimer-food",
+    hrefLabel: "View case study",
+    hrefLabelVi: "Xem case study",
+    featured: true,
   },
   {
-    title: "Omnimer Health · Mobile",
+    title: "Omnimer Health · Web",
     description:
       "Flutter client for health tracking, personal insights and AI-assisted workflows.",
     descriptionVi:
@@ -105,19 +108,6 @@ export const projects: ProjectListItem[] = [
     href: "https://github.com/HuynhTri-dev/QuanLyNhaTro",
   },
   {
-    title: "Startup Investment Support Platform",
-    description:
-      "A web platform connecting startups and investors with real-time chat and role-based access.",
-    descriptionVi:
-      "Nền tảng kết nối startup và nhà đầu tư với chat thời gian thực và phân quyền người dùng.",
-    period: "2025",
-    type: "Academic project",
-    typeVi: "Dự án học tập",
-    category: "web",
-    technologies: ["C#", "ASP.NET MVC", "SQL Server", "SignalR"],
-    href: "https://github.com/HuynhTri-dev/QuanLyStartup",
-  },
-  {
     title: "Clothing Store Management",
     description:
       "A WinForms application for products, inventory, delivery, sales statistics and revenue reports.",
@@ -129,19 +119,6 @@ export const projects: ProjectListItem[] = [
     category: "desktop",
     technologies: ["C#", ".NET WinForms", "SQL Server", "Google Maps API"],
     href: "https://github.com/HuynhTri-dev/DoAnWin_ManageClothStore",
-  },
-  {
-    title: "Campus Event Management",
-    description:
-      "A web project exploring workflows for organizing and managing campus events.",
-    descriptionVi:
-      "Dự án web thử nghiệm quy trình tổ chức và quản lý sự kiện trong trường.",
-    period: "2025",
-    type: "Academic project",
-    typeVi: "Dự án học tập",
-    category: "web",
-    technologies: ["JavaScript", "Web"],
-    href: "https://github.com/HuynhTri-dev/DACS_QLSKCS",
   },
   {
     title: "Omnishift",

@@ -28,6 +28,7 @@ const projects = defineCollection({
         live: z.string().url().optional(),
       })
       .optional(),
+    icon: z.string().optional(),
   }),
 });
 
