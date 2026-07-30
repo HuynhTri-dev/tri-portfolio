@@ -61,20 +61,37 @@ const {
     <a class="skip-link" href="#main-content">Skip to content</a>
 
     <div class="ambient-layer" aria-hidden="true">
-      <span class="ambient ambient-one"></span>
-      <span class="ambient ambient-two"></span>
-      <span class="forest-line line-one"></span>
-      <span class="forest-line line-two"></span>
-      <span class="forest-line line-three"></span>
-      <span class="robot-detail bearing-detail"></span>
-      <span class="robot-detail armature-detail"></span>
-      <span class="circuit-detail circuit-detail-one"></span>
-      <span class="circuit-detail circuit-detail-two"></span>
-      <span class="undergrowth-detail undergrowth-left"></span>
-      <span class="undergrowth-detail undergrowth-right"></span>
-      <span class="botanical-detail canopy-sprig"></span>
-      <span class="botanical-detail fern-detail fern-left"></span>
-      <span class="botanical-detail fern-detail fern-right"></span>
+      <div class="atmosphere-layer">
+        <span class="haze haze-left"></span>
+        <span class="haze haze-right"></span>
+      </div>
+
+      <div class="far-forest-layer">
+        <span class="far-canopy far-canopy-left"></span>
+        <span class="far-canopy far-canopy-right"></span>
+      </div>
+
+      <div class="forest-tech-layer">
+        <span class="scan-ring scan-ring-left"></span>
+        <span class="forest-branch branch-left"></span>
+        <span class="leaf-cluster leaf-left-one"></span>
+        <span class="leaf-cluster leaf-left-two"></span>
+        <span class="leaf-cluster leaf-left-three"></span>
+        <span class="leaf-cluster leaf-left-four"></span>
+        <span class="leaf-cluster leaf-left-five"></span>
+        <span class="signal-path signal-path-left"></span>
+
+        <span class="forest-branch branch-right"></span>
+        <span class="leaf-cluster leaf-right-one"></span>
+        <span class="leaf-cluster leaf-right-two"></span>
+        <span class="leaf-cluster leaf-right-three"></span>
+        <span class="signal-path signal-path-right"></span>
+      </div>
+
+      <div class="foreground-layer">
+        <span class="foreground-foliage foreground-left"></span>
+        <span class="foreground-foliage foreground-right"></span>
+      </div>
     </div>
 
     <Header isHome={isHome} />
