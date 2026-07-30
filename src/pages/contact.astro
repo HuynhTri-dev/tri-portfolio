@@ -145,7 +145,7 @@ const socialLinks = [
             href="mailto:huynhminhtri1109@gmail.com"
             aria-label="Email: huynhminhtri1109@gmail.com"
           >
-            ↗
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
           </a>
           <div class="card-content">
             <small>Email</small>
@@ -181,7 +181,7 @@ const socialLinks = [
                 {method.mark}
               </span>
               <span class="card-arrow" aria-hidden="true">
-                ↗
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
               </span>
               <span class="card-content">
                 <small
@@ -203,10 +203,63 @@ const socialLinks = [
       </div>
     </section>
 
-    <section class="contact-group social-group" aria-labelledby="social-title">
+    <section class="contact-group availability-group" aria-labelledby="availability-title">
       <div class="group-heading">
         <div>
           <span class="group-number">02</span>
+          <h2 id="availability-title" data-en="Work Availability" data-vi="Sẵn sàng hợp tác">Work Availability</h2>
+        </div>
+        <p
+          data-en="Open for full-time positions, custom contract engineering, and product design."
+          data-vi="Sẵn sàng cho các vị trí full-time, dự án phần mềm theo yêu cầu và thiết kế sản phẩm."
+        >
+          Open for full-time positions, custom contract engineering, and product design.
+        </p>
+      </div>
+
+      <div class="bento-grid availability-grid">
+        <article class="bento-card avail-card">
+          <span class="branch-corner" aria-hidden="true"></span>
+          <span class="card-mark" aria-hidden="true"><i class="fa-solid fa-briefcase"></i></span>
+          <div class="card-content">
+            <small data-en="Full-time Roles" data-vi="Vị trí Full-time">Full-time Roles</small>
+            <strong data-en="Engineering & Product Design" data-vi="Kỹ thuật & Thiết kế sản phẩm">Engineering & Product Design</strong>
+            <p data-en="Full-Stack AI Engineer, Backend Engineer (FastAPI/Node.js), Mobile Developer (Flutter), Web Developer (Design & Code)" data-vi="Full-Stack AI Engineer, Backend Engineer (FastAPI/Node.js), Lập trình di động (Flutter), Lập trình Web (Thiết kế & Lập trình)">
+              Full-Stack AI Engineer, Backend Engineer (FastAPI/Node.js), Mobile Developer (Flutter), Web Developer (Design & Code)
+            </p>
+          </div>
+        </article>
+
+        <article class="bento-card avail-card">
+          <span class="branch-corner" aria-hidden="true"></span>
+          <span class="card-mark" aria-hidden="true"><i class="fa-solid fa-rocket"></i></span>
+          <div class="card-content">
+            <small data-en="Contract & Freelance" data-vi="Dự án & Freelance">Contract & Freelance</small>
+            <strong data-en="AI & Systems Development" data-vi="Phát triển AI & Hệ thống">AI & Systems Development</strong>
+            <p data-en="AI Agents Development, Hybrid RAG Systems, Wearable Biometrics Processing Pipeline, Web & Mobile Design" data-vi="Xây dựng AI Agents, Hệ thống Hybrid RAG, Đường ống xử lý sinh hiệu Wearable, Thiết kế Web & App">
+              AI Agents Development, Hybrid RAG Systems, Wearable Biometrics Processing Pipeline, Web & Mobile Design
+            </p>
+          </div>
+        </article>
+
+        <article class="bento-card avail-card">
+          <span class="branch-corner" aria-hidden="true"></span>
+          <span class="card-mark" aria-hidden="true"><i class="fa-solid fa-earth-americas"></i></span>
+          <div class="card-content">
+            <small data-en="Work Mode" data-vi="Hình thức làm việc">Work Mode</small>
+            <strong data-en="Remote & Hybrid Setup" data-vi="Linh hoạt Remote & Hybrid">Remote & Hybrid Setup</strong>
+            <p data-en="Remote (Global / Vietnam) or Hybrid (Ho Chi Minh City)" data-vi="Remote (Toàn cầu / Việt Nam) hoặc Hybrid (TP.HCM)">
+              Remote (Global / Vietnam) or Hybrid (Ho Chi Minh City)
+            </p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="contact-group social-group" aria-labelledby="social-title">
+      <div class="group-heading">
+        <div>
+          <span class="group-number">03</span>
           <h2 id="social-title">Social</h2>
         </div>
         <p
@@ -236,7 +289,7 @@ const socialLinks = [
                 {social.mark}
               </span>
               <span class="card-arrow" aria-hidden="true">
-                ↗
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
               </span>
               <span class="card-content">
                 <small data-en={social.role} data-vi={social.roleVi}>
@@ -491,6 +544,38 @@ const socialLinks = [
   .direct-grid {
     grid-template-columns: 1.35fr 0.65fr;
     grid-template-rows: repeat(2, minmax(210px, 1fr));
+  }
+
+  .availability-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .avail-card {
+    min-height: 210px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  .avail-card .card-mark {
+    font-size: 1.5rem;
+    opacity: 0.9;
+  }
+
+  .avail-card strong {
+    display: block;
+    margin-top: 4px;
+    font-size: 1rem;
+    color: var(--text-primary);
+  }
+
+  .avail-card p {
+    margin-top: 8px;
+    margin-bottom: 0;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    line-height: 1.5;
   }
 
   .social-grid {

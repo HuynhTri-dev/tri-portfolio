@@ -178,7 +178,7 @@ export default function TechTrail({ groups }: Props) {
                     <>
                       <strong>{proof.value}</strong>
                       {proof.label && <span>{proof.label[language]}</span>}
-                      {proof.href && <i aria-hidden="true">↗</i>}
+                      {proof.href && <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true" />}
                     </>
                   );
 

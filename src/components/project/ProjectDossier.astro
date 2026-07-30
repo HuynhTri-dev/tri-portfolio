@@ -50,12 +50,12 @@ const baseHeadingDepth = documentHeadings.length
       <div><small>PERIOD</small><strong>{project.period}</strong></div>
       {project.links?.source && (
         <a href={project.links.source} target="_blank" rel="noreferrer">
-          <small>SOURCE</small><strong>GitHub ↗</strong>
+          <small>SOURCE</small><strong>GitHub <i class="fa-solid fa-arrow-up-right-from-square"></i></strong>
         </a>
       )}
       {project.links?.live && (
         <a href={project.links.live} target="_blank" rel="noreferrer">
-          <small>DEMO</small><strong>YouTube ↗</strong>
+          <small>DEMO</small><strong>YouTube <i class="fa-solid fa-arrow-up-right-from-square"></i></strong>
         </a>
       )}
     </aside>
@@ -95,7 +95,7 @@ const baseHeadingDepth = documentHeadings.length
         </ol>
       </nav>
       <a href="/Huynh-Minh-Tri-Software-Engineer-CV.pdf" download>
-        <span data-en="Download CV" data-vi="Tải CV">Download CV</span> ↓
+        <span data-en="Download CV" data-vi="Tải CV">Download CV</span> <i class="fa-solid fa-download"></i>
       </a>
     </aside>
 

@@ -140,7 +140,7 @@ The agent operates as a multi-step reasoning graph built with LangGraph:
 Instead of relying on heavy, slow Cross-Encoder rerankers, OmniMer Health fuses **Qdrant Vector DB** (BGE-M3 Dense + BM25 Sparse) with **Neo4j Knowledge Graph** traversals via **Weighted Reciprocal Rank Fusion (WRRF)**:
 
 $$
-\operatorname{WRRF\_Score}(d)
+\mathrm{WRRF}_{\mathrm{Score}}(d)
 =
 \sum_{s \in \{\mathrm{dense},\,\mathrm{sparse},\,\mathrm{alias}\}}
 \frac{w_s}{k + \operatorname{rank}_s(d)}

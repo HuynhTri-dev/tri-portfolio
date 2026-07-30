@@ -49,7 +49,7 @@ const projects = (await getCollection("projects")).sort((a, b) => a.data.order -
 
         <a class="project-link" href={`/projects/${project.id}`}>
           <span data-en="Open project dossier" data-vi="Mở hồ sơ dự án">Open project dossier</span>
-          <span aria-hidden="true">↗</span>
+          <span aria-hidden="true"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
         </a>
       </article>
     ))}
