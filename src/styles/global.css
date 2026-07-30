@@ -179,6 +179,167 @@ img {
 .line-two { right: 8%; transform: rotate(-8deg); }
 .line-three { left: 52%; height: 48vh; opacity: 0.4; }
 
+.robot-detail,
+.circuit-detail,
+.undergrowth-detail {
+  position: absolute;
+}
+
+.bearing-detail {
+  top: 15%;
+  right: -62px;
+  width: 184px;
+  height: 184px;
+  border: 1px solid rgb(142 190 166 / 7%);
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle,
+      transparent 0 18%,
+      rgb(117 230 178 / 5%) 18.5% 19.5%,
+      transparent 20% 42%,
+      rgb(142 190 166 / 5%) 42.5% 43.5%,
+      transparent 44%
+    );
+  box-shadow:
+    0 0 0 12px rgb(117 230 178 / 1.5%),
+    inset 0 0 34px rgb(117 230 178 / 2%);
+  opacity: 0.85;
+}
+
+.bearing-detail::before {
+  position: absolute;
+  inset: 24px;
+  border: 1px dashed rgb(117 230 178 / 7%);
+  border-radius: inherit;
+  content: "";
+  transform: rotate(14deg);
+}
+
+.bearing-detail::after {
+  position: absolute;
+  inset: 50%;
+  width: 18px;
+  height: 18px;
+  border: 1px solid rgb(142 190 166 / 8%);
+  border-radius: 50%;
+  box-shadow: 0 0 18px rgb(117 230 178 / 4%);
+  content: "";
+  transform: translate(-50%, -50%);
+}
+
+.armature-detail {
+  bottom: 19%;
+  left: -58px;
+  width: 206px;
+  height: 58px;
+  transform: rotate(-18deg);
+  border: 1px solid rgb(142 190 166 / 6%);
+  border-radius: 32px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(117 230 178 / 2.5%) 45%,
+    transparent
+  );
+}
+
+.armature-detail::before,
+.armature-detail::after {
+  position: absolute;
+  top: 50%;
+  border: 1px solid rgb(117 230 178 / 8%);
+  border-radius: 50%;
+  content: "";
+  transform: translateY(-50%);
+}
+
+.armature-detail::before {
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  box-shadow: inset 0 0 0 9px rgb(117 230 178 / 2%);
+}
+
+.armature-detail::after {
+  left: 22px;
+  width: 12px;
+  height: 12px;
+}
+
+.circuit-detail {
+  width: 148px;
+  height: 82px;
+  opacity: 0.65;
+}
+
+.circuit-detail::before {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border: 1px solid rgb(117 230 178 / 9%);
+  border-radius: 50%;
+  box-shadow:
+    42px 0 0 -2px rgb(117 230 178 / 7%),
+    86px 42px 0 -2px rgb(117 230 178 / 7%);
+  content: "";
+}
+
+.circuit-detail-one {
+  top: 38%;
+  left: 3%;
+  border-top: 1px solid rgb(117 230 178 / 6%);
+  border-right: 1px solid rgb(117 230 178 / 6%);
+  border-radius: 0 28px 0 0;
+}
+
+.circuit-detail-one::before {
+  top: -4px;
+  left: -3px;
+}
+
+.circuit-detail-two {
+  right: 3%;
+  bottom: 31%;
+  transform: rotate(180deg);
+  border-top: 1px solid rgb(142 190 166 / 5%);
+  border-right: 1px solid rgb(142 190 166 / 5%);
+  border-radius: 0 28px 0 0;
+}
+
+.circuit-detail-two::before {
+  top: -4px;
+  left: -3px;
+}
+
+.undergrowth-detail {
+  bottom: -22px;
+  width: 270px;
+  height: 106px;
+  background:
+    radial-gradient(ellipse at 9% 86%, rgb(34 155 108 / 10%) 0 14%, transparent 15%),
+    radial-gradient(ellipse at 24% 62%, rgb(117 230 178 / 7%) 0 13%, transparent 14%),
+    radial-gradient(ellipse at 41% 80%, rgb(34 155 108 / 9%) 0 17%, transparent 18%),
+    radial-gradient(ellipse at 61% 55%, rgb(117 230 178 / 6%) 0 12%, transparent 13%),
+    radial-gradient(ellipse at 78% 78%, rgb(34 155 108 / 8%) 0 18%, transparent 19%),
+    radial-gradient(ellipse at 94% 88%, rgb(117 230 178 / 6%) 0 12%, transparent 13%);
+  filter: blur(0.4px);
+  mask-image: linear-gradient(to top, black 24%, rgb(0 0 0 / 70%) 64%, transparent);
+  opacity: 0.72;
+}
+
+.undergrowth-left {
+  left: 5%;
+  transform: rotate(-2deg);
+}
+
+.undergrowth-right {
+  right: 7%;
+  width: 220px;
+  transform: rotate(3deg) scaleX(-1);
+  opacity: 0.55;
+}
+
 @media (max-width: 1120px) {
   .shell { width: min(100% - 64px, 1100px); }
 }
@@ -187,11 +348,31 @@ img {
   html { scroll-padding-top: 88px; }
   .shell { width: min(100% - 40px, 760px); }
   .section { padding-top: 80px; padding-bottom: 80px; }
+
+  .bearing-detail {
+    right: -86px;
+    opacity: 0.58;
+  }
+
+  .circuit-detail-one { left: -42px; }
+  .circuit-detail-two { display: none; }
+  .undergrowth-left { left: -52px; }
+  .undergrowth-right { right: -64px; }
 }
 
 @media (max-width: 540px) {
   .shell { width: calc(100% - 32px); }
   .section { padding-top: 68px; padding-bottom: 68px; }
+
+  .armature-detail,
+  .circuit-detail { display: none; }
+
+  .bearing-detail {
+    top: 19%;
+    right: -110px;
+  }
+
+  .undergrowth-detail { opacity: 0.45; }
 }
 
 @media (prefers-reduced-motion: reduce) {
