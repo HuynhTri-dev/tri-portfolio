@@ -1,12 +1,18 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
-import type { TechGroup } from "../../data/portfolio";
+import type { TechGroup, TechnologyDepth } from "../../data/portfolio";
 import "./TechTrail.css";
 
 type Language = "en" | "vi";
 
 type Props = {
   groups: TechGroup[];
+};
+
+const depthLabels: Record<TechnologyDepth, Record<Language, string>> = {
+  primary: { en: "Primary", vi: "Chủ lực" },
+  production: { en: "Production", vi: "Thực chiến" },
+  applied: { en: "Applied", vi: "Đã dùng" },
 };
 
 export default function TechTrail({ groups }: Props) {
@@ -27,21 +33,62 @@ export default function TechTrail({ groups }: Props) {
     return () => window.removeEventListener("portfolio:language", handleLanguage);
   }, []);
 
+  const selectTab = (index: number) => {
+    const nextIndex = (index + groups.length) % groups.length;
+    setActiveIndex(nextIndex);
+    const nextTab = document.getElementById(`technology-tab-${nextIndex}`);
+    nextTab?.focus();
+    nextTab?.scrollIntoView({
+      behavior: reduceMotion ? "auto" : "smooth",
+      block: "nearest",
+      inline: "center",
+    });
+  };
+
+  const handleTabKeyDown = (event: React.KeyboardEvent, index: number) => {
+    if (event.key === "ArrowDown" || event.key === "ArrowRight") {
+      event.preventDefault();
+      selectTab(index + 1);
+    }
+
+    if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
+      event.preventDefault();
+      selectTab(index - 1);
+    }
+
+    if (event.key === "Home") {
+      event.preventDefault();
+      selectTab(0);
+    }
+
+    if (event.key === "End") {
+      event.preventDefault();
+      selectTab(groups.length - 1);
+    }
+  };
+
   return (
     <div className="tech-island">
-      <div className="trail-tabs" role="tablist" aria-label="Technology groups">
+      <div
+        className="trail-tabs"
+        role="tablist"
+        aria-label={language === "vi" ? "Nhóm năng lực kỹ thuật" : "Technical capability groups"}
+      >
         <div className="trail-line" aria-hidden="true" />
         {groups.map((group, index) => {
           const selected = index === activeIndex;
           return (
             <motion.button
               key={group.step}
+              id={`technology-tab-${index}`}
               type="button"
               role="tab"
               aria-selected={selected}
               aria-controls="technology-panel"
+              tabIndex={selected ? 0 : -1}
               className="trail-tab"
-              onClick={() => setActiveIndex(index)}
+              onClick={() => selectTab(index)}
+              onKeyDown={(event) => handleTabKeyDown(event, index)}
               whileHover={reduceMotion ? undefined : { y: -4 }}
               whileTap={reduceMotion ? undefined : { scale: 0.97 }}
             >
@@ -63,7 +110,13 @@ export default function TechTrail({ groups }: Props) {
         })}
       </div>
 
-      <div className="trail-panel panel" id="technology-panel" role="tabpanel" aria-live="polite">
+      <div
+        className="trail-panel panel"
+        id="technology-panel"
+        role="tabpanel"
+        aria-labelledby={`technology-tab-${activeIndex}`}
+        aria-live="polite"
+      >
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={active.step}
@@ -75,22 +128,69 @@ export default function TechTrail({ groups }: Props) {
           >
             <div className="trail-panel-heading">
               <div>
-                <span className="trail-step">CHECKPOINT {active.step}</span>
+                <span className="trail-step">
+                  {language === "vi" ? "NĂNG LỰC" : "CAPABILITY"} {active.step}
+                </span>
                 <h3>{active.title[language]}</h3>
               </div>
-              <span className="trail-evidence">{active.evidence[language]}</span>
+              <div className="trail-signal">
+                <strong>{active.signal.value}</strong>
+                <span>{active.signal.label[language]}</span>
+              </div>
             </div>
-            <p>{active.description[language]}</p>
-            <div className="tech-list">
-              {active.technologies.map((technology) => (
-                <motion.span
-                  key={technology}
-                  initial={reduceMotion ? false : { opacity: 0, scale: 0.96 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                >
-                  {technology}
-                </motion.span>
-              ))}
+
+            <p className="trail-description">{active.description[language]}</p>
+
+            <div className="trail-details">
+              <div className="trail-detail">
+                <h4>{language === "vi" ? "NĂNG LỰC" : "CAPABILITIES"}</h4>
+                <ul className="capability-list">
+                  {active.capabilities.map((capability) => (
+                    <li key={capability.en}>{capability[language]}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="trail-detail">
+                <h4>{language === "vi" ? "STACK CỐT LÕI" : "CORE STACK"}</h4>
+                <div className="tech-list">
+                  {active.technologies.map((technology) => (
+                    <motion.span
+                      key={technology.name}
+                      className={`tech-item tech-item--${technology.depth}`}
+                      initial={reduceMotion ? false : { opacity: 0, scale: 0.96 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                    >
+                      <i aria-hidden="true" />
+                      <b>{technology.name}</b>
+                      <small>{depthLabels[technology.depth][language]}</small>
+                    </motion.span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="trail-proof">
+              <h4>{language === "vi" ? "BẰNG CHỨNG" : "PROOF"}</h4>
+              <div className="proof-list">
+                {active.proofs.map((proof) => {
+                  const content = (
+                    <>
+                      <strong>{proof.value}</strong>
+                      {proof.label && <span>{proof.label[language]}</span>}
+                      {proof.href && <i aria-hidden="true">↗</i>}
+                    </>
+                  );
+
+                  return proof.href ? (
+                    <a key={`${proof.value}-${proof.href}`} href={proof.href}>
+                      {content}
+                    </a>
+                  ) : (
+                    <span key={`${proof.value}-${proof.label?.en ?? ""}`}>{content}</span>
+                  );
+                })}
+              </div>
             </div>
           </motion.div>
         </AnimatePresence>

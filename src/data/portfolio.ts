@@ -3,13 +3,27 @@ export type LocalizedText = {
   vi: string;
 };
 
+export type TechnologyDepth = "primary" | "production" | "applied";
+
 export type TechGroup = {
   step: string;
   short: string;
   title: LocalizedText;
-  evidence: LocalizedText;
   description: LocalizedText;
-  technologies: string[];
+  signal: {
+    value: string;
+    label: LocalizedText;
+  };
+  capabilities: LocalizedText[];
+  technologies: {
+    name: string;
+    depth: TechnologyDepth;
+  }[];
+  proofs: {
+    value: string;
+    label?: LocalizedText;
+    href?: string;
+  }[];
 };
 
 export const profileLinks = [
@@ -24,57 +38,241 @@ export const techGroups: TechGroup[] = [
   {
     step: "01",
     short: "BE",
-    title: { en: "Backend Engineering", vi: "Kỹ thuật Backend" },
-    evidence: { en: "Production & internship", vi: "Sản phẩm & thực tập" },
+    title: { en: "Backend Systems", vi: "Hệ thống Backend" },
     description: {
-      en: "Designing APIs, workflows and business rules that remain clear as a product grows.",
-      vi: "Thiết kế API, workflow và quy tắc nghiệp vụ rõ ràng khi sản phẩm mở rộng.",
+      en: "Designing reliable APIs, workflows and business platforms that can evolve with the product.",
+      vi: "Thiết kế API, workflow và nền tảng nghiệp vụ đáng tin cậy, có thể phát triển cùng sản phẩm.",
     },
-    technologies: ["Python", "FastAPI", "Node.js", "Express", "Odoo 18", "TypeScript"],
+    signal: {
+      value: "10K",
+      label: { en: "operational records", vi: "bản ghi vận hành" },
+    },
+    capabilities: [
+      {
+        en: "API architecture, authentication and authorization",
+        vi: "Kiến trúc API, xác thực và phân quyền",
+      },
+      {
+        en: "Async jobs, event processing and external integrations",
+        vi: "Tác vụ bất đồng bộ, xử lý sự kiện và tích hợp ngoài",
+      },
+      {
+        en: "Business workflows, validation and audit tracking",
+        vi: "Quy trình nghiệp vụ, kiểm tra dữ liệu và audit",
+      },
+      {
+        en: "Internal tools, reporting APIs and administration systems",
+        vi: "Công cụ nội bộ, API báo cáo và hệ thống quản trị",
+      },
+    ],
+    technologies: [
+      { name: "TypeScript", depth: "primary" },
+      { name: "Node.js", depth: "primary" },
+      { name: "Python", depth: "primary" },
+      { name: "Express", depth: "production" },
+      { name: "FastAPI", depth: "applied" },
+      { name: "PostgreSQL", depth: "production" },
+      { name: "Odoo 18", depth: "production" },
+    ],
+    proofs: [
+      { value: "OmniMer Health", href: "/projects/omnimer-health" },
+      { value: "Rita Võ · ProdID", href: "/projects/ritavo-prodid" },
+      { value: "OmniMer Food", href: "/projects/omnimer-food" },
+    ],
   },
   {
     step: "02",
     short: "AI",
-    title: { en: "Agentic AI & RAG", vi: "Agentic AI & RAG" },
-    evidence: { en: "Personal health platform", vi: "Nền tảng sức khỏe cá nhân" },
+    title: { en: "AI Agents & Retrieval", vi: "AI Agent & Truy xuất" },
     description: {
-      en: "Building and evaluating multi-step agents with hybrid semantic and graph retrieval.",
-      vi: "Xây dựng và đánh giá agent nhiều bước với truy xuất ngữ nghĩa kết hợp đồ thị.",
+      en: "Building AI systems that retrieve evidence, use tools and operate within safety boundaries.",
+      vi: "Xây dựng hệ thống AI biết truy xuất bằng chứng, sử dụng công cụ và hoạt động trong giới hạn an toàn.",
     },
-    technologies: ["LangGraph", "ReAct", "HybridRAG", "BGE-M3", "BM25", "RAGAS"],
+    signal: {
+      value: "0.85",
+      label: { en: "answer relevancy", vi: "độ liên quan câu trả lời" },
+    },
+    capabilities: [
+      {
+        en: "Multi-step agent orchestration with LangGraph",
+        vi: "Điều phối agent nhiều bước với LangGraph",
+      },
+      {
+        en: "Hybrid RAG with dense, sparse and alias retrieval",
+        vi: "Hybrid RAG kết hợp dense, sparse và alias retrieval",
+      },
+      {
+        en: "GraphRAG and knowledge-graph traversal",
+        vi: "GraphRAG và duyệt đồ thị tri thức",
+      },
+      {
+        en: "Tool guardrails, memory and response validation",
+        vi: "Guardrail cho tool, memory và kiểm tra phản hồi",
+      },
+    ],
+    technologies: [
+      { name: "LangGraph", depth: "primary" },
+      { name: "LLMs", depth: "primary" },
+      { name: "Qdrant", depth: "applied" },
+      { name: "Neo4j", depth: "applied" },
+      { name: "BGE-M3", depth: "applied" },
+      { name: "BM25", depth: "applied" },
+    ],
+    proofs: [
+      {
+        value: "0.78",
+        label: { en: "Faithfulness", vi: "Faithfulness" },
+      },
+      {
+        value: "90%",
+        label: { en: "Safety recall", vi: "Safety recall" },
+      },
+      { value: "OmniMer Health", href: "/projects/omnimer-health" },
+    ],
   },
   {
     step: "03",
     short: "DT",
-    title: { en: "Data & Retrieval", vi: "Dữ liệu & Truy xuất" },
-    evidence: { en: "Real-time and semantic data", vi: "Dữ liệu thời gian thực & ngữ nghĩa" },
+    title: { en: "Data Platforms", vi: "Nền tảng Dữ liệu" },
     description: {
-      en: "Moving event streams, operational records, vectors and connected knowledge through one system.",
-      vi: "Kết nối luồng sự kiện, dữ liệu vận hành, vector và tri thức liên kết trong một hệ thống.",
+      en: "Turning realtime and domain data into queryable, reliable system context.",
+      vi: "Biến dữ liệu thời gian thực và dữ liệu chuyên ngành thành ngữ cảnh hệ thống đáng tin cậy, có thể truy vấn.",
     },
-    technologies: ["PostgreSQL", "MongoDB", "Redis", "Kafka", "Qdrant", "Neo4j"],
+    signal: {
+      value: "<500 ms",
+      label: { en: "alert path", vi: "luồng cảnh báo" },
+    },
+    capabilities: [
+      {
+        en: "Realtime ingestion and event-driven processing",
+        vi: "Thu nhận realtime và xử lý hướng sự kiện",
+      },
+      {
+        en: "Relational, document, vector and graph data modelling",
+        vi: "Mô hình dữ liệu quan hệ, document, vector và graph",
+      },
+      {
+        en: "Personalized statistical baselines and anomaly detection",
+        vi: "Baseline thống kê cá nhân hóa và phát hiện bất thường",
+      },
+      {
+        en: "Retrieval pipelines and knowledge synchronization",
+        vi: "Pipeline truy xuất và đồng bộ tri thức",
+      },
+    ],
+    technologies: [
+      { name: "PostgreSQL", depth: "production" },
+      { name: "Redis", depth: "applied" },
+      { name: "Kafka", depth: "applied" },
+      { name: "MongoDB", depth: "applied" },
+      { name: "Qdrant", depth: "applied" },
+      { name: "Neo4j", depth: "applied" },
+    ],
+    proofs: [
+      {
+        value: "Welford",
+        label: { en: "Adaptive baseline", vi: "Baseline thích ứng" },
+      },
+      {
+        value: "Z-score",
+        label: { en: "Anomaly detection", vi: "Phát hiện bất thường" },
+      },
+      { value: "Health pipeline", href: "/projects/omnimer-health" },
+    ],
   },
   {
     step: "04",
     short: "DV",
-    title: { en: "DevOps & Infrastructure", vi: "DevOps & Hạ tầng" },
-    evidence: { en: "Staging deployment & CI", vi: "Triển khai staging & CI" },
+    title: { en: "Production Delivery", vi: "Đưa hệ thống lên Production" },
     description: {
-      en: "Packaging services and protecting delivery quality with automated checks.",
-      vi: "Đóng gói dịch vụ và bảo vệ chất lượng bàn giao bằng kiểm tra tự động.",
+      en: "Taking systems from local development to repeatable deployment and operation.",
+      vi: "Đưa hệ thống từ môi trường local tới quy trình triển khai và vận hành có thể lặp lại.",
     },
-    technologies: ["Docker", "Docker Compose", "GitHub Actions", "Automated Testing"],
+    signal: {
+      value: "A → Z",
+      label: { en: "architecture to deployment", vi: "kiến trúc tới triển khai" },
+    },
+    capabilities: [
+      {
+        en: "Containerized development and deployment",
+        vi: "Phát triển và triển khai bằng container",
+      },
+      {
+        en: "CI/CD with automated testing and image publishing",
+        vi: "CI/CD với kiểm thử tự động và phát hành image",
+      },
+      {
+        en: "Background workers, caching and service integration",
+        vi: "Background worker, caching và tích hợp service",
+      },
+      {
+        en: "Environment standardization and production configuration",
+        vi: "Chuẩn hóa môi trường và cấu hình production",
+      },
+    ],
+    technologies: [
+      { name: "Docker", depth: "production" },
+      { name: "GitHub Actions", depth: "production" },
+      { name: "GHCR", depth: "production" },
+      { name: "Linux", depth: "applied" },
+      { name: "Nginx", depth: "applied" },
+      { name: "Redis", depth: "applied" },
+    ],
+    proofs: [
+      { value: "Odoo CI/CD", href: "/projects/ritavo-prodid" },
+      { value: "OmniMer services", href: "/projects/omnimer-health" },
+      {
+        value: "GHCR",
+        label: { en: "Image delivery", vi: "Phát hành image" },
+      },
+    ],
   },
   {
     step: "05",
     short: "UI",
-    title: { en: "Mobile & Frontend", vi: "Mobile & Frontend" },
-    evidence: { en: "Working knowledge", vi: "Kiến thức thực hành" },
+    title: { en: "Product Interfaces", vi: "Giao diện Sản phẩm" },
     description: {
       en: "Connecting backend capabilities to usable mobile and web product experiences.",
       vi: "Đưa năng lực backend đến trải nghiệm sản phẩm mobile và web dễ sử dụng.",
     },
-    technologies: ["Flutter", "Next.js", "UI/UX"],
+    signal: {
+      value: "E2E",
+      label: { en: "backend to interface", vi: "backend tới giao diện" },
+    },
+    capabilities: [
+      {
+        en: "Flutter applications and API integration",
+        vi: "Ứng dụng Flutter và tích hợp API",
+      },
+      {
+        en: "HealthKit and Apple Watch data synchronization",
+        vi: "Đồng bộ dữ liệu HealthKit và Apple Watch",
+      },
+      {
+        en: "Responsive, content-driven web interfaces",
+        vi: "Giao diện web responsive, hướng nội dung",
+      },
+      {
+        en: "End-to-end delivery across client and backend",
+        vi: "Bàn giao end-to-end từ client tới backend",
+      },
+    ],
+    technologies: [
+      { name: "Flutter", depth: "primary" },
+      { name: "Dart", depth: "primary" },
+      { name: "BLoC", depth: "applied" },
+      { name: "HealthKit", depth: "applied" },
+      { name: "Astro", depth: "applied" },
+      { name: "TypeScript", depth: "primary" },
+    ],
+    proofs: [
+      { value: "OmniMer Health", href: "/projects/omnimer-health" },
+      { value: "OmniMer Food", href: "/projects/omnimer-food" },
+      {
+        value: "Apple Watch",
+        label: { en: "Health sync", vi: "Đồng bộ sức khỏe" },
+      },
+    ],
   },
 ];
 

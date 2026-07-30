@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from "astro:content";
+import "katex/dist/katex.min.css";
 
 interface Props {
   project: CollectionEntry<"projects">["data"];
@@ -392,6 +393,123 @@ const baseHeadingDepth = documentHeadings.length
   .mdx-content :global(ol) { display: grid; gap: 8px; padding-left: 22px; }
   .mdx-content :global(strong) { color: var(--text-main); }
 
+  .mdx-content :global(pre.astro-code) {
+    position: relative;
+    margin: 22px 0;
+    padding: 46px 20px 20px !important;
+    overflow-x: auto;
+    border: 1px solid rgb(117 230 178 / 18%);
+    border-radius: 14px;
+    background:
+      radial-gradient(circle at 94% 0%, rgb(59 130 246 / 8%), transparent 34%),
+      rgb(5 14 11 / 92%) !important;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 2.5%);
+    font-size: 0.78rem;
+    line-height: 1.75;
+    scrollbar-color: rgb(117 230 178 / 28%) transparent;
+    scrollbar-width: thin;
+  }
+
+  .mdx-content :global(pre.astro-code::before) {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    display: flex;
+    height: 31px;
+    align-items: center;
+    padding: 0 13px;
+    border-bottom: 1px solid rgb(117 230 178 / 12%);
+    background: rgb(255 255 255 / 1.8%);
+    color: var(--brand-green);
+    content: attr(data-language);
+    font-family: var(--font-mono);
+    font-size: 0.46rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+  }
+
+  .mdx-content :global(pre.astro-code::after) {
+    position: absolute;
+    top: 12px;
+    right: 13px;
+    width: 36px;
+    height: 6px;
+    background:
+      radial-gradient(circle, var(--brand-green) 0 2px, transparent 2.5px) 0 0 / 12px 6px;
+    content: "";
+    opacity: 0.46;
+  }
+
+  .mdx-content :global(pre.astro-code:focus-visible) {
+    border-color: var(--border-active);
+    outline: 0;
+    box-shadow:
+      0 0 0 2px rgb(24 199 133 / 12%),
+      inset 0 1px 0 rgb(255 255 255 / 2.5%);
+  }
+
+  .mdx-content :global(pre.astro-code .line) {
+    min-height: 1.75em;
+  }
+
+  .mdx-content :global(:not(pre) > code) {
+    padding: 0.16em 0.38em;
+    border: 1px solid rgb(117 230 178 / 16%);
+    border-radius: 5px;
+    background: rgb(24 199 133 / 5%);
+    color: var(--brand-soft);
+    font-family: var(--font-mono);
+    font-size: 0.82em;
+  }
+
+  .mdx-content :global(.katex) {
+    color: #e8f2ed;
+    font-size: 1.08em;
+  }
+
+  .mdx-content :global(.katex-display) {
+    position: relative;
+    margin: 22px 0 26px;
+    padding: 24px 22px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border: 1px solid rgb(117 230 178 / 22%);
+    border-left: 3px solid var(--brand-green);
+    border-radius: 14px;
+    background:
+      radial-gradient(circle at 94% 0%, rgb(59 130 246 / 10%), transparent 34%),
+      linear-gradient(135deg, rgb(24 199 133 / 6%), transparent 44%),
+      rgb(5 14 11 / 92%);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 3%),
+      0 16px 36px rgb(0 0 0 / 14%);
+    scrollbar-color: rgb(117 230 178 / 28%) transparent;
+    scrollbar-width: thin;
+  }
+
+  .mdx-content :global(.katex-display > .katex) {
+    min-width: max-content;
+    text-align: left;
+  }
+
+  .mdx-content :global(.katex-display::before) {
+    position: absolute;
+    top: 8px;
+    left: 12px;
+    color: var(--brand-green);
+    content: "FORMULA";
+    font-family: var(--font-mono);
+    font-size: 0.42rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+  }
+
+  .mdx-content :global(.katex-display .base) {
+    line-height: 1.5;
+  }
+
   @media (max-width: 960px) {
     .dossier-hero { grid-template-columns: 150px 1fr; }
     .project-meta { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
@@ -406,5 +524,10 @@ const baseHeadingDepth = documentHeadings.length
     .project-meta { grid-column: auto; grid-template-columns: 1fr; }
     .dossier-body { grid-template-columns: 1fr; }
     .dossier-index { position: static; max-height: none; overflow: visible; }
+    .mdx-content :global(pre.astro-code) { margin-inline: -4px; padding-inline: 16px !important; }
+    .mdx-content :global(.katex-display) {
+      margin-inline: -4px;
+      padding: 24px 16px 18px;
+    }
   }
 </style>

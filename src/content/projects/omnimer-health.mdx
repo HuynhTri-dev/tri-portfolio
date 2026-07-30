@@ -86,17 +86,23 @@ Kafka messages (`topic.vital.stream`) are consumed by a Python worker (`vital_ru
 1. **Noise Filtering:** Discards physically invalid readings (e.g., Heart Rate outside 30-220 bpm) and removes transient spikes (spike detection triggers if readings shift >50% within 60s).
 2. **Adaptive Z-Score Evaluation:**  
    Computes standard deviation offset from the user's baseline:
-   ```text
-   Z = (x - μ) / max(σ, 0.01)
-   ```
+
+   $$
+   Z = \frac{x - \mu}{\max(\sigma, 0.01)}
+   $$
+
    Risk categorization: **Critical** (`|Z| ≥ 3.0`), **Warning** (`2.0 ≤ |Z| < 3.0`), and **Normal** (`|Z| < 2.0`).
 3. **Action Dispatching:** Manages notification deduplication via Redis time-bucket locks before dispatching APNs push notifications.
 4. **Online Baseline Updates (Incremental Welford's Algorithm):**  
    Updates rolling baseline statistics directly on Redis in `O(1)` time without storing full raw event histories:
-   ```text
-   μ_new = μ_old + Δ / n_new
-   M_(2,new) = M_(2,old) + Δ · (x - μ_new)
-   ```
+
+   $$
+   \begin{aligned}
+   \mu_{\mathrm{new}} &= \mu_{\mathrm{old}} + \frac{\Delta}{n_{\mathrm{new}}} \\
+   M_{2,\mathrm{new}} &= M_{2,\mathrm{old}} + \Delta \cdot (x - \mu_{\mathrm{new}})
+   \end{aligned}
+   $$
+
 5. **Short-Term Memory (STM) Synchronization:** Aggregates daily health flags into Redis buffers for zero-latency LLM context retrieval.
 
 ### Calibration & Adaptive Feedback Loop
@@ -133,9 +139,12 @@ The agent operates as a multi-step reasoning graph built with LangGraph:
 ### Hybrid RAG & Weighted Reciprocal Rank Fusion (WRRF)
 Instead of relying on heavy, slow Cross-Encoder rerankers, OmniMer Health fuses **Qdrant Vector DB** (BGE-M3 Dense + BM25 Sparse) with **Neo4j Knowledge Graph** traversals via **Weighted Reciprocal Rank Fusion (WRRF)**:
 
-```text
-WRRF_Score(d) = Σ [ w_s / (k + rank_s(d)) ]  where s ∈ {dense, sparse, alias}
-```
+$$
+\operatorname{WRRF\_Score}(d)
+=
+\sum_{s \in \{\mathrm{dense},\,\mathrm{sparse},\,\mathrm{alias}\}}
+\frac{w_s}{k + \operatorname{rank}_s(d)}
+$$
 
 - **Smoothing Constant:** `k = 60`.
 - **Weights:** `w_dense = 1.0`, `w_sparse = 1.0`, and a boosted **`w_alias = 2.5`** to guarantee exact entity matches rank at the top.

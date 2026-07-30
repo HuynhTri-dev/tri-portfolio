@@ -16,9 +16,12 @@
     "@astrojs/react": "^6.0.1",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.1.4",
+    "katex": "^0.18.1",
     "motion": "^12.43.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0",
     "tailwindcss": "^4.3.3"
   }
 }
