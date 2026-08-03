@@ -2,7 +2,9 @@
 import { getCollection } from "astro:content";
 import SectionHeading from "../ui/SectionHeading.astro";
 
-const projects = (await getCollection("projects")).sort((a, b) => a.data.order - b.data.order);
+const projects = (await getCollection("projects")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
 ---
 
 <section class="section shell" id="projects">
@@ -15,51 +17,79 @@ const projects = (await getCollection("projects")).sort((a, b) => a.data.order -
   />
 
   <div class="project-grid">
-    {projects.map((project) => (
-      <article class:list={["project-card", "panel", { featured: project.data.featured }]}>
-        <div class="project-topline">
-          <span class="project-id">{project.data.projectId}</span>
-          <span class="status-badge">
-            <i></i>
-            <span data-en={project.data.type} data-vi={project.data.typeVi}>{project.data.type}</span>
-          </span>
-        </div>
+    {
+      projects.map((project) => (
+        <article
+          class:list={[
+            "project-card",
+            "panel",
+            { featured: project.data.featured },
+          ]}
+        >
+          <div class="project-topline">
+            <span class="project-id">{project.data.projectId}</span>
+            <span class="status-badge">
+              <i />
+              <span data-en={project.data.type} data-vi={project.data.typeVi}>
+                {project.data.type}
+              </span>
+            </span>
+          </div>
 
-        <div class:list={["project-content", { "project-content--featured": project.data.featured }]}>
-          <div>
-            <span class="date">{project.data.period}</span>
-            <h3>{project.data.title}</h3>
-            <p data-en={project.data.summary} data-vi={project.data.summaryVi}>{project.data.summary}</p>
-            <div class="tag-row flex flex-wrap gap-2">
-              {project.data.technologies.slice(0, project.data.featured ? 5 : 4).map((technology) => (
-                <span>{technology}</span>
+          <div
+            class:list={[
+              "project-content",
+              { "project-content--featured": project.data.featured },
+            ]}
+          >
+            <div>
+              <span class="date">{project.data.period}</span>
+              <h3>{project.data.title}</h3>
+              <p
+                data-en={project.data.summary}
+                data-vi={project.data.summaryVi}
+              >
+                {project.data.summary}
+              </p>
+              <div class="tag-row flex flex-wrap gap-2">
+                {project.data.technologies
+                  .slice(0, project.data.featured ? 5 : 4)
+                  .map((technology) => (
+                    <span>{technology}</span>
+                  ))}
+              </div>
+            </div>
+
+            <div class="project-metrics">
+              {project.data.metrics.map((metric) => (
+                <div>
+                  <strong>{metric.value}</strong>
+                  <span data-en={metric.label} data-vi={metric.labelVi}>
+                    {metric.label}
+                  </span>
+                </div>
               ))}
             </div>
           </div>
 
-          <div class="project-metrics">
-            {project.data.metrics.map((metric) => (
-              <div>
-                <strong>{metric.value}</strong>
-                <span data-en={metric.label} data-vi={metric.labelVi}>{metric.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <a class="project-link" href={`/projects/${project.id}`}>
-          <span data-en="Open project dossier" data-vi="Mở hồ sơ dự án">Open project dossier</span>
-          <span aria-hidden="true"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
-        </a>
-      </article>
-    ))}
+          <a class="project-link" href={`/projects/${project.id}`}>
+            <span data-en="Open project dossier" data-vi="Mở hồ sơ dự án">
+              Open project dossier
+            </span>
+            <span aria-hidden="true">
+              <i class="fa-solid fa-arrow-up-right-from-square" />
+            </span>
+          </a>
+        </article>
+      ))
+    }
   </div>
 </section>
 
 <style>
   .project-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.45fr) minmax(330px, 0.72fr);
+    grid-template-columns: minmax(0, 1.15fr) minmax(330px, 0.85fr);
     gap: 20px;
   }
 
@@ -71,10 +101,15 @@ const projects = (await getCollection("projects")).sort((a, b) => a.data.order -
     padding: 34px;
     overflow: hidden;
     border-radius: 22px;
-    transition: transform var(--duration-normal) ease, border-color var(--duration-normal) ease;
+    transition:
+      transform var(--duration-normal) ease,
+      border-color var(--duration-normal) ease;
   }
 
-  .project-card:hover { transform: translateY(-4px); border-color: rgb(24 199 133 / 48%); }
+  .project-card:hover {
+    transform: translateY(-4px);
+    border-color: rgb(24 199 133 / 48%);
+  }
 
   .project-card::after {
     position: absolute;
@@ -84,7 +119,9 @@ const projects = (await getCollection("projects")).sort((a, b) => a.data.order -
     height: 260px;
     border: 1px solid rgb(117 230 178 / 6%);
     border-radius: 50%;
-    box-shadow: 0 0 0 40px rgb(117 230 178 / 1.8%), 0 0 0 80px rgb(117 230 178 / 1.2%);
+    box-shadow:
+      0 0 0 40px rgb(117 230 178 / 1.8%),
+      0 0 0 80px rgb(117 230 178 / 1.2%);
     content: "";
   }
 
@@ -121,8 +158,17 @@ const projects = (await getCollection("projects")).sort((a, b) => a.data.order -
     font-size: 0.62rem;
   }
 
-  .status-badge i { width: 6px; height: 6px; border-radius: 50%; background: var(--brand-green); }
-  .project-content--featured { display: grid; grid-template-columns: minmax(0, 1fr) 185px; gap: 38px; }
+  .status-badge i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--brand-green);
+  }
+  .project-content--featured {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 185px;
+    gap: 38px;
+  }
 
   h3 {
     margin: 12px 0 14px;
@@ -131,7 +177,10 @@ const projects = (await getCollection("projects")).sort((a, b) => a.data.order -
     line-height: 1.14;
   }
 
-  p { color: var(--text-muted); font-size: 0.9rem; }
+  p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
 
   .tag-row span {
     padding: 5px 9px;
@@ -159,8 +208,15 @@ const projects = (await getCollection("projects")).sort((a, b) => a.data.order -
     background: rgb(5 11 9 / 38%);
   }
 
-  .project-metrics strong { color: var(--brand-soft); font-family: var(--font-mono); font-size: 1.25rem; }
-  .project-metrics span { color: var(--text-muted); font-size: 0.58rem; }
+  .project-metrics strong {
+    color: var(--brand-soft);
+    font-family: var(--font-mono);
+    font-size: 1.25rem;
+  }
+  .project-metrics span {
+    color: var(--text-muted);
+    font-size: 0.58rem;
+  }
 
   .project-link {
     z-index: 2;
@@ -176,20 +232,44 @@ const projects = (await getCollection("projects")).sort((a, b) => a.data.order -
   }
 
   @media (max-width: 1120px) {
-    .project-grid { grid-template-columns: 1fr; }
+    .project-grid {
+      grid-template-columns: 1fr;
+    }
   }
 
   @media (max-width: 820px) {
-    .project-content--featured { grid-template-columns: 1fr; }
-    .project-metrics { grid-template-columns: repeat(3, 1fr); }
+    .project-content--featured {
+      grid-template-columns: 1fr;
+    }
+    .project-metrics {
+      grid-template-columns: repeat(3, 1fr);
+    }
   }
 
   @media (max-width: 540px) {
-    .project-card { min-height: 0; padding: 25px; }
-    .project-topline { align-items: flex-start; margin-bottom: 30px; }
-    .status-badge { max-width: 126px; border-radius: var(--radius-small); }
-    h3 { font-size: 1.6rem; }
-    .project-metrics { grid-template-columns: 1fr; margin-top: 24px; }
-    .project-metrics div { flex-direction: row; align-items: baseline; justify-content: space-between; }
+    .project-card {
+      min-height: 0;
+      padding: 25px;
+    }
+    .project-topline {
+      align-items: flex-start;
+      margin-bottom: 30px;
+    }
+    .status-badge {
+      max-width: 126px;
+      border-radius: var(--radius-small);
+    }
+    h3 {
+      font-size: 1.6rem;
+    }
+    .project-metrics {
+      grid-template-columns: 1fr;
+      margin-top: 24px;
+    }
+    .project-metrics div {
+      flex-direction: row;
+      align-items: baseline;
+      justify-content: space-between;
+    }
   }
 </style>
