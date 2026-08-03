@@ -150,6 +150,63 @@ $$
 - **Weights:** `w_dense = 1.0`, `w_sparse = 1.0`, and a boosted **`w_alias = 2.5`** to guarantee exact entity matches rank at the top.
 - **Canonical Grouping & Query Facet Mapping:** Consolidates entity chunks into unified resource representations while filtering context by intent facets (`mistakes`, `safety`, `steps`, `nutrients`).
 
+## UX/UI Design & System Philosophy
+
+To ensure OmniMer Health is not only technically robust but also highly accessible and engaging, I established a comprehensive UX/UI design system. The goal is to turn the app into a true "Companion" rather than a dry clinical measurement tool.
+
+<div class="my-8 flex w-full snap-x snap-mandatory gap-4 overflow-x-auto pb-4">
+  <div class="w-[85%] md:w-[calc(33.333%-11px)] flex-shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/50">
+    <img src="/omnimer_health/design_1.jpg" alt="Design System 1" class="h-auto w-full object-cover" loading="lazy" />
+  </div>
+  <div class="w-[85%] md:w-[calc(33.333%-11px)] flex-shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/50">
+    <img src="/omnimer_health/design_2.jpg" alt="Design System 2" class="h-auto w-full object-cover" loading="lazy" />
+  </div>
+  <div class="w-[85%] md:w-[calc(33.333%-11px)] flex-shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/50">
+    <img src="/omnimer_health/design_3.jpg" alt="Design System 3" class="h-auto w-full object-cover" loading="lazy" />
+  </div>
+  <div class="w-[85%] md:w-[calc(33.333%-11px)] flex-shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/50">
+    <img src="/omnimer_health/design_4.jpg" alt="Design System 4" class="h-auto w-full object-cover" loading="lazy" />
+  </div>
+  <div class="w-[85%] md:w-[calc(33.333%-11px)] flex-shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/50">
+    <img src="/omnimer_health/design_5.jpg" alt="Design System 5" class="h-auto w-full object-cover" loading="lazy" />
+  </div>
+  <div class="w-[85%] md:w-[calc(33.333%-11px)] flex-shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/50">
+    <img src="/omnimer_health/design_6.jpg" alt="Design System 6" class="h-auto w-full object-cover" loading="lazy" />
+  </div>
+</div>
+
+### Design Style: Bento Grid & Minimalist Art
+
+The interface employs a **Bento Grid combined with Minimalist Art**. By dividing the layout into neatly arranged, rounded cards—reminiscent of a Japanese Bento box—the application creates a comfortable, structured, and easy-to-digest experience for the user. 
+Implemented in Flutter using `GridView` and `StaggeredGridView`, this approach maintains distinctly separated information cards with large, friendly rounded corners.
+
+### Color Palette, Typography & Iconography
+
+*   **Primary Colors**: **Medical Blue (`#1F4FD8`)** and **Light Blue (`#E9F0FF`)** establish trust and are used for primary actions, navigation, and health chart backgrounds.
+*   **AI Accent Colors**: **AI Purple (`#6C63FF`)** and **AI Soft (`#F1F0FF`)** are dedicated strictly to the AI Agent—used for suggestions, chat bubbles, and analysis effects.
+*   **Typography**: **Be Vietnam Pro** is used for branding and main content due to its excellent handling of Vietnamese diacritics and modern feel. Meanwhile, **Inter** is applied to data and metrics (charts, blood pressure) for clear numerals and quick scanning.
+*   **Iconography**: We utilize **Material Symbols (Rounded & Filled)**. The rounded corners evoke friendliness, while the "Filled" style ensures high legibility even for users with poor vision or in bright outdoor environments.
+
+### Core Design Principles
+
+1.  **"The Thumb Zone" Rule**: Critical interactions—like the Scan Button, AI Chat Button, and main navigation tabs—are securely placed in the bottom 1/3 of the screen. Navigation relies heavily on intuitive swipe gestures, minimizing the need to reach for top-corner "Back" buttons.
+2.  **Smart Input & Masking**: Health input fields instantly trigger numeric keypads and automatically format data (e.g., typing "12080" instantly formats to "120/80 mmHg"). For prescription scanning, an OCR Overlay guides the user: *"Keep your hand steady, AI is reading the data..."*
+3.  **8-Point Grid System**: All spatial properties (padding and margins) strictly adhere to multiples of 8px. This not only guarantees perfect visual balance but also keeps the Flutter UI codebase exceptionally clean.
+
+### Data Visualization & The Human Touch
+
+*   **Actionable AI Interpreter**: Instead of simply displaying raw metrics, the AI acts as a sidekick. For instance, rather than a generic "High GI Index" warning, a friendly AI avatar advises: *"This dish is a bit high in sugar; you should eat some green vegetables with it to balance it out!"*
+*   **Visualizing Progress**: We use soft-curved line charts for tracking trends and donut charts for daily goals. Completing a goal triggers micro-interaction fireworks to reward the user.
+*   **Gamification & Skeletons**: To drive engagement, the app features a "Streaks" system. During complex AI processing, a pulsing skeleton loading frame is displayed, making the system feel active and "thinking" rather than stalling.
+
+## The Interactive AI Agent Experience
+
+To clearly distinguish the AI's role from the standard app UI, the Agent is designed to act as a living, breathing companion.
+
+*   **Dynamic Persona**: Instead of a simple chat interface, the agent is represented through minimalist line art with smooth motion effects. For example, the character might appear to be exercising when you ask for a workout plan.
+*   **Contextual Presence**: The agent remains hidden when not in use. Upon interaction, it elegantly overlays on any page with smooth transitions. It even supports thematic outfit changes based on the user's current health goals.
+*   **Advanced Capabilities**: The interface includes seamless triggers to switch between different agent support modes. It is also designed to accommodate future features like document/image uploads and incorporates specific **Human-in-the-Loop (HITL)** widgets for scenarios requiring human expert validation.
+
 ## Evaluation & Benchmarks
 
 <div class="my-8 grid grid-cols-1 md:grid-cols-2 gap-4">
