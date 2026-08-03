@@ -28,10 +28,12 @@ export type TechGroup = {
 
 export const profileLinks = [
   { number: "01", href: "#education", en: "Education", vi: "Học vấn" },
-  { number: "02", href: "#technical-skill", en: "Technical Skills", vi: "Kỹ năng kỹ thuật" },
-  { number: "03", href: "#soft-skill", en: "Soft Skills", vi: "Kỹ năng mềm" },
-  { number: "04", href: "#achievements", en: "Achievements", vi: "Thành tựu" },
-  { number: "05", href: "#beyond-code", en: "Beyond Code", vi: "Ngoài lập trình" },
+  { number: "02", href: "#projects", en: "Projects", vi: "Dự án" },
+  { number: "03", href: "#technical-skill", en: "Technical Skills", vi: "Kỹ năng kỹ thuật" },
+  { number: "04", href: "#soft-skill", en: "Soft Skills", vi: "Kỹ năng mềm" },
+  { number: "05", href: "#achievements", en: "Achievements", vi: "Thành tựu" },
+  { number: "06", href: "#beyond-code", en: "Beyond Code", vi: "Ngoài lập trình" },
+  { number: "07", href: "#contact", en: "Contact", vi: "Liên hệ" },
 ];
 
 export const techGroups: TechGroup[] = [
@@ -241,12 +243,12 @@ export const techGroups: TechGroup[] = [
     },
     capabilities: [
       {
-        en: "Flutter applications and API integration",
-        vi: "Ứng dụng Flutter và tích hợp API",
+        en: "UX/UI System Design from Figma to coded components",
+        vi: "Thiết kế hệ thống UX/UI từ Figma đến component code",
       },
       {
-        en: "HealthKit and Apple Watch data synchronization",
-        vi: "Đồng bộ dữ liệu HealthKit và Apple Watch",
+        en: "Flutter applications and API integration",
+        vi: "Ứng dụng Flutter và tích hợp API",
       },
       {
         en: "Responsive, content-driven web interfaces",
@@ -258,11 +260,11 @@ export const techGroups: TechGroup[] = [
       },
     ],
     technologies: [
+      { name: "Figma", depth: "primary" },
       { name: "Flutter", depth: "primary" },
       { name: "Dart", depth: "primary" },
-      { name: "BLoC", depth: "applied" },
-      { name: "HealthKit", depth: "applied" },
       { name: "Astro", depth: "applied" },
+      { name: "Tailwind CSS", depth: "applied" },
       { name: "TypeScript", depth: "primary" },
     ],
     proofs: [
