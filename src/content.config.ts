@@ -29,6 +29,8 @@ const projects = defineCollection({
       })
       .optional(),
     icon: z.string().optional(),
+    image: z.string().optional(),
+    seoKeywords: z.array(z.string()).optional(),
   }),
 });
 

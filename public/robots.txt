@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tri-portfolio.huynhminhtri1109.workers.dev/sitemap-index.xml

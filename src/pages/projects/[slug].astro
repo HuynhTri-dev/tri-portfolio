@@ -17,11 +17,28 @@ interface Props {
 
 const { entry } = Astro.props;
 const { Content, headings } = await render(entry);
+
+const jsonld = {
+  "@context": "https://schema.org",
+  "@type": "CreativeWork",
+  "name": entry.data.title,
+  "description": entry.data.summary,
+  "author": {
+    "@type": "Person",
+    "name": "Huynh Minh Tri"
+  },
+  "image": entry.data.image ? new URL(entry.data.image, Astro.site).toString() : new URL("/og.png", Astro.site).toString(),
+  "dateCreated": entry.data.period,
+  "keywords": entry.data.seoKeywords ? entry.data.seoKeywords.join(", ") : undefined,
+};
 ---
 
 <BaseLayout
   title={`${entry.data.title} — Huynh Minh Tri`}
   description={entry.data.summary}
+  type="article"
+  image={entry.data.image}
+  jsonld={jsonld}
 >
   <ProjectDossier project={entry.data} headings={headings}>
     <Content />
