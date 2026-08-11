@@ -23,9 +23,30 @@ const formatDate = (date: Date) =>
     month: "long",
     year: "numeric",
   }).format(date);
+
+const jsonld = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": entry.data.title,
+  "description": entry.data.description,
+  "author": {
+    "@type": "Person",
+    "name": "Huynh Minh Tri"
+  },
+  "image": new URL(entry.data.thumbnail, Astro.site).toString(),
+  "datePublished": entry.data.pubDate,
+  "dateModified": entry.data.updatedDate || entry.data.pubDate,
+  "keywords": entry.data.seoKeywords ? entry.data.seoKeywords.join(", ") : entry.data.hashtags.join(", "),
+};
 ---
 
-<BaseLayout title={`${entry.data.title} — Huynh Minh Tri`} description={entry.data.description}>
+<BaseLayout 
+  title={`${entry.data.title} — Huynh Minh Tri`} 
+  description={entry.data.description}
+  type="article"
+  image={entry.data.thumbnail}
+  jsonld={jsonld}
+>
   <article class="blog-article shell">
     <a class="back-link" href="/blog">
       <span aria-hidden="true">←</span>
@@ -252,7 +273,8 @@ const formatDate = (date: Date) =>
     font-size: 1.05rem;
   }
 
-  .article-body :global(img) {
+  .article-body > :global(img),
+  .article-body :global(p > img) {
     width: 100%;
     margin: 2em 0 0.7em;
     border: 1px solid var(--border-default);

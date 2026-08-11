@@ -45,6 +45,7 @@ const blog = defineCollection({
     thumbnailAlt: z.string(),
     hashtags: z.array(z.string()).min(1),
     draft: z.boolean().default(false),
+    seoKeywords: z.array(z.string()).optional(),
   }),
 });
 
