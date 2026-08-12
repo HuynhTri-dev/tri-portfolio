@@ -9,9 +9,35 @@ import AchievementsSection from "../components/home/AchievementsSection.astro";
 import BeyondCodeSection from "../components/home/BeyondCodeSection.astro";
 import ContactSection from "../components/home/ContactSection.astro";
 import HomeReveal from "../components/home/HomeReveal.astro";
+
+const personJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Huynh Minh Tri",
+  "url": "https://trihuynh.omnimer.io.vn/",
+  "jobTitle": "Software Developer",
+  "description": "Product-oriented Software Developer focused on Backend Engineering, Agentic AI, and IoT solutions.",
+  "sameAs": [
+    "https://github.com/HuynhTri-dev",
+    "https://www.linkedin.com/in/huỳnh-minh-trí-bb71a0259"
+  ],
+  "knowsAbout": [
+    "Backend Engineering",
+    "Agentic AI",
+    "Internet of Things",
+    "Node.js",
+    "Python",
+    "System Architecture"
+  ]
+};
 ---
 
-<BaseLayout isHome>
+<BaseLayout 
+  isHome 
+  title="Huynh Minh Tri | Software Developer - Backend, AI & IoT"
+  description="Portfolio of Huynh Minh Tri, a Software Developer based in Vietnam specializing in scalable backend systems, Agentic AI integrations, and Internet of Things (IoT)."
+  jsonld={personJsonLd}
+>
   <Hero />
   <EducationSection />
   <ProjectsSection />
