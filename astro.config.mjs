@@ -10,7 +10,7 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://tri-portfolio.huynhminhtri1109.workers.dev',
+  site: 'https://trihuynh.omnimer.io.vn',
   integrations: [mdx(), react(), sitemap()],
   markdown: {
     processor: unified({
