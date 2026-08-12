@@ -20,9 +20,10 @@ const { Content, headings } = await render(entry);
 
 const jsonld = {
   "@context": "https://schema.org",
-  "@type": "CreativeWork",
+  "@type": ["CreativeWork", "SoftwareSourceCode"],
   "name": entry.data.title,
   "description": entry.data.summary,
+  "programmingLanguage": entry.data.technologies,
   "author": {
     "@type": "Person",
     "name": "Huynh Minh Tri"
@@ -41,6 +42,20 @@ const jsonld = {
   jsonld={jsonld}
 >
   <ProjectDossier project={entry.data} headings={headings}>
+    {entry.data.seoKeywords && (
+      <div style="display: none;" aria-hidden="true">
+        <span data-en="Related Entities" data-vi="Các thực thể liên quan">Related Entities:</span>
+        <ul>
+          {entry.data.seoKeywords.map((keyword: string) => (
+            <li>
+              <a href={`https://en.wikipedia.org/wiki/${encodeURIComponent(keyword.replace(/\s+/g, '_'))}`} rel="noopener noreferrer">
+                {keyword}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
     <Content />
   </ProjectDossier>
 </BaseLayout>
