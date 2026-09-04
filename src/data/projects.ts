@@ -21,6 +21,22 @@ export type ProjectListItem = {
  */
 export const projects: ProjectListItem[] = [
   {
+    title: "AI Finance Pro",
+    description:
+      "An enterprise-grade financial analysis workspace unifying quantitative technical data, Docling PDF extraction, and local AI reasoning.",
+    descriptionVi:
+      "Nền tảng phân tích tài chính tự động kết hợp dữ liệu định lượng, trích xuất báo cáo PDF bằng Docling và suy luận AI cục bộ.",
+    period: "2024 - 2026",
+    type: "Personal project",
+    typeVi: "Dự án cá nhân",
+    category: "ai",
+    technologies: ["Next.js", "FastAPI", "Ollama", "Docling", "vnstock", "PostgreSQL"],
+    href: "/projects/finance-analysis",
+    hrefLabel: "View case study",
+    hrefLabelVi: "Xem case study",
+    featured: true,
+  },
+  {
     title: "Agentic AI Personal Health Management",
     description:
       "A real-time personal health platform with anomaly detection and a safety-aware HybridRAG agent.",
