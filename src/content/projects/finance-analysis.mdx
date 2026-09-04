@@ -1,0 +1,141 @@
+---
+title: AI Finance Pro — Smart Financial Analysis
+projectId: FINANCE_ANALYSIS
+order: 1
+featured: true
+type: AI / Full-stack Product
+typeVi: Ứng dụng AI & Full-stack
+period: "2024 - Hiện tại"
+role: Full-stack Developer & AI Engineer
+summary: An enterprise-grade, automated financial analysis workspace that unifies quantitative technical data, deep PDF financial statement extraction, and local AI reasoning.
+summaryVi: Nền tảng phân tích tài chính tự động cấp doanh nghiệp kết hợp dữ liệu định lượng, trích xuất báo cáo PDF chuyên sâu và suy luận AI cục bộ vào một dashboard duy nhất.
+technologies:
+  - Next.js
+  - FastAPI
+  - Python
+  - Local LLM (Ollama)
+  - PostgreSQL (Neon)
+  - Tailwind CSS
+metrics:
+  - value: "45m ➔ 2m"
+    label: Research Time Saved
+    labelVi: Tiết kiệm thời gian nghiên cứu
+image: "/finance_analysis/1.png"
+seoKeywords:
+  - Financial Analysis
+  - Generative AI
+  - Fintech
+  - Full-stack Development
+  - Local LLM
+---
+
+## Project Overview
+
+**AI Finance Pro** is an enterprise-grade, automated financial analysis workspace designed to unify quantitative technical data, deep PDF financial statement extraction, and local AI reasoning into a single seamless dashboard.
+
+For retail investors and financial analysts, evaluating market opportunities often involves hours of painful manual effort—sifting through fragmented news, manually parsing complex multi-page financial statements (BCTC), and making emotionally compromised trading decisions. AI Finance Pro solves this by cutting research time per ticker from **~45 minutes down to under 2 minutes**, providing a 100% objective, emotion-free risk scoring system.
+
+## Core Features & MVP Walkthrough
+
+### 1. Unified Multi-Dimensional Dashboard & PDF Viewer
+
+A frictionless 3-panel workspace features a real-time watchlist on the left, an interactive central stage, and an AI copilot on the right. Users can instantly switch between a comprehensive algorithmic overview, technical charts, and embedded PDF reports without page reloads.
+
+*   **Portfolio Watchlist:** Real-time tracking of personal holdings and key market movers.
+*   **Instant Actionable Insights:** Algorithmic verdict coupled with MA20/MA50 and RSI status.
+*   **Embedded High-Fidelity PDF Viewer:** Inspect original earnings releases side-by-side with AI summaries.
+
+![Unified Multi-Dimensional Dashboard](/finance_analysis/1.png)
+
+---
+
+### 2. Conversational Financial Copilot & PDF Ingestion
+
+Directly upload company earnings releases (`.pdf`). Our parsing pipeline preserves complex balance sheets, income statements, and cash flow structures into clean Markdown before feeding them into local AI.
+
+*   **Document Parsing Engine:** Upload files up to 50MB; tables and footnotes stay intact via Docling.
+*   **Context-Aware Q&A:** Ask complex questions backed by exact citations.
+*   **Privacy-First AI:** Zero-hallucination local AI copilot powered by Ollama with strict no-financial-advice guardrails.
+
+![Conversational Financial Copilot](/finance_analysis/2.png)
+
+---
+
+### 3. Professional Interactive Charting & Price Discovery
+
+High-performance charting system equipped with moving averages, volatility bands, volume bars, and intraday boundaries.
+
+*   **Technical Overlays:** One-click toggle for MA20, MA50, and Bollinger Bands.
+*   **Multi-Horizon Analysis:** Rapid switching between 1M, 3M, 6M, 1Y, and 3Y timelines.
+
+![Interactive Technical Charting](/finance_analysis/3.png)
+
+---
+
+### 4. Quantitative Risk Engine & Decision Support
+
+Eliminate subjective guesswork with mathematical risk modeling. Two independent risk indicators evaluate the hazards of buying or selling at any given moment.
+
+*   **`BUY_RISK` (0-100):** Quantifies FOMO risk by scanning for bearish RSI divergence (`MOM_BEAR_DIV`) and abnormal volume surges.
+*   **`SELL_RISK` (0-100):** Alerts when supply is exhausted to prevent panic selling at market bottoms.
+
+![Quantitative Risk Engine](/finance_analysis/4.png)
+
+---
+
+### 5. Piotroski F-Score 9-Criteria Health Matrix
+
+Complete fundamental health audit based on Joseph Piotroski's renowned 9-point criteria across three corporate finance pillars:
+1. **Profitability** (ROA, CFO, etc.)
+2. **Leverage & Liquidity** (Debt reduction, Current Ratio, etc.)
+3. **Operating Efficiency** (Gross Margin, Asset Turnover, etc.)
+
+![Piotroski F-Score 9-Criteria Matrix](/finance_analysis/5.png)
+
+---
+
+## System Architecture
+
+The platform architecture is built for performance and privacy, leveraging Next.js for the frontend, FastAPI for the backend core, and Ollama for local LLM inference.
+
+```mermaid
+flowchart TD
+    subgraph Client ["Frontend (Next.js 14 + Tailwind CSS)"]
+        UI_Nav["Portfolio Watchlist"]
+        UI_Center["Dynamic Center (Chart / PDF / Overview)"]
+        UI_Chat["Copilot Q&A (Streaming)"]
+    end
+
+    subgraph Server ["Backend Core (FastAPI Python)"]
+        API_Gate["REST API Gateway"]
+        Risk_Engine["Risk Engine (BUY_RISK / SELL_RISK)"]
+        FScore_Engine["Fundamental Engine (Piotroski 9-Criteria)"]
+        PDF_Parser["Docling Parser (PDF to Markdown)"]
+        News_Crawler["Scheduled News Crawler"]
+    end
+
+    subgraph Data_AI ["Data & AI Infrastructure"]
+        VnStock["vnstock API"]
+        NeonDB[("PostgreSQL (Neon Serverless)")]
+        Ollama["Local LLM (Llama 3.1 / Qwen 2.5)"]
+    end
+
+    Client <-->|Async REST / JSON| API_Gate
+    API_Gate --> Risk_Engine
+    API_Gate --> FScore_Engine
+    API_Gate --> PDF_Parser
+    API_Gate --> News_Crawler
+
+    Risk_Engine --> VnStock
+    FScore_Engine <--> NeonDB
+    PDF_Parser --> Ollama
+    API_Gate <--> Ollama
+```
+
+## Security, Privacy & Guardrails
+
+1.  **100% Local Inference:** Financial data and internal PDF documents remain private when running with local Ollama models.
+2.  **Deterministic Financial Extractions:** Metrics are extracted directly from tables—no probabilistic rounding or hallucinated financial figures.
+3.  **No-Advice Mandate:** Prompts are enforced with strict system guardrails. The AI delivers risk probabilities and factual analysis only, never speculative buy/sell commands.
+
+[Explore the Source Code on GitHub](https://github.com/HuynhTri-dev/finance-analysis)
