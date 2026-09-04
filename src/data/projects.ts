@@ -150,19 +150,6 @@ export const projects: ProjectListItem[] = [
     href: "https://github.com/HuynhTri-dev/omnishift_source",
   },
   {
-    title: "Office Supplies Network App",
-    description:
-      "A network-programming project for managing office-supply data and operations.",
-    descriptionVi:
-      "Dự án lập trình mạng phục vụ quản lý dữ liệu và vận hành văn phòng phẩm.",
-    period: "2025",
-    type: "Academic project",
-    typeVi: "Dự án học tập",
-    category: "web",
-    technologies: ["JavaScript", "Networking"],
-    href: "https://github.com/HuynhTri-dev/QLVanPhongPham_LapTrinhMang",
-  },
-  {
     title: "RiskChance",
     description:
       "A C# project exploring risk and probability through an interactive software model.",
@@ -174,31 +161,5 @@ export const projects: ProjectListItem[] = [
     category: "desktop",
     technologies: ["C#", ".NET"],
     href: "https://github.com/HuynhTri-dev/RiskChance",
-  },
-  {
-    title: "Tết Mini Games",
-    description:
-      "A playful TypeScript collection of small interactive experiences for Tết.",
-    descriptionVi:
-      "Bộ mini game tương tác vui nhộn cho dịp Tết, xây dựng bằng TypeScript.",
-    period: "2026",
-    type: "Creative project",
-    typeVi: "Dự án sáng tạo",
-    category: "web",
-    technologies: ["TypeScript", "Web"],
-    href: "https://github.com/HuynhTri-dev/tro_choi_tet",
-  },
-  {
-    title: "Flower",
-    description:
-      "A small TypeScript visual experiment built for the web.",
-    descriptionVi:
-      "Thử nghiệm hình ảnh nhỏ trên web được xây dựng bằng TypeScript.",
-    period: "2025",
-    type: "Creative project",
-    typeVi: "Dự án sáng tạo",
-    category: "web",
-    technologies: ["TypeScript", "Web"],
-    href: "https://github.com/HuynhTri-dev/flower",
   },
 ];
