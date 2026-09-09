@@ -28,12 +28,13 @@ export type TechGroup = {
 
 export const profileLinks = [
   { number: "01", href: "#education", en: "Education", vi: "Học vấn" },
-  { number: "02", href: "#projects", en: "Projects", vi: "Dự án" },
-  { number: "03", href: "#technical-skill", en: "Technical Skills", vi: "Kỹ năng kỹ thuật" },
-  { number: "04", href: "#soft-skill", en: "Soft Skills", vi: "Kỹ năng mềm" },
-  { number: "05", href: "#achievements", en: "Achievements", vi: "Thành tựu" },
-  { number: "06", href: "#beyond-code", en: "Beyond Code", vi: "Ngoài lập trình" },
-  { number: "07", href: "#contact", en: "Contact", vi: "Liên hệ" },
+  { number: "02", href: "#experience", en: "Experience & Teams", vi: "Nơi làm việc & Tổ chức" },
+  { number: "03", href: "#projects", en: "Projects", vi: "Dự án" },
+  { number: "04", href: "#technical-skill", en: "Technical Skills", vi: "Kỹ năng kỹ thuật" },
+  { number: "05", href: "#soft-skill", en: "Soft Skills", vi: "Kỹ năng mềm" },
+  { number: "06", href: "#achievements", en: "Achievements", vi: "Thành tựu" },
+  { number: "07", href: "#beyond-code", en: "Beyond Code", vi: "Ngoài lập trình" },
+  { number: "08", href: "#contact", en: "Contact", vi: "Liên hệ" },
 ];
 
 export const techGroups: TechGroup[] = [
@@ -385,3 +386,189 @@ export const beyondCards = [
     descriptionVi: "Hoạt động lãnh đạo học thuật và ngoại khóa rèn tính chủ động, trách nhiệm chung và khả năng giao tiếp.",
   },
 ];
+
+export type ExperienceLink = {
+  labelEn: string;
+  labelVi: string;
+  href: string;
+  isExternal?: boolean;
+  icon?: string;
+};
+
+export type ExperienceItem = {
+  id: string;
+  badgeEn: string;
+  badgeVi: string;
+  badgeType: "current" | "enterprise" | "core" | "team";
+  orgName: string;
+  orgHref?: string;
+  roleEn: string;
+  roleVi: string;
+  periodEn: string;
+  periodVi: string;
+  overviewEn: string;
+  overviewVi: string;
+  project: {
+    titleEn: string;
+    titleVi: string;
+    statusEn: string;
+    statusVi: string;
+    descriptionEn: string;
+    descriptionVi: string;
+    links: ExperienceLink[];
+  };
+  technologies: string[];
+};
+
+export const experiences: ExperienceItem[] = [
+  {
+    id: "idb",
+    badgeEn: "CURRENT WORKPLACE",
+    badgeVi: "VỊ TRÍ HIỆN TẠI",
+    badgeType: "current",
+    orgName: "IDB Group (Tập đoàn IDB)",
+    orgHref: "https://idb.com.vn/All/Support",
+    roleEn: "Junior Software Engineer",
+    roleVi: "Kỹ sư phần mềm (Junior Software Engineer)",
+    periodEn: "2026 — PRESENT",
+    periodVi: "2026 — HIỆN TẠI",
+    overviewEn: "Contributing to enterprise software engineering, core backend services, and internal platform architecture.",
+    overviewVi: "Tham gia kỹ thuật phần mềm doanh nghiệp, phát triển dịch vụ backend cốt lõi và kiến trúc nền tảng nội bộ.",
+    project: {
+      titleEn: "Internal Enterprise Architecture & Systems",
+      titleVi: "Kiến trúc & Hệ thống Doanh nghiệp Nội bộ",
+      statusEn: "In Development · Confidential",
+      statusVi: "Đang phát triển · Bảo mật nội bộ",
+      descriptionEn: "Researching and building foundational backend workflows, API integrations, and internal systems (Confidential / currently in active development without public product release).",
+      descriptionVi: "Nghiên cứu và xây dựng workflow backend nền tảng, tích hợp API và hệ thống nội bộ (Bảo mật / hiện đang trong quá trình phát triển tích cực, chưa phát hành sản phẩm công khai).",
+      links: [
+        {
+          labelEn: "IDB Support Portal",
+          labelVi: "Cổng thông tin IDB",
+          href: "https://idb.com.vn/All/Support",
+          isExternal: true,
+          icon: "fa-arrow-up-right-from-square",
+        },
+      ],
+    },
+    technologies: ["Python", "TypeScript", "Software Architecture", "Backend APIs", "PostgreSQL"],
+  },
+  {
+    id: "ritavo",
+    badgeEn: "ENTERPRISE ERP",
+    badgeVi: "HỆ THỐNG ERP",
+    badgeType: "enterprise",
+    orgName: "Rita Võ Group (Tập đoàn Rita Võ)",
+    orgHref: "https://prodid.ritavo.com/web/login",
+    roleEn: "Odoo Developer Intern",
+    roleVi: "Thực tập sinh Lập trình viên Odoo",
+    periodEn: "MAR 2026 — JUN 2026",
+    periodVi: "T03/2026 — T06/2026",
+    overviewEn: "Engineered customized ERP business logic, data rules, and delivery automation on Odoo 18.",
+    overviewVi: "Phát triển nghiệp vụ ERP tùy biến, kiểm soát ràng buộc dữ liệu và tự động hóa triển khai trên nền tảng Odoo 18.",
+    project: {
+      titleEn: "ProdID · Odoo 18",
+      titleVi: "ProdID · Odoo 18",
+      statusEn: "Live Enterprise Portal",
+      statusVi: "Cổng vận hành thực tế",
+      descriptionEn: "An internal product-lifecycle workflow bridging R&D, Marketing, Sales and Purchasing across roughly 10,000 product records.",
+      descriptionVi: "Quy trình vòng đời sản phẩm nội bộ kết nối R&D, Marketing, Sales và Mua hàng trên quy mô xấp xỉ 10.000 bản ghi.",
+      links: [
+        {
+          labelEn: "ProdID Live Portal",
+          labelVi: "Cổng đăng nhập ProdID",
+          href: "https://prodid.ritavo.com/web/login",
+          isExternal: true,
+          icon: "fa-arrow-up-right-from-square",
+        },
+        {
+          labelEn: "Case study dossier",
+          labelVi: "Hồ sơ dự án",
+          href: "/projects/ritavo-prodid",
+          isExternal: false,
+          icon: "fa-folder-open",
+        },
+      ],
+    },
+    technologies: ["Odoo 18", "Python", "PostgreSQL", "Docker", "GitHub Actions", "DFS Cycle Detection"],
+  },
+  {
+    id: "vinagreen",
+    badgeEn: "CORE ARCHITECTURE",
+    badgeVi: "CÔNG NGHỆ LÕI",
+    badgeType: "core",
+    orgName: "VinaGreen",
+    orgHref: "https://vinagreen.huynhminhtri1109.workers.dev/",
+    roleEn: "Core Technology (System & Architecture)",
+    roleVi: "Công nghệ lõi (Hệ thống & Kiến trúc)",
+    periodEn: "2025 — PRESENT",
+    periodVi: "2025 — HIỆN TẠI",
+    overviewEn: "Directing system specifications, service contracts, and edge cloud infrastructure for sustainable digital platforms.",
+    overviewVi: "Định hình chuẩn kiến trúc hệ thống, giao ước dịch vụ và hạ tầng đám mây phân tán cho giải pháp số xanh.",
+    project: {
+      titleEn: "VinaGreen Digital Platform",
+      titleVi: "Nền tảng số VinaGreen",
+      statusEn: "Live Edge Deployment",
+      statusVi: "Đang vận hành trên Edge",
+      descriptionEn: "High-performance edge platform designed for resilient operational tracking, data transparency, and scalable service delivery.",
+      descriptionVi: "Nền tảng vận hành phân tán trên mạng lưới Edge, tối ưu hóa khả năng giám sát dữ liệu minh bạch và mở rộng dịch vụ.",
+      links: [
+        {
+          labelEn: "Visit VinaGreen",
+          labelVi: "Truy cập VinaGreen",
+          href: "https://vinagreen.huynhminhtri1109.workers.dev/",
+          isExternal: true,
+          icon: "fa-arrow-up-right-from-square",
+        },
+      ],
+    },
+    technologies: ["System Architecture", "Edge Computing", "Cloudflare Workers", "Scalable APIs", "TypeScript"],
+  },
+  {
+    id: "omnimer",
+    badgeEn: "AI & PRODUCT R&D",
+    badgeVi: "NHÓM R&D & SẢN PHẨM",
+    badgeType: "team",
+    orgName: "Omnimer Team",
+    orgHref: "https://github.com/omnimerteam",
+    roleEn: "Core Member & System Architect",
+    roleVi: "Thành viên kỹ thuật lõi & Kiến trúc sư hệ thống",
+    periodEn: "2025 — PRESENT",
+    periodVi: "2025 — HIỆN TẠI",
+    overviewEn: "Steering product architecture and engineering AI agents, GraphRAG retrieval, and real-time health intelligence.",
+    overviewVi: "Định hướng kiến trúc sản phẩm, xây dựng AI Agent, truy xuất tri thức GraphRAG và hệ thống sức khỏe thời gian thực.",
+    project: {
+      titleEn: "Multimodal AI Health & Nutrition Suite",
+      titleVi: "Hệ sinh thái AI Đa phương thức (Sức khỏe & Dinh dưỡng)",
+      statusEn: "Open Source & Research",
+      statusVi: "Mã nguồn mở & Nghiên cứu",
+      descriptionEn: "A connected suite of intelligent applications including OmniMer Health (anomaly detection & safety-aware RAG) and OmniMer Food (vision & voice cooking assistant).",
+      descriptionVi: "Bộ ứng dụng AI thông minh gồm OmniMer Health (phát hiện bất thường & RAG an toàn) và OmniMer Food (trợ lý dinh dưỡng nhận diện món ăn & giọng nói).",
+      links: [
+        {
+          labelEn: "Omnimer GitHub",
+          labelVi: "GitHub Omnimer",
+          href: "https://github.com/omnimerteam",
+          isExternal: true,
+          icon: "fa-github",
+        },
+        {
+          labelEn: "OmniMer Health Dossier",
+          labelVi: "Dự án OmniMer Health",
+          href: "/projects/omnimer-health",
+          isExternal: false,
+          icon: "fa-folder-open",
+        },
+        {
+          labelEn: "OmniMer Food Dossier",
+          labelVi: "Dự án OmniMer Food",
+          href: "/projects/omnimer-food",
+          isExternal: false,
+          icon: "fa-folder-open",
+        },
+      ],
+    },
+    technologies: ["LangGraph", "FastAPI", "Kafka", "GraphRAG", "Qdrant", "Flutter"],
+  },
+];
+

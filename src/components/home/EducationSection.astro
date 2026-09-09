@@ -28,7 +28,7 @@ import SectionHeading from "../ui/SectionHeading.astro";
         <span><strong>HUTECH</strong></span>
       </a>
       <div class="education-content">
-        <span class="date">SEP 2022 — OCT 2026</span>
+        <span class="date">SEP 2022 — JAN 2026</span>
         <h3
           data-en="Ho Chi Minh City University of Technology"
           data-vi="Trường Đại học Bách khoa — ĐHQG TP.HCM"
@@ -43,10 +43,10 @@ import SectionHeading from "../ui/SectionHeading.astro";
           Information Technology · Software Engineering
         </p>
         <p
-          data-en="Expected graduation in October 2026. The program supports a strong base in software design, data systems and collaborative product development."
-          data-vi="Dự kiến tốt nghiệp tháng 10/2026. Chương trình xây dựng nền tảng vững chắc về thiết kế phần mềm, hệ thống dữ liệu và phát triển sản phẩm theo nhóm."
+          data-en="Expected graduation in January 2026. The program supports a strong base in software design, data systems and collaborative product development."
+          data-vi="Dự kiến tốt nghiệp tháng 1/2026. Chương trình xây dựng nền tảng vững chắc về thiết kế phần mềm, hệ thống dữ liệu và phát triển sản phẩm theo nhóm."
         >
-          Expected graduation in October 2026. The program supports a strong
+          Expected graduation in January 2026. The program supports a strong
           base in software design, data systems and collaborative product
           development.
         </p>
@@ -59,21 +59,31 @@ import SectionHeading from "../ui/SectionHeading.astro";
           <span data-en="Visit university website" data-vi="Xem website trường"
             >Visit university website</span
           >
-          <span aria-hidden="true"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+          <span aria-hidden="true"
+            ><i class="fa-solid fa-arrow-up-right-from-square"></i></span
+          >
         </a>
       </div>
     </div>
     <div class="education-score">
-      <div class="score-ring"><span>3.61</span><small>/ 4.00 GPA</small></div>
+      <div class="score-ring"><span>3.65</span><small>/ 4.00 GPA</small></div>
       <div class="education-milestone">
         <span></span>
         <p>
-          <small data-en="CURRENT MILESTONE" data-vi="CỘT MỐC HIỆN TẠI"
-            >CURRENT MILESTONE</small
+          <small data-en="CURRENT STATUS" data-vi="TRẠNG THÁI HIỆN TẠI"
+            >CURRENT STATUS</small
           >
-          <strong data-en="Final-year student" data-vi="Sinh viên năm cuối"
-            >Final-year student</strong
+          <a
+            class="milestone-link"
+            href="https://idb.com.vn/All/Support"
+            target="_blank"
+            rel="noreferrer"
           >
+            <strong data-en="Working at IDB Group" data-vi="Đang làm việc tại Tập đoàn IDB"
+              >Working at IDB Group</strong
+            >
+            <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+          </a>
         </p>
       </div>
     </div>
@@ -226,6 +236,21 @@ import SectionHeading from "../ui/SectionHeading.astro";
   }
   .education-milestone strong {
     font-size: 0.82rem;
+  }
+  .milestone-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-main);
+    text-decoration: none;
+    transition: color var(--duration-fast) ease;
+  }
+  .milestone-link:hover {
+    color: var(--brand-green);
+  }
+  .milestone-link i {
+    font-size: 0.65rem;
+    color: var(--brand-soft);
   }
 
   @media (max-width: 820px) {
