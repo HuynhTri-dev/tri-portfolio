@@ -229,9 +229,9 @@ const projects = (await getCollection("projects")).sort(
 
   /* Uniform Title Height */
   .project-title {
-    min-height: 2.8rem;
+    height: 3.2rem;
     margin: 0 0 8px;
-    font-size: 1.25rem;
+    font-size: 1.22rem;
     letter-spacing: -0.035em;
     line-height: 1.25;
     display: -webkit-box;
@@ -252,7 +252,7 @@ const projects = (await getCollection("projects")).sort(
 
   /* Uniform Summary Height */
   .project-summary-text {
-    min-height: 2.6rem;
+    height: 2.8rem;
     margin: 0;
     color: var(--text-muted);
     font-size: 0.8rem;
@@ -263,28 +263,31 @@ const projects = (await getCollection("projects")).sort(
     overflow: hidden;
   }
 
-  /* Tag Row (Fixed Height) */
+  /* Tag Row (Fixed Single Row Height) */
   .tag-row {
-    min-height: 26px;
+    height: 28px;
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 6px;
     margin-bottom: 14px;
+    overflow: hidden;
   }
 
   .tag-row span {
-    padding: 2px 7px;
+    padding: 3px 8px;
     border: 1px solid var(--border-default);
     border-radius: 6px;
     background: rgb(255 255 255 / 2%);
     color: var(--text-secondary);
     font-family: var(--font-mono);
     font-size: 0.56rem;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   /* Metrics Grid (Uniform 3-Column Box) */
   .project-metrics {
-    min-height: 56px;
+    height: 58px;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
@@ -296,17 +299,18 @@ const projects = (await getCollection("projects")).sort(
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 8px 10px;
+    padding: 7px 10px;
     border: 1px solid rgb(255 255 255 / 5%);
     border-radius: var(--radius-small);
     background: rgb(5 11 9 / 45%);
+    overflow: hidden;
   }
 
   .metric-item strong {
     color: var(--brand-soft);
     font-family: var(--font-mono);
-    font-size: 0.95rem;
-    line-height: 1;
+    font-size: 0.92rem;
+    line-height: 1.1;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
