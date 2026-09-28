@@ -1,48 +1,73 @@
 ---
+/**
+ * @name ProjectIndex.astro
+ * @description Image-first project showcase with visual preview cards for live running systems, deep-dive case studies, and a sleek GitHub repository list.
+ */
 import { projects } from "../../data/projects";
 
+const activeProjects = projects.filter((p) => p.group === "active");
+const caseStudyProjects = projects.filter((p) => p.group === "case-study");
+const githubProjects = projects.filter((p) => p.group === "github");
+
 const filters = [
-  { value: "all", en: "All work", vi: "Tất cả" },
+  { value: "all", en: "All", vi: "Tất cả" },
   { value: "ai", en: "AI & Data", vi: "AI & Dữ liệu" },
   { value: "enterprise", en: "Enterprise", vi: "Doanh nghiệp" },
   { value: "web", en: "Web & Mobile", vi: "Web & Mobile" },
   { value: "desktop", en: "Desktop", vi: "Desktop" },
-  { value: "other", en: "Other", vi: "Khác" },
+  { value: "other", en: "Design", vi: "Thiết kế" },
 ];
 ---
 
 <section class="project-index shell" aria-labelledby="project-index-title">
+  <!-- Minimalist Visual Hero -->
   <header class="project-hero">
-    <div>
-      <span class="section-index">PROJECT ARCHIVE / {String(projects.length).padStart(2, "0")}</span>
-      <h1 id="project-index-title" data-en="Selected depth. Broader range." data-vi="Dự án nổi bật. Hành trình rộng hơn.">
-        Selected depth. Broader range.
+    <div class="hero-left">
+      <div class="hero-kicker">
+        <span class="live-indicator"></span>
+        <span class="section-index" data-en="ENGINEERING PORTFOLIO" data-vi="DANH MỤC DỰ ÁN">ENGINEERING PORTFOLIO</span>
+      </div>
+      <h1 id="project-index-title" data-en="Built for reality." data-vi="Hệ thống thực chiến.">
+        Built for reality.
       </h1>
+      <p data-en="From active production systems to deep-dive architecture blueprints and open-source software." data-vi="Từ hệ thống vận hành thực tế đến kiến trúc chuyên sâu và mã nguồn mở.">
+        From active production systems to deep-dive architecture blueprints and open-source software.
+      </p>
     </div>
-    <p
-      data-en="Case studies show the systems in depth. The archive keeps every other product easy to scan—and easy to grow."
-      data-vi="Case study trình bày hệ thống chuyên sâu. Danh sách bên dưới giúp mọi sản phẩm khác dễ xem và dễ mở rộng."
-    >
-      Case studies show the systems in depth. The archive keeps every other
-      product easy to scan—and easy to grow.
-    </p>
+
+    <!-- Quick Stats Bar -->
+    <div class="hero-stats">
+      <div class="stat-box panel">
+        <strong>03</strong>
+        <span data-en="Live Systems" data-vi="Đang vận hành">Live Systems</span>
+      </div>
+      <div class="stat-box panel">
+        <strong>03</strong>
+        <span data-en="Case Studies" data-vi="Case Studies">Case Studies</span>
+      </div>
+      <div class="stat-box panel">
+        <strong>06</strong>
+        <span data-en="Open Repos" data-vi="Mã nguồn">Open Repos</span>
+      </div>
+    </div>
   </header>
 
+  <!-- Filter & Search Toolbar -->
   <div class="project-tools panel" aria-label="Project filters">
     <label class="search-field">
       <span class="sr-only" data-en="Search projects" data-vi="Tìm dự án">Search projects</span>
-      <span aria-hidden="true">⌕</span>
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
       <input
         type="search"
         data-project-search
-        placeholder="Search by project or technology"
-        data-placeholder-en="Search by project or technology"
-        data-placeholder-vi="Tìm theo dự án hoặc công nghệ"
+        placeholder="Filter by name, tech or client..."
+        data-placeholder-en="Filter by name, tech or client..."
+        data-placeholder-vi="Lọc theo tên, công nghệ hoặc đơn vị..."
         autocomplete="off"
       />
     </label>
 
-    <div class="filter-list" role="group" aria-label="Filter projects by category">
+    <div class="filter-list" role="group" aria-label="Filter projects">
       {filters.map((filter, index) => (
         <button
           type="button"
@@ -57,358 +82,1092 @@ const filters = [
     </div>
   </div>
 
+  <!-- Result Counter & GitHub Link -->
   <div class="result-bar" aria-live="polite">
-    <span>
+    <span class="counter-text">
+      <span data-en="Showing" data-vi="Hiển thị">Showing</span>
       <strong data-project-count>{projects.length}</strong>
-      <span data-en=" projects" data-vi=" dự án"> projects</span>
+      <span data-en="projects" data-vi="dự án">projects</span>
     </span>
-    <a href="https://github.com/HuynhTri-dev?tab=repositories" target="_blank" rel="noreferrer">
-      <span data-en="GitHub profile" data-vi="Trang GitHub">GitHub profile</span>
-      <span aria-hidden="true"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+    <a href="https://github.com/HuynhTri-dev?tab=repositories" target="_blank" rel="noreferrer" class="gh-link">
+      <i class="fa-brands fa-github"></i>
+      <span data-en="GitHub Profile" data-vi="Trang GitHub">GitHub Profile</span>
+      <i class="fa-solid fa-arrow-up-right-from-square"></i>
     </a>
   </div>
 
-  <div class="project-list">
-    {projects.map((project, index) => (
-      <article
-        class:list={["project-row", { "is-featured": project.featured }]}
-        data-project
-        data-category={project.category}
-        data-search={`${project.title} ${project.description} ${project.descriptionVi} ${project.technologies.join(" ")}`.toLowerCase()}
-      >
-        <div class="project-number">{String(index + 1).padStart(2, "0")}</div>
+  <!-- ============================================================ -->
+  <!-- SECTION 1: PROJECT ĐANG CHẠY (ACTIVE & RUNNING SYSTEMS) -->
+  <!-- ============================================================ -->
+  <section class="catalogue-section" data-section-group="active">
+    <div class="section-heading">
+      <div class="section-badge section-badge--live">
+        <span class="beacon-pulse"></span>
+        <span data-en="LIVE & RUNNING SYSTEMS" data-vi="PROJECT ĐANG CHẠY · THỰC TẾ">LIVE & RUNNING SYSTEMS</span>
+      </div>
+      <h2 data-en="Active Deployments" data-vi="Dự án đang vận hành thực tế">
+        Active Deployments
+      </h2>
+    </div>
 
-        <div class="project-main">
-          <div class="project-titleline">
-            <h2>{project.title}</h2>
-            {project.featured && (
-              <span class="featured-badge" data-en="Case study" data-vi="Case study">Case study</span>
+    <div class="visual-card-grid">
+      {activeProjects.map((project) => (
+        <article
+          class="visual-card panel is-live"
+          data-project
+          data-project-group="active"
+          data-category={project.category}
+          data-search={`${project.title} ${project.organization?.en ?? ""} ${project.organization?.vi ?? ""} ${project.description} ${project.descriptionVi} ${project.technologies.join(" ")}`.toLowerCase()}
+        >
+          <!-- Visual Image Preview -->
+          <a href={project.href} class="card-media" aria-label={project.title}>
+            {project.image ? (
+              <img src={project.image} alt={project.title} loading="lazy" />
+            ) : (
+              <div class="media-placeholder"><i class="fa-solid fa-layer-group"></i></div>
+            )}
+            <div class="media-overlay"></div>
+            
+            <!-- Badges over Image -->
+            <div class="media-badges">
+              {project.organization && (
+                <span class="badge-org">
+                  <span data-en={project.organization.en} data-vi={project.organization.vi}>{project.organization.en}</span>
+                </span>
+              )}
+              {project.statusBadge && (
+                <span class:list={["badge-status", `badge-status--${project.statusBadge.type ?? 'live'}`]}>
+                  <span class="pulse-dot"></span>
+                  <span data-en={project.statusBadge.en} data-vi={project.statusBadge.vi}>{project.statusBadge.en}</span>
+                </span>
+              )}
+            </div>
+          </a>
+
+          <!-- Card Content -->
+          <div class="card-body">
+            <div class="card-meta-line">
+              <span class="card-period">{project.period}</span>
+              <span class="card-category" data-en={project.type} data-vi={project.typeVi}>{project.type}</span>
+            </div>
+
+            <h3 class="card-title">
+              <a href={project.href}>{project.title}</a>
+            </h3>
+
+            <p class="card-summary" data-en={project.description} data-vi={project.descriptionVi}>
+              {project.description}
+            </p>
+
+            <!-- Metrics Chips -->
+            {project.metrics && (
+              <div class="metric-chips">
+                {project.metrics.slice(0, 3).map((metric) => (
+                  <div class="metric-chip">
+                    <strong>{metric.value}</strong>
+                    <span data-en={metric.label} data-vi={metric.labelVi}>{metric.label}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <!-- Tech Pills -->
+            <div class="tech-pills">
+              {project.technologies.slice(0, 4).map((tech) => (
+                <span>{tech}</span>
+              ))}
+            </div>
+          </div>
+
+          <!-- Bottom Actions -->
+          <div class="card-footer">
+            <a href={project.href} class="btn-cta btn-cta--primary">
+              <span data-en={project.hrefLabel ?? "Case Study"} data-vi={project.hrefLabelVi ?? "Case Study"}>
+                {project.hrefLabel ?? "Case Study"}
+              </span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </a>
+            {project.liveUrl && (
+              <a href={project.liveUrl} target="_blank" rel="noreferrer" class="btn-cta btn-cta--ghost">
+                <span data-en={project.liveLabel ?? "Live Demo"} data-vi={project.liveLabelVi ?? "Trực Tuyến"}>
+                  {project.liveLabel ?? "Live Demo"}
+                </span>
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              </a>
             )}
           </div>
-          <p data-en={project.description} data-vi={project.descriptionVi}>{project.description}</p>
-          <div class="tech-list" aria-label="Technologies">
-            {project.technologies.map((technology) => <span>{technology}</span>)}
-          </div>
-        </div>
+        </article>
+      ))}
+    </div>
+  </section>
 
-        <div class="project-meta">
-          <span>{project.period}</span>
-          <span data-en={project.type} data-vi={project.typeVi}>{project.type}</span>
-        </div>
+  <!-- ============================================================ -->
+  <!-- SECTION 2: DỰ ÁN TÂM ĐẮC CÓ CASE STUDY (FEATURED CASE STUDIES) -->
+  <!-- ============================================================ -->
+  <section class="catalogue-section" data-section-group="case-study">
+    <div class="section-heading">
+      <div class="section-badge section-badge--case">
+        <i class="fa-solid fa-microchip"></i>
+        <span data-en="FEATURED ARCHITECTURAL STUDIES" data-vi="DỰ ÁN TÂM ĐẮC · CASE STUDY">FEATURED ARCHITECTURAL STUDIES</span>
+      </div>
+      <h2 data-en="Deep-Dive Case Studies" data-vi="Dự án tâm đắc có Case Study">
+        Deep-Dive Case Studies
+      </h2>
+    </div>
 
-        <a
-          class="project-action"
-          href={project.href}
-          target={project.href.startsWith("http") ? "_blank" : undefined}
-          rel={project.href.startsWith("http") ? "noreferrer" : undefined}
-          aria-label={`${project.hrefLabel ?? "View repository"}: ${project.title}`}
+    <div class="visual-card-grid">
+      {caseStudyProjects.map((project) => (
+        <article
+          class="visual-card panel is-case"
+          data-project
+          data-project-group="case-study"
+          data-category={project.category}
+          data-search={`${project.title} ${project.description} ${project.descriptionVi} ${project.technologies.join(" ")}`.toLowerCase()}
         >
-          <span
-            data-en={project.hrefLabel ?? "View repository"}
-            data-vi={project.hrefLabelVi ?? "Xem mã nguồn"}
-          >
-            {project.hrefLabel ?? "View repository"}
-          </span>
-          <span aria-hidden="true"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
-        </a>
-      </article>
-    ))}
-  </div>
+          <!-- Visual Image Preview -->
+          <a href={project.href} class="card-media" aria-label={project.title}>
+            {project.image ? (
+              <img src={project.image} alt={project.title} loading="lazy" />
+            ) : (
+              <div class="media-placeholder"><i class="fa-solid fa-laptop-code"></i></div>
+            )}
+            <div class="media-overlay"></div>
+            
+            <div class="media-badges">
+              <span class="badge-tag">
+                <span data-en={project.type} data-vi={project.typeVi}>{project.type}</span>
+              </span>
+            </div>
+          </a>
 
-  <p class="empty-state" data-project-empty hidden data-en="No projects match this search." data-vi="Không có dự án phù hợp.">
-    No projects match this search.
-  </p>
+          <!-- Card Content -->
+          <div class="card-body">
+            <div class="card-meta-line">
+              <span class="card-period">{project.period}</span>
+            </div>
+
+            <h3 class="card-title">
+              <a href={project.href}>{project.title}</a>
+            </h3>
+
+            <p class="card-summary" data-en={project.description} data-vi={project.descriptionVi}>
+              {project.description}
+            </p>
+
+            <!-- Metrics Chips -->
+            {project.metrics && (
+              <div class="metric-chips">
+                {project.metrics.slice(0, 3).map((metric) => (
+                  <div class="metric-chip">
+                    <strong>{metric.value}</strong>
+                    <span data-en={metric.label} data-vi={metric.labelVi}>{metric.label}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <!-- Tech Pills -->
+            <div class="tech-pills">
+              {project.technologies.slice(0, 4).map((tech) => (
+                <span>{tech}</span>
+              ))}
+            </div>
+          </div>
+
+          <!-- Bottom Actions -->
+          <div class="card-footer">
+            <a href={project.href} class="btn-cta btn-cta--primary">
+              <span data-en={project.hrefLabel ?? "Case Study"} data-vi={project.hrefLabelVi ?? "Case Study"}>
+                {project.hrefLabel ?? "Case Study"}
+              </span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </a>
+            {project.liveUrl && (
+              <a href={project.liveUrl} target="_blank" rel="noreferrer" class="btn-cta btn-cta--ghost">
+                <span data-en={project.liveLabel ?? "Live Demo"} data-vi={project.liveLabelVi ?? "Demo"}>
+                  {project.liveLabel ?? "Live Demo"}
+                </span>
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              </a>
+            )}
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 3: PROJECT (GITHUB) CÒN LẠI (DẠNG LIỆT KÊ) -->
+  <!-- ============================================================ -->
+  <section class="catalogue-section" data-section-group="github">
+    <div class="section-heading">
+      <div class="section-badge section-badge--gh">
+        <i class="fa-brands fa-github"></i>
+        <span data-en="GITHUB REPOSITORIES" data-vi="PROJECT (GITHUB) · LIỆT KÊ">GITHUB REPOSITORIES</span>
+      </div>
+      <h2 data-en="Code Archives & Tools" data-vi="Dự án GitHub (Dạng liệt kê)">
+        Code Archives & Tools
+      </h2>
+    </div>
+
+    <!-- Visual List View -->
+    <div class="repo-list panel">
+      {githubProjects.map((project, index) => (
+        <article
+          class="repo-row"
+          data-project
+          data-project-group="github"
+          data-category={project.category}
+          data-search={`${project.title} ${project.description} ${project.descriptionVi} ${project.technologies.join(" ")}`.toLowerCase()}
+        >
+          <!-- Left: Index & Mini Icon/Thumbnail -->
+          <div class="repo-thumb-col">
+            <span class="repo-index">{String(index + 1).padStart(2, "0")}</span>
+            <div class="repo-mini-thumb">
+              {project.image ? (
+                <img src={project.image} alt={project.title} loading="lazy" />
+              ) : (
+                <i class="fa-solid fa-code"></i>
+              )}
+            </div>
+          </div>
+
+          <!-- Middle: Info & Tech -->
+          <div class="repo-info-col">
+            <div class="repo-header">
+              <a href={project.href} target="_blank" rel="noreferrer" class="repo-title">
+                <span>{project.title}</span>
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              </a>
+              <span class="repo-type" data-en={project.type} data-vi={project.typeVi}>{project.type}</span>
+              <span class="repo-period">{project.period}</span>
+            </div>
+            <p class="repo-desc" data-en={project.description} data-vi={project.descriptionVi}>
+              {project.description}
+            </p>
+            <div class="repo-techs">
+              {project.technologies.map((tech) => (
+                <span>{tech}</span>
+              ))}
+            </div>
+          </div>
+
+          <!-- Right: Direct GitHub Action -->
+          <div class="repo-action-col">
+            <a href={project.href} target="_blank" rel="noreferrer" class="btn-gh-action">
+              <i class="fa-brands fa-github"></i>
+              <span data-en="Repository" data-vi="Mã nguồn">Repository</span>
+            </a>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <!-- Empty state -->
+  <div class="empty-state panel" data-project-empty hidden>
+    <i class="fa-solid fa-magnifying-glass empty-icon"></i>
+    <h3 data-en="No projects match this search" data-vi="Không tìm thấy dự án phù hợp">No projects match this search</h3>
+    <p data-en="Try changing your keywords or resetting filters." data-vi="Hãy thử thay đổi từ khóa hoặc đặt lại bộ lọc.">
+      Try changing your keywords or resetting filters.
+    </p>
+    <button type="button" class="btn-cta btn-cta--ghost" data-clear-filters>
+      <span data-en="Reset filters" data-vi="Đặt lại bộ lọc">Reset filters</span>
+    </button>
+  </div>
 </section>
 
 <script>
-  const search = document.querySelector<HTMLInputElement>("[data-project-search]");
-  const filterButtons = Array.from(
-    document.querySelectorAll<HTMLButtonElement>("[data-project-filter]"),
-  );
-  const rows = Array.from(document.querySelectorAll<HTMLElement>("[data-project]"));
-  const count = document.querySelector<HTMLElement>("[data-project-count]");
-  const empty = document.querySelector<HTMLElement>("[data-project-empty]");
-  let activeFilter = "all";
+  const searchInput = document.querySelector<HTMLInputElement>("[data-project-search]");
+  const filterButtons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-project-filter]"));
+  const allProjectItems = Array.from(document.querySelectorAll<HTMLElement>("[data-project]"));
+  const totalCountEl = document.querySelector<HTMLElement>("[data-project-count]");
+  const emptyStateEl = document.querySelector<HTMLElement>("[data-project-empty]");
+  const clearFiltersBtn = document.querySelector<HTMLButtonElement>("[data-clear-filters]");
+  const sectionContainers = Array.from(document.querySelectorAll<HTMLElement>("[data-section-group]"));
 
-  const normalize = (value: string) =>
+  let activeCategory = "all";
+
+  const normalizeText = (value: string): string =>
     value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
-  function updateProjects() {
-    const query = normalize(search?.value ?? "");
-    let visible = 0;
+  function applyFilters() {
+    const query = normalizeText(searchInput?.value ?? "");
+    let totalVisible = 0;
 
-    rows.forEach((row) => {
-      const matchesFilter =
-        activeFilter === "all" || row.dataset.category === activeFilter;
-      const matchesSearch = normalize(row.dataset.search ?? "").includes(query);
-      const show = matchesFilter && matchesSearch;
-      row.hidden = !show;
-      if (show) visible += 1;
+    const sectionVisibilityMap = new Map<string, number>();
+    sectionContainers.forEach((sec) => {
+      sectionVisibilityMap.set(sec.dataset.sectionGroup ?? "", 0);
     });
 
-    if (count) count.textContent = String(visible);
-    if (empty) empty.hidden = visible !== 0;
+    allProjectItems.forEach((item) => {
+      const itemGroup = item.dataset.projectGroup ?? "";
+      const matchesCategory = activeCategory === "all" || item.dataset.category === activeCategory;
+      const matchesQuery = !query || normalizeText(item.dataset.search ?? "").includes(query);
+      const isVisible = matchesCategory && matchesQuery;
+
+      item.hidden = !isVisible;
+      if (isVisible) {
+        totalVisible += 1;
+        const currentCount = sectionVisibilityMap.get(itemGroup) ?? 0;
+        sectionVisibilityMap.set(itemGroup, currentCount + 1);
+      }
+    });
+
+    sectionContainers.forEach((sec) => {
+      const groupName = sec.dataset.sectionGroup ?? "";
+      sec.hidden = (sectionVisibilityMap.get(groupName) ?? 0) === 0;
+    });
+
+    if (totalCountEl) totalCountEl.textContent = String(totalVisible);
+    if (emptyStateEl) emptyStateEl.hidden = totalVisible > 0;
   }
 
-  search?.addEventListener("input", updateProjects);
+  searchInput?.addEventListener("input", applyFilters);
 
-  filterButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      activeFilter = button.dataset.projectFilter ?? "all";
-      filterButtons.forEach((item) =>
-        item.setAttribute("aria-pressed", String(item === button)),
-      );
-      updateProjects();
+  filterButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      activeCategory = btn.dataset.projectFilter ?? "all";
+      filterButtons.forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+      applyFilters();
     });
   });
 
+  clearFiltersBtn?.addEventListener("click", () => {
+    if (searchInput) searchInput.value = "";
+    activeCategory = "all";
+    filterButtons.forEach((b, idx) => b.setAttribute("aria-pressed", String(idx === 0)));
+    applyFilters();
+  });
+
   window.addEventListener("portfolio:language", (event) => {
-    const language = (event as CustomEvent).detail?.language === "vi" ? "vi" : "en";
-    if (search) {
-      search.placeholder =
-        language === "vi"
-          ? search.dataset.placeholderVi ?? ""
-          : search.dataset.placeholderEn ?? "";
+    const lang = (event as CustomEvent).detail?.language === "vi" ? "vi" : "en";
+    if (searchInput) {
+      searchInput.placeholder = lang === "vi"
+        ? (searchInput.dataset.placeholderVi ?? "")
+        : (searchInput.dataset.placeholderEn ?? "");
     }
   });
 
   try {
-    if (search && localStorage.getItem("portfolio-language") === "vi") {
-      search.placeholder = search.dataset.placeholderVi ?? "";
+    if (searchInput && localStorage.getItem("portfolio-language") === "vi") {
+      searchInput.placeholder = searchInput.dataset.placeholderVi ?? "";
     }
   } catch {
-    // The search remains usable when storage is unavailable.
+    // Non-blocking
   }
 </script>
 
 <style>
+  /* Base */
   .project-index {
-    padding-top: 118px;
+    padding-top: 104px;
     padding-bottom: 120px;
   }
 
+  /* Hero */
   .project-hero {
-    display: grid;
-    grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
-    gap: 72px;
-    align-items: end;
-    padding: 58px 0 64px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 40px;
+    padding: 44px 0 48px;
+    border-bottom: 1px solid var(--border-default);
+  }
+
+  .hero-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .live-indicator {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #18c785;
+    box-shadow: 0 0 10px #18c785;
+  }
+
+  .section-index {
+    color: var(--brand-green);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    font-weight: 600;
   }
 
   h1 {
-    max-width: 790px;
-    margin: 20px 0 0;
-    font-size: clamp(3rem, 7vw, 6.8rem);
-    letter-spacing: -0.075em;
-    line-height: 0.96;
+    margin: 0 0 10px;
+    font-size: clamp(2.6rem, 5.5vw, 5.2rem);
+    letter-spacing: -0.06em;
+    line-height: 0.98;
   }
 
-  .project-hero > p {
-    max-width: 520px;
-    margin: 0 0 8px;
+  .hero-left p {
+    margin: 0;
+    max-width: 540px;
     color: var(--text-muted);
-    font-size: clamp(0.9rem, 1.5vw, 1.08rem);
+    font-size: 0.95rem;
+    line-height: 1.55;
   }
 
+  .hero-stats {
+    display: flex;
+    gap: 12px;
+  }
+
+  .stat-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 22px;
+    border-radius: 16px;
+    min-width: 100px;
+  }
+
+  .stat-box strong {
+    font-size: 1.6rem;
+    font-family: var(--font-mono);
+    color: var(--brand-soft);
+    line-height: 1;
+  }
+
+  .stat-box span {
+    margin-top: 4px;
+    font-size: 0.58rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  /* Toolbar */
   .project-tools {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 24px;
-    padding: 14px;
-    border-radius: 18px;
+    gap: 20px;
+    padding: 10px 14px;
+    border-radius: 16px;
+    margin-top: 36px;
   }
 
   .search-field {
     display: flex;
-    min-width: min(360px, 100%);
     align-items: center;
-    gap: 12px;
-    padding: 0 14px;
+    gap: 10px;
+    flex: 1;
+    max-width: 360px;
+    padding: 0 8px;
     color: var(--brand-soft);
+  }
+
+  .search-icon {
+    font-size: 0.78rem;
+    opacity: 0.7;
   }
 
   .search-field input {
     width: 100%;
-    padding: 10px 0;
+    padding: 8px 0;
     border: 0;
     outline: 0;
     background: transparent;
     color: var(--text-main);
-    font-size: 0.76rem;
+    font-size: 0.8rem;
   }
 
-  .search-field input::placeholder { color: var(--text-muted); }
+  .search-field input::placeholder {
+    color: var(--text-muted);
+  }
 
   .filter-list {
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 6px;
+    gap: 5px;
   }
 
   .filter-list button {
-    padding: 8px 12px;
+    padding: 6px 12px;
     border: 1px solid transparent;
     border-radius: var(--radius-pill);
     background: transparent;
     color: var(--text-muted);
     cursor: pointer;
     font-family: var(--font-mono);
-    font-size: 0.58rem;
-    transition:
-      color var(--duration-fast) ease,
-      border-color var(--duration-fast) ease,
-      background var(--duration-fast) ease;
+    font-size: 0.62rem;
+    transition: all var(--duration-fast) ease;
   }
 
-  .filter-list button:hover { color: var(--text-main); }
+  .filter-list button:hover {
+    color: var(--text-main);
+    background: rgb(255 255 255 / 3%);
+  }
 
   .filter-list button[aria-pressed="true"] {
     border-color: var(--border-active);
-    background: rgb(24 199 133 / 10%);
+    background: rgb(24 199 133 / 12%);
     color: var(--brand-soft);
+    font-weight: 600;
   }
 
+  /* Result bar */
   .result-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 30px 4px 18px;
+    padding: 18px 4px 32px;
     color: var(--text-muted);
     font-family: var(--font-mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-size: 0.64rem;
   }
 
-  .result-bar strong { color: var(--brand-soft); }
+  .counter-text strong {
+    color: var(--brand-soft);
+    margin: 0 4px;
+  }
 
-  .result-bar a {
-    display: flex;
+  .gh-link {
+    display: inline-flex;
     align-items: center;
     gap: 8px;
     color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.64rem;
+    transition: color var(--duration-fast) ease;
   }
 
-  .project-list {
-    border-top: 1px solid var(--border-default);
+  .gh-link:hover {
+    color: var(--brand-soft);
   }
 
-  .project-row {
-    position: relative;
-    display: grid;
-    grid-template-columns: 56px minmax(0, 1fr) 150px 150px;
-    gap: 24px;
-    align-items: start;
-    padding: 30px 20px 30px 4px;
-    border-bottom: 1px solid var(--border-default);
-    transition:
-      border-color var(--duration-normal) ease,
-      background var(--duration-normal) ease;
+  /* Sections */
+  .catalogue-section {
+    margin-bottom: 64px;
   }
 
-  .project-row:hover {
-    border-color: rgb(24 199 133 / 45%);
-    background: linear-gradient(90deg, rgb(24 199 133 / 6%), transparent 70%);
+  .section-heading {
+    margin-bottom: 22px;
   }
 
-  .project-row.is-featured {
-    background:
-      linear-gradient(90deg, rgb(24 199 133 / 8%), transparent 66%),
-      rgb(255 255 255 / 1%);
-  }
-
-  .project-number {
-    padding-top: 6px;
-    color: var(--brand-green);
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-  }
-
-  .project-titleline {
-    display: flex;
-    flex-wrap: wrap;
+  .section-badge {
+    display: inline-flex;
     align-items: center;
-    gap: 12px;
-  }
-
-  h2 {
-    margin: 0;
-    font-size: clamp(1.25rem, 2.3vw, 2rem);
-    letter-spacing: -0.045em;
-    line-height: 1.15;
-  }
-
-  .featured-badge {
-    padding: 4px 8px;
-    border: 1px solid var(--border-active);
+    gap: 7px;
+    padding: 4px 10px;
     border-radius: var(--radius-pill);
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .section-badge--live {
+    background: rgb(24 199 133 / 12%);
+    border: 1px solid rgb(24 199 133 / 35%);
+    color: #4eedb0;
+  }
+
+  .section-badge--case {
+    background: rgb(59 130 246 / 10%);
+    border: 1px solid rgb(59 130 246 / 35%);
+    color: #93c5fd;
+  }
+
+  .section-badge--gh {
+    background: rgb(255 255 255 / 4%);
+    border: 1px solid rgb(255 255 255 / 12%);
+    color: var(--text-secondary);
+  }
+
+  .beacon-pulse {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #18c785;
+    box-shadow: 0 0 8px #18c785;
+    animation: beaconPulse 1.8s infinite ease-in-out;
+  }
+
+  .section-heading h2 {
+    margin: 0;
+    font-size: clamp(1.4rem, 2.4vw, 2rem);
+    letter-spacing: -0.04em;
+    line-height: 1.2;
+  }
+
+  /* Visual Card Grid */
+  .visual-card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+  }
+
+  .visual-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border-radius: 18px;
+    overflow: hidden;
+    background: linear-gradient(170deg, rgb(14 30 23 / 70%), rgb(7 16 12 / 85%));
+    border: 1px solid var(--border-default);
+    transition: transform var(--duration-normal) ease, border-color var(--duration-normal) ease, box-shadow var(--duration-normal) ease;
+  }
+
+  .visual-card:hover {
+    transform: translateY(-4px);
+    border-color: rgb(24 199 133 / 45%);
+    box-shadow: 0 14px 34px -10px rgb(0 0 0 / 65%), 0 0 24px -6px rgb(24 199 133 / 12%);
+  }
+
+  /* Card Media Preview (16:9 Image) */
+  .card-media {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: #040906;
+  }
+
+  .card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 500ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .visual-card:hover .card-media img {
+    transform: scale(1.05);
+  }
+
+  .media-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 40%, rgb(7 16 12 / 92%) 100%);
+    pointer-events: none;
+  }
+
+  .media-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 2.2rem;
+    opacity: 0.3;
+  }
+
+  .media-badges {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    z-index: 2;
+  }
+
+  .badge-org {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: var(--radius-pill);
+    background: rgb(7 16 12 / 85%);
+    border: 1px solid rgb(24 199 133 / 40%);
     color: var(--brand-soft);
     font-family: var(--font-mono);
-    font-size: 0.5rem;
-    letter-spacing: 0.06em;
+    font-size: 0.58rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    backdrop-filter: blur(8px);
+  }
+
+  .badge-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: var(--radius-pill);
+    background: rgb(7 16 12 / 85%);
+    border: 1px solid rgb(255 255 255 / 15%);
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    backdrop-filter: blur(8px);
+  }
+
+  .badge-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    border-radius: var(--radius-pill);
+    background: rgb(7 16 12 / 85%);
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    backdrop-filter: blur(8px);
+  }
+
+  .badge-status--live {
+    color: #4eedb0;
+    border: 1px solid rgb(24 199 133 / 30%);
+  }
+
+  .badge-status--personal {
+    color: #c084fc;
+    border: 1px solid rgb(168 85 247 / 30%);
+  }
+
+  .badge-status--enterprise {
+    color: #93c5fd;
+    border: 1px solid rgb(59 130 246 / 30%);
+  }
+
+  .pulse-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 6px currentColor;
+  }
+
+  /* Card Body */
+  .card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 22px 14px;
+  }
+
+  .card-meta-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    color: var(--text-muted);
+  }
+
+  .card-title {
+    margin: 0 0 8px;
+    font-size: 1.2rem;
+    letter-spacing: -0.03em;
+    line-height: 1.25;
+  }
+
+  .card-title a {
+    color: var(--text-main);
+    text-decoration: none;
+    transition: color var(--duration-fast) ease;
+  }
+
+  .card-title a:hover {
+    color: var(--brand-soft);
+  }
+
+  .card-summary {
+    margin: 0 0 16px;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Metric Chips */
+  .metric-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+
+  .metric-chip {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgb(255 255 255 / 3%);
+    border: 1px solid rgb(255 255 255 / 6%);
+    font-size: 0.62rem;
+  }
+
+  .metric-chip strong {
+    color: var(--brand-soft);
+    font-family: var(--font-mono);
+    font-weight: 700;
+  }
+
+  .metric-chip span {
+    color: var(--text-muted);
+    font-size: 0.55rem;
     text-transform: uppercase;
   }
 
-  .project-main p {
-    max-width: 690px;
-    margin: 10px 0 14px;
-    color: var(--text-muted);
-    font-size: 0.76rem;
-  }
-
-  .tech-list {
+  /* Tech Pills */
+  .tech-pills {
     display: flex;
     flex-wrap: wrap;
-    gap: 7px;
+    gap: 5px;
+    margin-top: auto;
+    padding-top: 10px;
   }
 
-  .tech-list span {
+  .tech-pills span {
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: rgb(255 255 255 / 2%);
+    border: 1px solid rgb(255 255 255 / 5%);
     color: var(--text-secondary);
-    font-family: var(--font-mono);
-    font-size: 0.53rem;
-  }
-
-  .tech-list span:not(:last-child)::after {
-    margin-left: 7px;
-    color: var(--wood-soft);
-    content: "/";
-  }
-
-  .project-meta {
-    display: grid;
-    gap: 6px;
-    padding-top: 6px;
-    color: var(--text-muted);
     font-family: var(--font-mono);
     font-size: 0.56rem;
   }
 
-  .project-meta span:first-child { color: var(--brand-green); }
-
-  .project-action {
+  /* Footer Actions */
+  .card-footer {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    gap: 10px;
-    padding-top: 4px;
+    gap: 8px;
+    padding: 14px 22px 18px;
+    border-top: 1px solid rgb(255 255 255 / 4%);
+  }
+
+  .btn-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all var(--duration-fast) ease;
+    cursor: pointer;
+  }
+
+  .btn-cta--primary {
+    background: rgb(24 199 133 / 14%);
+    border: 1px solid rgb(24 199 133 / 40%);
     color: var(--brand-soft);
-    font-size: 0.66rem;
-    font-weight: 700;
   }
 
-  .project-action span:last-child {
-    transition: transform var(--duration-fast) ease;
+  .btn-cta--primary:hover {
+    background: var(--brand-green);
+    color: #030806;
+    border-color: var(--brand-green);
+    transform: translateX(2px);
   }
 
-  .project-action:hover span:last-child { transform: translate(3px, -3px); }
+  .btn-cta--ghost {
+    background: rgb(255 255 255 / 3%);
+    border: 1px solid rgb(255 255 255 / 8%);
+    color: var(--text-secondary);
+  }
 
-  .empty-state {
-    padding: 80px 20px;
-    border-bottom: 1px solid var(--border-default);
+  .btn-cta--ghost:hover {
+    background: rgb(255 255 255 / 6%);
+    color: var(--text-main);
+    border-color: rgb(255 255 255 / 20%);
+  }
+
+  /* ========================================================
+     SECTION 3: REPO LIST (VISUAL ROW LIST)
+     ======================================================== */
+  .repo-list {
+    border-radius: 18px;
+    overflow: hidden;
+  }
+
+  .repo-row {
+    display: grid;
+    grid-template-columns: 80px minmax(0, 1fr) 130px;
+    gap: 20px;
+    align-items: center;
+    padding: 18px 24px;
+    border-bottom: 1px solid rgb(255 255 255 / 4%);
+    transition: background var(--duration-fast) ease;
+  }
+
+  .repo-row:last-child {
+    border-bottom: 0;
+  }
+
+  .repo-row:hover {
+    background: linear-gradient(90deg, rgb(24 199 133 / 5%), transparent 75%);
+  }
+
+  .repo-thumb-col {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .repo-index {
+    color: var(--brand-green);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+  }
+
+  .repo-mini-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgb(255 255 255 / 4%);
+    border: 1px solid rgb(255 255 255 / 8%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: var(--text-muted);
+  }
+
+  .repo-mini-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .repo-info-col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .repo-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .repo-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--text-main);
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color var(--duration-fast) ease;
+  }
+
+  .repo-title:hover {
+    color: var(--brand-soft);
+  }
+
+  .repo-title i {
+    font-size: 0.65rem;
+    opacity: 0.6;
+  }
+
+  .repo-type {
+    padding: 2px 7px;
+    border-radius: var(--radius-pill);
+    background: rgb(255 255 255 / 3%);
+    border: 1px solid rgb(255 255 255 / 6%);
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+  }
+
+  .repo-period {
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+  }
+
+  .repo-desc {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    line-height: 1.45;
+  }
+
+  .repo-techs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 4px;
+  }
+
+  .repo-techs span {
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.54rem;
+  }
+
+  .repo-techs span:not(:last-child)::after {
+    margin-left: 5px;
+    color: var(--wood-soft);
+    content: "·";
+  }
+
+  .repo-action-col {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .btn-gh-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: rgb(255 255 255 / 4%);
+    border: 1px solid rgb(255 255 255 / 10%);
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    text-decoration: none;
+    transition: all var(--duration-fast) ease;
+  }
+
+  .btn-gh-action:hover {
+    background: rgb(24 199 133 / 14%);
+    border-color: rgb(24 199 133 / 40%);
+    color: var(--brand-soft);
+  }
+
+  /* Empty state */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
+    padding: 60px 20px;
+    border-radius: 18px;
+    margin: 32px 0;
+  }
+
+  .empty-icon {
+    font-size: 1.8rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    opacity: 0.5;
+  }
+
+  .empty-state h3 {
+    margin: 0 0 6px;
+    font-size: 1.15rem;
+  }
+
+  .empty-state p {
+    margin: 0 0 16px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
   }
 
   .sr-only {
@@ -423,33 +1182,76 @@ const filters = [
     border: 0;
   }
 
-  [hidden] { display: none; }
+  [hidden] {
+    display: none !important;
+  }
 
-  @media (max-width: 980px) {
-    .project-hero { grid-template-columns: 1fr; gap: 26px; }
-    .project-tools { align-items: stretch; flex-direction: column; }
-    .filter-list { justify-content: flex-start; }
-    .project-row { grid-template-columns: 44px minmax(0, 1fr) 130px; }
-    .project-action { grid-column: 2 / -1; justify-content: flex-start; padding-top: 0; }
+  @keyframes beaconPulse {
+    0%, 100% {
+      transform: scale(0.85);
+      opacity: 0.7;
+    }
+    50% {
+      transform: scale(1.2);
+      opacity: 1;
+    }
+  }
+
+  /* Responsive */
+  @media (max-width: 1080px) {
+    .visual-card-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 900px) {
+    .project-hero {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 24px;
+    }
+
+    .project-tools {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .search-field {
+      max-width: none;
+    }
+
+    .repo-row {
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      padding: 16px;
+    }
+
+    .repo-thumb-col {
+      display: none;
+    }
   }
 
   @media (max-width: 680px) {
-    .project-index { padding-top: 54px; padding-bottom: 80px; }
-    .project-hero { padding: 42px 0; }
-    h1 { font-size: clamp(2.7rem, 15vw, 4.6rem); }
-    .project-tools { padding: 12px; }
-    .search-field { min-width: 0; padding: 0 8px; }
-    .filter-list { gap: 4px; }
-    .filter-list button { padding: 7px 9px; }
-    .project-row {
-      grid-template-columns: 34px minmax(0, 1fr);
-      gap: 14px;
-      padding: 26px 4px;
+    .project-index {
+      padding-top: 50px;
+      padding-bottom: 70px;
     }
-    .project-meta,
-    .project-action { grid-column: 2; }
-    .project-meta { grid-template-columns: auto 1fr; gap: 12px; }
-    .result-bar { padding-top: 24px; }
-    .result-bar a span:first-child { display: none; }
+
+    .visual-card-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .stat-box {
+      padding: 12px 14px;
+      min-width: 80px;
+    }
+
+    .repo-row {
+      grid-template-columns: 1fr;
+    }
+
+    .repo-action-col {
+      justify-content: flex-start;
+    }
   }
 </style>

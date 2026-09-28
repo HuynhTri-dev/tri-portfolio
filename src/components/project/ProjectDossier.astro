@@ -61,6 +61,13 @@ const baseHeadingDepth = documentHeadings.length
     </aside>
   </header>
 
+  {project.image && (
+    <div class="dossier-hero-media panel">
+      <img src={project.image} alt={project.title} class="hero-media-img" />
+      <div class="hero-media-overlay"></div>
+    </div>
+  )}
+
   <div class="metric-grid grid gap-3 md:grid-cols-3">
     {project.metrics.map((metric) => (
       <div class="metric panel">
@@ -156,6 +163,75 @@ const baseHeadingDepth = documentHeadings.length
 
     indexedHeadings.forEach((heading) => observer.observe(heading));
   }
+
+  /**
+   * Initializes and renders Mermaid diagrams across project dossier documents.
+   */
+  async function initMermaid() {
+    const mermaidNodes = document.querySelectorAll<HTMLElement>(
+      'pre[data-language="mermaid"], pre.astro-code[data-language="mermaid"]',
+    );
+    if (!mermaidNodes.length) return;
+
+    try {
+      const { default: mermaid } = await import("mermaid");
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "base",
+        themeVariables: {
+          darkMode: true,
+          fontFamily: "var(--font-mono, 'IBM Plex Mono', monospace)",
+          fontSize: "12px",
+          background: "transparent",
+          mainBkg: "#071711",
+          nodeBorder: "#18c785",
+          primaryColor: "#0b251a",
+          primaryTextColor: "#f1f5f9",
+          primaryBorderColor: "rgba(24, 199, 133, 0.7)",
+          lineColor: "#52b788",
+          secondaryColor: "#051810",
+          secondaryBorderColor: "rgba(117, 230, 178, 0.4)",
+          secondaryTextColor: "#f1f5f9",
+          tertiaryColor: "#030e09",
+          tertiaryBorderColor: "rgba(117, 230, 178, 0.2)",
+          tertiaryTextColor: "#f1f5f9",
+          clusterBkg: "rgba(8, 26, 19, 0.75)",
+          clusterBorder: "rgba(24, 199, 133, 0.35)",
+          defaultLinkColor: "#52b788",
+          titleColor: "#18c785",
+          edgeLabelBackground: "#06130e",
+          nodeTextColor: "#f1f5f9",
+        },
+        securityLevel: "loose",
+      });
+
+      for (let i = 0; i < mermaidNodes.length; i++) {
+        const pre = mermaidNodes[i];
+        const code = (pre.textContent || "").trim();
+        if (!code) continue;
+
+        const id = `mermaid-graph-${i}-${Math.random().toString(36).slice(2, 8)}`;
+        try {
+          const { svg } = await mermaid.render(id, code);
+          const wrapper = document.createElement("div");
+          wrapper.className = "mermaid-diagram-card";
+          wrapper.innerHTML = svg;
+          pre.replaceWith(wrapper);
+        } catch (err) {
+          console.error("Mermaid diagram render error:", err);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load mermaid library:", err);
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initMermaid);
+  } else {
+    initMermaid();
+  }
+  document.addEventListener("astro:page-load", initMermaid);
 </script>
 
 <style>
@@ -259,7 +335,33 @@ const baseHeadingDepth = documentHeadings.length
   .project-meta strong { margin-top: 4px; font-size: 0.74rem; }
   .project-meta a:hover strong { color: var(--brand-soft); }
 
-  .metric-grid { margin: 16px 0; }
+  .dossier-hero-media {
+    position: relative;
+    width: 100%;
+    max-height: 480px;
+    margin-top: 24px;
+    border-radius: var(--radius-standard);
+    overflow: hidden;
+    border: 1px solid var(--border-default);
+    background: #040906;
+  }
+
+  .hero-media-img {
+    width: 100%;
+    height: 100%;
+    max-height: 480px;
+    object-fit: cover;
+    object-position: center top;
+  }
+
+  .hero-media-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 65%, rgb(8 22 17 / 80%) 100%);
+    pointer-events: none;
+  }
+
+  .metric-grid { margin: 20px 0; }
   .metric {
     display: flex;
     min-height: 118px;
@@ -508,6 +610,46 @@ const baseHeadingDepth = documentHeadings.length
 
   .mdx-content :global(.katex-display .base) {
     line-height: 1.5;
+  }
+
+  .mdx-content :global(.mermaid-diagram-card) {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 28px 0;
+    padding: 38px 20px 24px;
+    overflow-x: auto;
+    border: 1px solid rgb(117 230 178 / 22%);
+    border-radius: 16px;
+    background:
+      radial-gradient(circle at 94% 0%, rgb(59 130 246 / 9%), transparent 36%),
+      linear-gradient(180deg, rgb(8 24 17 / 95%), rgb(4 14 10 / 96%));
+    box-shadow:
+      0 12px 32px -8px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgb(255 255 255 / 4%);
+    scrollbar-color: rgb(117 230 178 / 28%) transparent;
+    scrollbar-width: thin;
+  }
+
+  .mdx-content :global(.mermaid-diagram-card::before) {
+    position: absolute;
+    top: 10px;
+    left: 14px;
+    color: var(--brand-green);
+    content: "ARCHITECTURE DIAGRAM";
+    font-family: var(--font-mono);
+    font-size: 0.46rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    opacity: 0.8;
+  }
+
+  .mdx-content :global(.mermaid-diagram-card svg) {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 8px auto 0;
   }
 
   @media (max-width: 960px) {

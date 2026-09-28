@@ -1,7 +1,7 @@
 ---
 /**
  * @name ExperienceSection.astro
- * @description Showcases professional workplaces, engineering roles, and associated projects/systems.
+ * @description Showcases professional workplaces with company logos, concise role summaries, and direct links to detailed tasks & responsibilities.
  */
 import SectionHeading from "../ui/SectionHeading.astro";
 import { experiences } from "../../data/portfolio";
@@ -12,94 +12,76 @@ import { experiences } from "../../data/portfolio";
     index="02 / TRACK RECORD"
     titleEn="Work & Affiliations"
     titleVi="Nơi làm việc & Tổ chức"
-    descriptionEn="Professional workplaces, engineering teams, and core architectural responsibilities connecting code to real-world operational impact."
-    descriptionVi="Môi trường làm việc chuyên nghiệp, các đội ngũ kỹ thuật và trọng trách kiến trúc cốt lõi gắn liền với sản phẩm thực tế."
+    descriptionEn="Engineering workplaces and core product responsibilities connecting code to real-world operational impact."
+    descriptionVi="Môi trường làm việc chuyên nghiệp và trọng trách sản phẩm cốt lõi gắn liền với thực tiễn."
   />
 
   <div class="experience-grid">
     {
       experiences.map((item) => (
         <article class:list={["experience-card", "panel", `type-${item.badgeType}`]}>
-          <div class="card-header">
-            <div class="org-meta">
-              <span class="org-icon" aria-hidden="true">
-                {item.id === "idb" && <i class="fa-solid fa-building-shield"></i>}
-                {item.id === "ritavo" && <i class="fa-solid fa-boxes-stacked"></i>}
-                {item.id === "vinagreen" && <i class="fa-solid fa-leaf"></i>}
-                {item.id === "omnimer" && <i class="fa-solid fa-brain"></i>}
-              </span>
-              <div>
-                <h3 class="org-title">{item.orgName}</h3>
-                <span class="period-tag" data-en={item.periodEn} data-vi={item.periodVi}>
-                  <i class="fa-regular fa-clock" aria-hidden="true"></i>
-                  {item.periodEn}
-                </span>
-              </div>
-            </div>
-
-            <span class:list={["badge-pill", `badge-${item.badgeType}`]}>
-              {item.badgeType === "current" && <span class="pulse-indicator" aria-hidden="true"></span>}
-              <span data-en={item.badgeEn} data-vi={item.badgeVi}>{item.badgeEn}</span>
-            </span>
-          </div>
-
-          <div class="role-block">
-            <h4 class="role-title" data-en={item.roleEn} data-vi={item.roleVi}>
-              {item.roleEn}
-            </h4>
-            <p class="role-overview" data-en={item.overviewEn} data-vi={item.overviewVi}>
-              {item.overviewEn}
-            </p>
-          </div>
-
-          <div class="associated-box">
-            <div class="associated-top">
-              <span class="associated-kicker" data-en="CONNECTED SYSTEM / PRODUCT" data-vi="SẢN PHẨM / DỰ ÁN GẮN LIỀN">
-                CONNECTED SYSTEM / PRODUCT
-              </span>
-              <span class="status-indicator" data-en={item.project.statusEn} data-vi={item.project.statusVi}>
-                {item.project.statusEn}
-              </span>
-            </div>
-
-            <h5 class="project-name" data-en={item.project.titleEn} data-vi={item.project.titleVi}>
-              {item.project.titleEn}
-            </h5>
-
-            <p class="project-desc" data-en={item.project.descriptionEn} data-vi={item.project.descriptionVi}>
-              {item.project.descriptionEn}
-            </p>
-
-            <div class="action-links flex flex-wrap gap-2">
-              {item.project.links.map((link) => (
-                <a
-                  class="action-button"
-                  href={link.href}
-                  target={link.isExternal ? "_blank" : undefined}
-                  rel={link.isExternal ? "noreferrer" : undefined}
-                >
-                  <span data-en={link.labelEn} data-vi={link.labelVi}>{link.labelEn}</span>
-                  <span class="link-icon" aria-hidden="true">
-                    {link.icon === "fa-github" ? (
-                      <i class="fa-brands fa-github"></i>
-                    ) : link.icon === "fa-folder-open" ? (
-                      <i class="fa-regular fa-folder-open"></i>
-                    ) : (
-                      <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                    )}
+          <div class="card-inner-top">
+            <!-- Header: Company Logo, Org Info & Status Badge -->
+            <div class="card-top">
+              <div class="org-brand-wrap">
+                <div class="company-logo-frame">
+                  <img src={item.logo} alt={item.orgName} class="company-logo-img" width="36" height="36" />
+                </div>
+                <div class="org-info">
+                  <h3 class="org-title">{item.orgName}</h3>
+                  <span class="period-pill" data-en={item.periodEn} data-vi={item.periodVi}>
+                    <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                    {item.periodEn}
                   </span>
-                </a>
-              ))}
-            </div>
-          </div>
+                </div>
+              </div>
 
-          <div class="tech-footer">
-            <span class="tech-label" data-en="Stack" data-vi="Công nghệ">Stack:</span>
-            <div class="tech-pills flex flex-wrap gap-1.5">
-              {item.technologies.map((tech) => (
+              <span class:list={["badge-pill", `badge-${item.badgeType}`]}>
+                {item.badgeType === "current" && <span class="pulse-indicator" aria-hidden="true"></span>}
+                <span data-en={item.badgeEn} data-vi={item.badgeVi}>{item.badgeEn}</span>
+              </span>
+            </div>
+
+            <!-- Role Title & Location -->
+            <div class="role-row">
+              <h4 class="role-name" data-en={item.roleEn} data-vi={item.roleVi}>
+                {item.roleEn}
+              </h4>
+              <span class="location-text" data-en={item.locationEn} data-vi={item.locationVi}>
+                <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                {item.locationEn}
+              </span>
+            </div>
+
+            <!-- Connected System Box (Uniform Min-Height) -->
+            <div class="connected-product-box">
+              <span class="product-label" data-en="CONNECTED SYSTEM" data-vi="SẢN PHẨM GẮN LIỀN">CONNECTED SYSTEM</span>
+              <strong class="product-name" data-en={item.project.titleEn} data-vi={item.project.titleVi}>
+                {item.project.titleEn}
+              </strong>
+            </div>
+
+            <!-- Tech Stack Row -->
+            <div class="tech-row">
+              {item.technologies.slice(0, 4).map((tech) => (
                 <span class="tech-badge">{tech}</span>
               ))}
             </div>
+          </div>
+
+          <!-- Bottom Action Buttons (Always Aligned to Bottom) -->
+          <div class="card-action-footer">
+            <a href={`/experience/${item.id}`} class="btn-role-detail">
+              <span data-en="View role & tasks" data-vi="Chi tiết công việc & nhiệm vụ">View role & tasks</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </a>
+
+            {item.orgHref && (
+              <a href={item.orgHref} target="_blank" rel="noreferrer" class="btn-org-link" aria-label={`Visit ${item.orgName}`}>
+                <span data-en="Website" data-vi="Trang web">Website</span>
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              </a>
+            )}
           </div>
         </article>
       ))
@@ -111,19 +93,20 @@ import { experiences } from "../../data/portfolio";
   .experience-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 22px;
+    gap: 24px;
+    align-items: stretch;
   }
 
   .experience-card {
     position: relative;
     display: flex;
     flex-direction: column;
-    padding: 32px;
-    border-radius: 22px;
+    justify-content: space-between;
+    height: 100%;
+    padding: 26px 28px 24px;
+    border-radius: 20px;
     border: 1px solid var(--border-default);
-    background:
-      linear-gradient(155deg, rgb(255 255 255 / 2.5%), transparent 60%),
-      rgb(5 14 11 / 88%);
+    background: linear-gradient(160deg, rgb(15 32 24 / 70%), rgb(6 14 11 / 85%));
     backdrop-filter: blur(14px);
     transition:
       transform var(--duration-normal) ease,
@@ -133,268 +116,277 @@ import { experiences } from "../../data/portfolio";
 
   .experience-card:hover {
     transform: translateY(-4px);
-    border-color: rgb(24 199 133 / 42%);
-    box-shadow: 0 16px 40px rgb(0 0 0 / 38%);
+    border-color: rgb(24 199 133 / 45%);
+    box-shadow: 0 16px 36px -10px rgb(0 0 0 / 60%), 0 0 24px -4px rgb(24 199 133 / 12%);
   }
 
-  .card-header {
+  .card-inner-top {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-top {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 20px;
+    gap: 14px;
+    margin-bottom: 18px;
   }
 
-  .org-meta {
+  .org-brand-wrap {
     display: flex;
     align-items: center;
     gap: 14px;
+    min-width: 0;
   }
 
-  .org-icon {
-    display: grid;
-    width: 44px;
-    height: 44px;
-    place-items: center;
-    flex-shrink: 0;
-    border: 1px solid rgb(124 183 255 / 20%);
+  /* Strict Logo Frame Constraints */
+  .company-logo-frame {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    max-width: 46px;
+    min-height: 46px;
+    max-height: 46px;
     border-radius: 12px;
-    background: rgb(59 130 246 / 7%);
-    color: var(--brand-soft);
-    font-size: 1.15rem;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    flex-shrink: 0;
+    overflow: hidden;
+    box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.35);
   }
 
-  .type-current .org-icon {
-    border-color: rgb(24 199 133 / 35%);
-    background: rgb(24 199 133 / 9%);
-    color: var(--brand-green);
+  .company-logo-img {
+    max-width: 100% !important;
+    max-height: 100% !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain;
+    display: block;
   }
 
-  .type-core .org-icon {
-    border-color: rgb(117 230 178 / 26%);
-    background: rgb(117 230 178 / 8%);
-    color: var(--brand-soft);
-  }
-
-  .type-team .org-icon {
-    border-color: rgb(168 85 247 / 32%);
-    background: rgb(168 85 247 / 9%);
-    color: #c084fc;
+  .org-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
   }
 
   .org-title {
-    margin: 0 0 4px;
+    margin: 0;
+    font-size: 1.12rem;
+    letter-spacing: -0.025em;
     color: var(--text-main);
-    font-size: 1.05rem;
-    font-weight: 700;
-    letter-spacing: -0.015em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  .period-tag {
+  .period-pill {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    color: var(--technical-soft);
+    gap: 5px;
+    color: var(--text-muted);
     font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.06em;
+    font-size: 0.58rem;
   }
 
+  .period-pill i {
+    font-size: 0.54rem;
+  }
+
+  /* Badge Pill */
   .badge-pill {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    padding: 5px 10px;
+    gap: 6px;
+    padding: 3px 8px;
     border-radius: var(--radius-pill);
-    border: 1px solid var(--border-default);
-    background: rgb(255 255 255 / 2.5%);
     font-family: var(--font-mono);
-    font-size: 0.58rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
+    font-size: 0.54rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
     white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .badge-current {
-    border-color: rgb(24 199 133 / 45%);
-    background: rgb(24 199 133 / 10%);
-    color: var(--brand-green);
+    background: rgb(24 199 133 / 12%);
+    border: 1px solid rgb(24 199 133 / 35%);
+    color: #4eedb0;
   }
 
   .badge-enterprise {
-    border-color: rgb(124 183 255 / 35%);
-    background: rgb(59 130 246 / 9%);
-    color: var(--technical-soft);
+    background: rgb(59 130 246 / 10%);
+    border: 1px solid rgb(59 130 246 / 35%);
+    color: #93c5fd;
   }
 
   .badge-core {
-    border-color: rgb(117 230 178 / 32%);
-    background: rgb(18 128 92 / 12%);
-    color: var(--brand-soft);
+    background: rgb(168 85 247 / 10%);
+    border: 1px solid rgb(168 85 247 / 35%);
+    color: #c084fc;
   }
 
   .badge-team {
-    border-color: rgb(168 85 247 / 38%);
-    background: rgb(168 85 247 / 11%);
-    color: #d8b4fe;
+    background: rgb(245 158 11 / 10%);
+    border: 1px solid rgb(245 158 11 / 35%);
+    color: #fcd34d;
   }
 
   .pulse-indicator {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
     border-radius: 50%;
-    background: var(--brand-green);
-    box-shadow: 0 0 10px var(--brand-green);
-    animation: pulseGlow 2s infinite ease-in-out;
+    background: currentColor;
+    box-shadow: 0 0 6px currentColor;
+    animation: beaconPulse 2s infinite ease-in-out;
   }
 
-  @keyframes pulseGlow {
-    0%, 100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.45;
-      transform: scale(0.85);
-    }
-  }
-
-  .role-block {
-    margin-bottom: 22px;
-  }
-
-  .role-title {
-    margin: 0 0 8px;
-    color: var(--brand-soft);
-    font-size: 1.18rem;
-    font-weight: 700;
-    letter-spacing: -0.025em;
-  }
-
-  .role-overview {
-    margin: 0;
-    color: var(--text-secondary);
-    font-size: 0.86rem;
-    line-height: 1.6;
-  }
-
-  .associated-box {
+  /* Role Row */
+  .role-row {
+    margin-bottom: 14px;
     display: flex;
     flex-direction: column;
-    padding: 20px;
-    border-radius: 14px;
-    border: 1px solid rgb(124 183 255 / 14%);
-    background:
-      linear-gradient(160deg, rgb(124 183 255 / 3%), transparent 65%),
-      rgb(4 11 9 / 68%);
-    margin-bottom: 22px;
+    gap: 3px;
   }
 
-  .associated-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 8px;
-  }
-
-  .associated-kicker {
-    color: var(--text-muted);
-    font-family: var(--font-mono);
-    font-size: 0.54rem;
-    letter-spacing: 0.1em;
-  }
-
-  .status-indicator {
-    padding: 2px 7px;
-    border-radius: 5px;
-    border: 1px solid rgb(124 183 255 / 18%);
-    background: rgb(255 255 255 / 2%);
+  .role-name {
+    margin: 0;
+    font-size: 1rem;
     color: var(--brand-soft);
-    font-family: var(--font-mono);
-    font-size: 0.54rem;
-    letter-spacing: 0.04em;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
   }
 
-  .project-name {
-    margin: 0 0 8px;
-    color: var(--text-main);
-    font-size: 0.98rem;
-    font-weight: 700;
-    letter-spacing: -0.015em;
-  }
-
-  .project-desc {
-    margin: 0 0 16px;
-    color: var(--text-muted);
-    font-size: 0.81rem;
-    line-height: 1.55;
-  }
-
-  .action-links {
-    margin-top: auto;
-  }
-
-  .action-button {
+  .location-text {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    padding: 7px 12px;
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius-small);
-    background: rgb(255 255 255 / 3%);
-    color: var(--text-secondary);
-    font-size: 0.72rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition:
-      color var(--duration-fast) ease,
-      border-color var(--duration-fast) ease,
-      background var(--duration-fast) ease,
-      transform var(--duration-fast) ease;
+    gap: 5px;
+    color: var(--text-muted);
+    font-size: 0.68rem;
   }
 
-  .action-button:hover {
-    transform: translateY(-2px);
-    border-color: var(--brand-green);
-    background: rgb(24 199 133 / 8%);
-    color: var(--text-main);
+  .location-text i {
+    font-size: 0.58rem;
   }
 
-  .action-button .link-icon {
-    color: var(--brand-green);
-    font-size: 0.65rem;
-    transition: transform var(--duration-fast) ease;
-  }
-
-  .action-button:hover .link-icon {
-    transform: translate(1px, -1px);
-  }
-
-  .tech-footer {
+  /* Connected Product Box (Strict Min-Height for Uniformity) */
+  .connected-product-box {
+    min-height: 58px;
+    padding: 9px 13px;
+    border-radius: 10px;
+    background: rgb(6 14 11 / 55%);
+    border: 1px solid rgb(255 255 255 / 4%);
     display: flex;
-    align-items: baseline;
-    gap: 10px;
-    margin-top: auto;
-    padding-top: 14px;
-    border-top: 1px solid rgb(255 255 255 / 4%);
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    margin-bottom: 14px;
   }
 
-  .tech-label {
+  .product-label {
     color: var(--text-muted);
     font-family: var(--font-mono);
-    font-size: 0.6rem;
+    font-size: 0.52rem;
     letter-spacing: 0.08em;
+  }
+
+  .product-name {
+    color: var(--text-main);
+    font-size: 0.82rem;
+    letter-spacing: -0.015em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Tech Row */
+  .tech-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 18px;
+    min-height: 26px;
   }
 
   .tech-badge {
     padding: 3px 8px;
-    border: 1px solid var(--border-default);
     border-radius: 6px;
-    background: rgb(255 255 255 / 2%);
+    background: rgb(255 255 255 / 3%);
+    border: 1px solid rgb(255 255 255 / 6%);
     color: var(--text-secondary);
     font-family: var(--font-mono);
-    font-size: 0.55rem;
+    font-size: 0.56rem;
+  }
+
+  /* Footer Actions */
+  .card-action-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 14px;
+    border-top: 1px solid rgb(255 255 255 / 5%);
+    margin-top: auto;
+  }
+
+  .btn-role-detail {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    background: rgb(24 199 133 / 14%);
+    border: 1px solid rgb(24 199 133 / 40%);
+    color: var(--brand-soft);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all var(--duration-fast) ease;
+  }
+
+  .btn-role-detail:hover {
+    background: var(--brand-green);
+    color: #030806;
+    border-color: var(--brand-green);
+    transform: translateX(2px);
+  }
+
+  .btn-org-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    background: rgb(255 255 255 / 3%);
+    border: 1px solid rgb(255 255 255 / 8%);
+    color: var(--text-secondary);
+    font-size: 0.68rem;
+    text-decoration: none;
+    transition: all var(--duration-fast) ease;
+  }
+
+  .btn-org-link:hover {
+    background: rgb(255 255 255 / 6%);
+    color: var(--text-main);
+    border-color: rgb(255 255 255 / 20%);
+  }
+
+  @keyframes beaconPulse {
+    0%, 100% {
+      opacity: 0.7;
+      transform: scale(0.9);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.15);
+    }
   }
 
   @media (max-width: 980px) {
@@ -403,28 +395,19 @@ import { experiences } from "../../data/portfolio";
     }
   }
 
-  @media (max-width: 540px) {
+  @media (max-width: 580px) {
     .experience-card {
-      padding: 24px;
+      padding: 20px 18px;
     }
 
-    .card-header {
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .role-title {
-      font-size: 1.08rem;
-    }
-
-    .associated-box {
-      padding: 16px;
-    }
-
-    .associated-top {
+    .card-top {
       flex-direction: column;
       align-items: flex-start;
-      gap: 6px;
+      gap: 10px;
+    }
+
+    .badge-pill {
+      align-self: flex-start;
     }
   }
 </style>

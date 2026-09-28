@@ -1,4 +1,8 @@
 ---
+/**
+ * @name index.astro (blog)
+ * @description Visual card grid for engineering blog articles and technical deep dives.
+ */
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import ContactSection from "../../components/home/ContactSection.astro";
@@ -17,58 +21,63 @@ const formatDate = (date: Date) =>
 
 <BaseLayout
   title="Blog — Huynh Minh Tri"
-  description="Ghi chép về các dự án phần mềm, Agentic AI, backend engineering và những ý tưởng đang được Huynh Minh Tri khám phá."
+  description="Technical field notes, system architectures, and practical lessons from building software."
 >
   <section class="blog-index shell" aria-labelledby="blog-title">
     <header class="blog-hero">
-      <div>
+      <div class="hero-left">
         <span class="section-index">FIELD NOTES / {String(posts.length).padStart(2, "0")}</span>
-        <h1 id="blog-title" data-en="Projects, ideas & lessons." data-vi="Dự án, ý tưởng & bài học.">
-          Projects, ideas & lessons.
+        <h1 id="blog-title" data-en="Engineering notes & ideas." data-vi="Ghi chép kỹ thuật & ý tưởng.">
+          Engineering notes & ideas.
         </h1>
+        <p
+          data-en="Practical breakdowns of system designs, AI workflows, and performance optimization."
+          data-vi="Phân tích chi tiết về kiến trúc hệ thống, quy trình AI và tối ưu hiệu năng."
+        >
+          Practical breakdowns of system designs, AI workflows, and performance optimization.
+        </p>
       </div>
-      <p
-        data-en="Long-form notes from building software: the decisions, experiments and lessons that do not fit inside a project card."
-        data-vi="Những ghi chép chuyên sâu trong quá trình xây dựng phần mềm: quyết định, thử nghiệm và bài học không thể gói gọn trong một project card."
-      >
-        Long-form notes from building software: the decisions, experiments and
-        lessons that do not fit inside a project card.
-      </p>
+
+      <div class="blog-badge panel">
+        <strong>{String(posts.length).padStart(2, "0")}</strong>
+        <span data-en="Articles Published" data-vi="Bài viết đã đăng">Articles Published</span>
+      </div>
     </header>
 
-    <div class="blog-toolbar">
-      <span>
-        <strong>{String(posts.length).padStart(2, "0")}</strong>
-        <span data-en=" published notes" data-vi=" bài đã đăng"> published notes</span>
-      </span>
-      <span data-en="Newest first" data-vi="Mới nhất trước">Newest first</span>
-    </div>
-
-    <div class="post-list">
-      {posts.map((post, index) => (
-        <article class="post-row">
-          <a class="post-thumbnail" href={`/blog/${post.id}`} aria-label={post.data.title}>
+    <!-- Visual Card Grid -->
+    <div class="post-grid">
+      {posts.map((post) => (
+        <article class="post-card panel">
+          <a class="post-media" href={`/blog/${post.id}`} aria-label={post.data.title}>
             <img
               src={post.data.thumbnail}
               alt={post.data.thumbnailAlt}
-              loading={index === 0 ? "eager" : "lazy"}
+              loading="lazy"
             />
-            <span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+            <div class="post-media-overlay"></div>
+            <time datetime={post.data.pubDate.toISOString()} class="post-time-badge">
+              {formatDate(post.data.pubDate)}
+            </time>
           </a>
 
-          <div class="post-content">
-            <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
-            <h2><a href={`/blog/${post.id}`}>{post.data.title}</a></h2>
-            <p>{post.data.description}</p>
-            <div class="hashtag-list" aria-label="Hashtags">
-              {post.data.hashtags.map((tag) => <span>#{tag}</span>)}
+          <div class="post-card-body">
+            <h2 class="post-title">
+              <a href={`/blog/${post.id}`}>{post.data.title}</a>
+            </h2>
+
+            <p class="post-desc">{post.data.description}</p>
+
+            <div class="post-footer">
+              <div class="hashtag-list" aria-label="Hashtags">
+                {post.data.hashtags.slice(0, 3).map((tag) => <span>#{tag}</span>)}
+              </div>
+
+              <a class="post-action-link" href={`/blog/${post.id}`}>
+                <span data-en="Read" data-vi="Đọc">Read</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </a>
             </div>
           </div>
-
-          <a class="post-action" href={`/blog/${post.id}`}>
-            <span data-en="Read article" data-vi="Đọc bài viết">Read article</span>
-            <span aria-hidden="true"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
-          </a>
         </article>
       ))}
     </div>
@@ -87,144 +96,205 @@ const formatDate = (date: Date) =>
 
 <style>
   .blog-index {
-    padding-top: 118px;
-    padding-bottom: 120px;
+    padding-top: 104px;
+    padding-bottom: 100px;
   }
 
   .blog-hero {
-    display: grid;
-    grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
-    gap: 72px;
-    align-items: end;
-    padding: 58px 0 64px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 40px;
+    padding: 44px 0 48px;
+    border-bottom: 1px solid var(--border-default);
+    margin-bottom: 48px;
+  }
+
+  .section-index {
+    color: var(--brand-green);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    font-weight: 600;
   }
 
   h1 {
-    max-width: 820px;
-    margin: 20px 0 0;
-    font-size: clamp(3rem, 7vw, 6.8rem);
-    letter-spacing: -0.075em;
-    line-height: 0.96;
+    margin: 8px 0 10px;
+    font-size: clamp(2.4rem, 5vw, 4.6rem);
+    letter-spacing: -0.06em;
+    line-height: 1;
   }
 
-  .blog-hero > p {
+  .hero-left p {
+    margin: 0;
     max-width: 520px;
-    margin: 0 0 8px;
     color: var(--text-muted);
-    font-size: clamp(0.9rem, 1.5vw, 1.08rem);
+    font-size: 0.95rem;
+    line-height: 1.55;
   }
 
-  .blog-toolbar {
+  .blog-badge {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    padding: 22px 4px;
-    border-top: 1px solid var(--border-default);
-    border-bottom: 1px solid var(--border-default);
-    color: var(--text-muted);
+    justify-content: center;
+    padding: 16px 24px;
+    border-radius: 16px;
+    min-width: 130px;
+  }
+
+  .blog-badge strong {
+    font-size: 1.6rem;
     font-family: var(--font-mono);
+    color: var(--brand-soft);
+    line-height: 1;
+  }
+
+  .blog-badge span {
+    margin-top: 4px;
     font-size: 0.58rem;
-    letter-spacing: 0.09em;
+    color: var(--text-muted);
     text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
   }
 
-  .blog-toolbar strong { color: var(--brand-soft); }
-
-  .post-row {
+  /* Grid */
+  .post-grid {
     display: grid;
-    grid-template-columns: minmax(240px, 0.72fr) minmax(0, 1.45fr) 130px;
-    gap: 38px;
-    align-items: center;
-    padding: 32px 4px;
-    border-bottom: 1px solid var(--border-default);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px;
   }
 
-  .post-thumbnail {
+  .post-card {
+    display: flex;
+    flex-direction: column;
+    border-radius: 20px;
+    overflow: hidden;
+    background: linear-gradient(170deg, rgb(14 30 23 / 70%), rgb(7 16 12 / 85%));
+    border: 1px solid var(--border-default);
+    transition: transform var(--duration-normal) ease, border-color var(--duration-normal) ease, box-shadow var(--duration-normal) ease;
+  }
+
+  .post-card:hover {
+    transform: translateY(-4px);
+    border-color: rgb(24 199 133 / 45%);
+    box-shadow: 0 16px 36px -10px rgb(0 0 0 / 65%), 0 0 24px -4px rgb(24 199 133 / 12%);
+  }
+
+  .post-media {
     position: relative;
     display: block;
     aspect-ratio: 16 / 9;
     overflow: hidden;
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius-standard);
-    background: var(--elevated-background);
+    background: #040906;
   }
 
-  .post-thumbnail::after {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, transparent 55%, rgb(24 199 133 / 18%));
-    content: "";
-    pointer-events: none;
-  }
-
-  .post-thumbnail img {
+  .post-media img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 400ms ease;
+    transition: transform 500ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
-  .post-row:hover .post-thumbnail img { transform: scale(1.035); }
+  .post-card:hover .post-media img {
+    transform: scale(1.04);
+  }
 
-  .post-thumbnail > span {
+  .post-media-overlay {
     position: absolute;
-    z-index: 1;
-    right: 12px;
-    bottom: 10px;
-    color: var(--brand-soft);
-    font-family: var(--font-mono);
-    font-size: 0.56rem;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 40%, rgb(7 16 12 / 90%) 100%);
+    pointer-events: none;
   }
 
-  time {
-    color: var(--brand-green);
+  .post-time-badge {
+    position: absolute;
+    bottom: 12px;
+    left: 14px;
+    padding: 3px 9px;
+    border-radius: var(--radius-pill);
+    background: rgb(7 16 12 / 85%);
+    border: 1px solid rgb(24 199 133 / 30%);
+    color: #4eedb0;
     font-family: var(--font-mono);
     font-size: 0.58rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    backdrop-filter: blur(8px);
   }
 
-  h2 {
-    margin: 9px 0 10px;
-    font-size: clamp(1.35rem, 2.6vw, 2.35rem);
-    letter-spacing: -0.05em;
-    line-height: 1.15;
+  .post-card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 22px 24px 24px;
   }
 
-  h2 a { transition: color var(--duration-fast) ease; }
-  h2 a:hover { color: var(--brand-soft); }
+  .post-title {
+    margin: 0 0 10px;
+    font-size: 1.25rem;
+    letter-spacing: -0.035em;
+    line-height: 1.25;
+  }
 
-  .post-content > p {
-    max-width: 720px;
-    margin: 0 0 15px;
+  .post-title a {
+    color: var(--text-main);
+    text-decoration: none;
+    transition: color var(--duration-fast) ease;
+  }
+
+  .post-title a:hover {
+    color: var(--brand-soft);
+  }
+
+  .post-desc {
+    margin: 0 0 18px;
     color: var(--text-muted);
-    font-size: 0.78rem;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .post-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid rgb(255 255 255 / 4%);
   }
 
   .hashtag-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
   }
 
   .hashtag-list span {
     color: var(--text-secondary);
     font-family: var(--font-mono);
-    font-size: 0.54rem;
+    font-size: 0.55rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgb(255 255 255 / 2%);
   }
 
-  .post-action {
-    display: flex;
+  .post-action-link {
+    display: inline-flex;
     align-items: center;
-    justify-content: flex-end;
-    gap: 10px;
+    gap: 6px;
     color: var(--brand-soft);
-    font-size: 0.68rem;
+    font-size: 0.72rem;
     font-weight: 700;
+    text-decoration: none;
+    transition: transform var(--duration-fast) ease;
   }
 
-  .post-action span:last-child { transition: transform var(--duration-fast) ease; }
-  .post-action:hover span:last-child { transform: translate(3px, -3px); }
+  .post-action-link:hover {
+    transform: translateX(3px);
+  }
 
   .empty {
     margin-top: 30px;
@@ -234,17 +304,29 @@ const formatDate = (date: Date) =>
     text-align: center;
   }
 
-  @media (max-width: 980px) {
-    .blog-hero { grid-template-columns: 1fr; gap: 26px; }
-    .post-row { grid-template-columns: minmax(220px, 0.72fr) minmax(0, 1.28fr); }
-    .post-action { grid-column: 2; justify-content: flex-start; }
+  @media (max-width: 860px) {
+    .blog-hero {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .post-grid {
+      grid-template-columns: 1fr;
+    }
   }
 
-  @media (max-width: 680px) {
-    .blog-index { padding-top: 54px; padding-bottom: 80px; }
-    .blog-hero { padding: 42px 0; }
-    h1 { font-size: clamp(2.7rem, 15vw, 4.6rem); }
-    .post-row { grid-template-columns: 1fr; gap: 20px; padding: 26px 0; }
-    .post-action { grid-column: 1; }
+  @media (max-width: 600px) {
+    .blog-index {
+      padding-top: 50px;
+    }
+
+    .post-card-body {
+      padding: 18px 20px;
+    }
+
+    .post-title {
+      font-size: 1.15rem;
+    }
   }
 </style>

@@ -1,3 +1,8 @@
+/**
+ * @name portfolio.ts
+ * @description Centralized portfolio profile data, skills, experiences, and technical groupings
+ */
+
 export type LocalizedText = {
   en: string;
   vi: string;
@@ -395,6 +400,14 @@ export type ExperienceLink = {
   icon?: string;
 };
 
+export type ExperienceTask = {
+  titleEn: string;
+  titleVi: string;
+  descriptionEn: string;
+  descriptionVi: string;
+  icon?: string;
+};
+
 export type ExperienceItem = {
   id: string;
   badgeEn: string;
@@ -402,12 +415,17 @@ export type ExperienceItem = {
   badgeType: "current" | "enterprise" | "core" | "team";
   orgName: string;
   orgHref?: string;
+  logo: string;
   roleEn: string;
   roleVi: string;
   periodEn: string;
   periodVi: string;
+  locationEn: string;
+  locationVi: string;
   overviewEn: string;
   overviewVi: string;
+  detailHref: string;
+  tasks: ExperienceTask[];
   project: {
     titleEn: string;
     titleVi: string;
@@ -428,12 +446,46 @@ export const experiences: ExperienceItem[] = [
     badgeType: "current",
     orgName: "IDB Group (Tập đoàn IDB)",
     orgHref: "https://idb.com.vn/All/Support",
+    logo: "/images/idb-logo.png",
     roleEn: "Junior Software Engineer",
     roleVi: "Kỹ sư phần mềm (Junior Software Engineer)",
     periodEn: "2026 — PRESENT",
     periodVi: "2026 — HIỆN TẠI",
-    overviewEn: "Contributing to enterprise software engineering, core backend services, and internal platform architecture.",
-    overviewVi: "Tham gia kỹ thuật phần mềm doanh nghiệp, phát triển dịch vụ backend cốt lõi và kiến trúc nền tảng nội bộ.",
+    locationEn: "Ho Chi Minh City, Vietnam",
+    locationVi: "TP. Hồ Chí Minh, Việt Nam",
+    overviewEn: "Enterprise software engineering, core backend services, and internal platform architecture.",
+    overviewVi: "Kỹ thuật phần mềm doanh nghiệp, phát triển dịch vụ backend cốt lõi và kiến trúc nền tảng nội bộ.",
+    detailHref: "/experience/idb",
+    tasks: [
+      {
+        titleEn: "Enterprise Backend Architecture",
+        titleVi: "Kiến trúc Backend Doanh nghiệp",
+        descriptionEn: "Researching and building foundational backend workflows, API integrations, and internal systems with Python and TypeScript.",
+        descriptionVi: "Nghiên cứu và xây dựng workflow backend nền tảng, tích hợp API và hệ thống nội bộ bằng Python và TypeScript.",
+        icon: "fa-solid fa-server",
+      },
+      {
+        titleEn: "Telecommunications & Platform Integration",
+        titleVi: "Tích hợp Hệ thống Viễn thông",
+        descriptionEn: "Integrating enterprise communication pipelines and automated VoIP service management with internal operational portals.",
+        descriptionVi: "Tích hợp đường ống viễn thông doanh nghiệp và quản lý tự động dịch vụ VoIP vào cổng vận hành nội bộ.",
+        icon: "fa-solid fa-network-wired",
+      },
+      {
+        titleEn: "Database Schema & Query Optimization",
+        titleVi: "Tối ưu Cơ sở Dữ liệu & Truy vấn",
+        descriptionEn: "Designing relational PostgreSQL schemas, implementing strict data validation, indexing, and automated backup strategies.",
+        descriptionVi: "Thiết kế lược đồ quan hệ PostgreSQL, thiết lập kiểm tra ràng buộc dữ liệu, đánh chỉ mục và sao lưu định kỳ.",
+        icon: "fa-solid fa-database",
+      },
+      {
+        titleEn: "Security & Role-Based Access Control",
+        titleVi: "Bảo mật & Phân quyền Truy cập",
+        descriptionEn: "Enforcing authentication security protocols, confidential workflow boundaries, and system activity audit trails.",
+        descriptionVi: "Triển khai giao thức bảo mật xác thực, phân vùng quyền hạn bảo mật nội bộ và ghi log lịch sử hệ thống.",
+        icon: "fa-solid fa-shield-halved",
+      },
+    ],
     project: {
       titleEn: "Internal Enterprise Architecture & Systems",
       titleVi: "Kiến trúc & Hệ thống Doanh nghiệp Nội bộ",
@@ -460,12 +512,46 @@ export const experiences: ExperienceItem[] = [
     badgeType: "enterprise",
     orgName: "Rita Võ Group (Tập đoàn Rita Võ)",
     orgHref: "https://prodid.ritavo.com/web/login",
+    logo: "/images/ritavo-logo.svg",
     roleEn: "Odoo Developer Intern",
     roleVi: "Thực tập sinh Lập trình viên Odoo",
     periodEn: "MAR 2026 — JUN 2026",
     periodVi: "T03/2026 — T06/2026",
+    locationEn: "Ho Chi Minh City, Vietnam",
+    locationVi: "TP. Hồ Chí Minh, Việt Nam",
     overviewEn: "Engineered customized ERP business logic, data rules, and delivery automation on Odoo 18.",
     overviewVi: "Phát triển nghiệp vụ ERP tùy biến, kiểm soát ràng buộc dữ liệu và tự động hóa triển khai trên nền tảng Odoo 18.",
+    detailHref: "/experience/ritavo",
+    tasks: [
+      {
+        titleEn: "ProdID Module Development",
+        titleVi: "Phát triển Phân hệ ProdID",
+        descriptionEn: "Engineered an internal product lifecycle management (PLM) module connecting R&D, Marketing, Sales, and Purchasing across ~10,000 product records.",
+        descriptionVi: "Phát triển module quản lý vòng đời sản phẩm (PLM) kết nối R&D, Marketing, Sales và Mua hàng trên quy mô ~10.000 bản ghi.",
+        icon: "fa-solid fa-boxes-stacked",
+      },
+      {
+        titleEn: "BOM & DFS Cycle Detection",
+        titleVi: "Thuật toán Phát hiện Chu trình BOM",
+        descriptionEn: "Implemented Depth-First Search algorithm to prevent recursive bill-of-materials cycles and circular product dependencies.",
+        descriptionVi: "Ứng dụng thuật toán tìm kiếm theo chiều sâu (DFS) nhằm phát hiện và ngăn chặn phụ thuộc vòng lặp trong định mức vật liệu.",
+        icon: "fa-solid fa-diagram-project",
+      },
+      {
+        titleEn: "Dynamic Approval Workflows",
+        titleVi: "Tự động hóa Quy trình Phê duyệt",
+        descriptionEn: "Designed multi-stage approval matrix (Draft -> R&D Review -> Commercial Ready) with automated state transitions and access rights.",
+        descriptionVi: "Xây dựng ma trận phê duyệt nhiều bước với quyền hạn theo phòng ban và chuyển trạng thái tự động.",
+        icon: "fa-solid fa-list-check",
+      },
+      {
+        titleEn: "PostgreSQL Migration & Pipeline CI/CD",
+        titleVi: "Migration Cơ sở Dữ liệu & CI/CD",
+        descriptionEn: "Managed schema migrations, Docker Compose environments, and automated GitHub Actions testing for seamless release cycles.",
+        descriptionVi: "Quản lý migration lược đồ cơ sở dữ liệu, môi trường Docker Compose và kiểm thử tự động với GitHub Actions.",
+        icon: "fa-solid fa-gears",
+      },
+    ],
     project: {
       titleEn: "ProdID · Odoo 18",
       titleVi: "ProdID · Odoo 18",
@@ -498,13 +584,47 @@ export const experiences: ExperienceItem[] = [
     badgeVi: "CÔNG NGHỆ LÕI",
     badgeType: "core",
     orgName: "VinaGreen",
-    orgHref: "https://vinagreen.huynhminhtri1109.workers.dev/",
+    orgHref: "https://vinagreen.omnimer.io.vn/",
+    logo: "/projects/vinagreen/vinar_logo.svg",
     roleEn: "Core Technology (System & Architecture)",
     roleVi: "Công nghệ lõi (Hệ thống & Kiến trúc)",
     periodEn: "2025 — PRESENT",
     periodVi: "2025 — HIỆN TẠI",
-    overviewEn: "Directing system specifications, service contracts, and edge cloud infrastructure for sustainable digital platforms.",
+    locationEn: "Ho Chi Minh City, Vietnam",
+    locationVi: "TP. Hồ Chí Minh, Việt Nam",
+    overviewEn: "System specifications, service contracts, and edge cloud infrastructure for sustainable digital platforms.",
     overviewVi: "Định hình chuẩn kiến trúc hệ thống, giao ước dịch vụ và hạ tầng đám mây phân tán cho giải pháp số xanh.",
+    detailHref: "/experience/vinagreen",
+    tasks: [
+      {
+        titleEn: "Edge Infrastructure & Low-Latency Delivery",
+        titleVi: "Hạ tầng Edge & Truy xuất Tốc độ cao",
+        descriptionEn: "Deployed Cloudflare Workers edge functions ensuring fast response times for agricultural telemetry across rural regions.",
+        descriptionVi: "Triển khai hàm Edge trên Cloudflare Workers đảm bảo tốc độ phản hồi nhanh cho bà con nông dân và dữ liệu thực địa.",
+        icon: "fa-solid fa-cloud",
+      },
+      {
+        titleEn: "AI Farmer Copilot Engine",
+        titleVi: "Trợ lý AI Nông vụ Thông minh",
+        descriptionEn: "Integrated FastAPI backend with LLM agents to deliver tailored crop drought and salinity mitigation advice based on localized soil conditions.",
+        descriptionVi: "Tích hợp backend FastAPI với LLM Agent cung cấp khuyến nghị tưới tiêu và chống nhiễm mặn theo từng loại cây trồng.",
+        icon: "fa-solid fa-robot",
+      },
+      {
+        titleEn: "Dynamic Soil Dosage Calculator",
+        titleVi: "Công cụ Định lượng Dinh dưỡng Đất",
+        descriptionEn: "Engineered real-time calculation models for AgriGel™ and BioBandage™ dosage according to soil salinity (>3‰) and drought indexes.",
+        descriptionVi: "Xây dựng thuật toán tính toán chính xác liều lượng AgriGel™ và BioBandage™ theo độ mặn và chu kỳ khô hạn.",
+        icon: "fa-solid fa-calculator",
+      },
+      {
+        titleEn: "Circular BioTech System Integration",
+        titleVi: "Tích hợp Hệ thống Nông nghiệp Tuần hoàn",
+        descriptionEn: "Structured automated product traceability pipelines connecting lab trial data with live digital demonstrations.",
+        descriptionVi: "Kết nối dữ liệu thực nghiệm phòng lab với mô hình tương tác trực quan trên trang web công khai.",
+        icon: "fa-solid fa-leaf",
+      },
+    ],
     project: {
       titleEn: "VinaGreen Digital Platform",
       titleVi: "Nền tảng số VinaGreen",
@@ -514,9 +634,16 @@ export const experiences: ExperienceItem[] = [
       descriptionVi: "Nền tảng vận hành phân tán trên mạng lưới Edge, tối ưu hóa khả năng giám sát dữ liệu minh bạch và mở rộng dịch vụ.",
       links: [
         {
-          labelEn: "Visit VinaGreen",
-          labelVi: "Truy cập VinaGreen",
-          href: "https://vinagreen.huynhminhtri1109.workers.dev/",
+          labelEn: "ViNar (VinaGreen) Dossier",
+          labelVi: "Xem Case Study ViNar",
+          href: "/projects/vinagreen",
+          isExternal: false,
+          icon: "fa-folder-open",
+        },
+        {
+          labelEn: "Live Platform",
+          labelVi: "Trang trực tuyến",
+          href: "https://vinagreen.omnimer.io.vn/",
           isExternal: true,
           icon: "fa-arrow-up-right-from-square",
         },
@@ -531,19 +658,53 @@ export const experiences: ExperienceItem[] = [
     badgeType: "team",
     orgName: "Omnimer Team",
     orgHref: "https://github.com/omnimerteam",
+    logo: "/images/omnimer-logo.svg",
     roleEn: "Core Member & System Architect",
     roleVi: "Thành viên kỹ thuật lõi & Kiến trúc sư hệ thống",
     periodEn: "2025 — PRESENT",
     periodVi: "2025 — HIỆN TẠI",
+    locationEn: "Distributed / Remote",
+    locationVi: "Làm việc từ xa / Phân tán",
     overviewEn: "Steering product architecture and engineering AI agents, GraphRAG retrieval, and real-time health intelligence.",
     overviewVi: "Định hướng kiến trúc sản phẩm, xây dựng AI Agent, truy xuất tri thức GraphRAG và hệ thống sức khỏe thời gian thực.",
+    detailHref: "/experience/omnimer",
+    tasks: [
+      {
+        titleEn: "LangGraph Multi-Agent Orchestration",
+        titleVi: "Điều phối Multi-Agent bằng LangGraph",
+        descriptionEn: "Built autonomous agent workflows with state machines, tool-use guardrails, and dynamic fallback validation.",
+        descriptionVi: "Xây dựng máy trạng thái LangGraph cho AI Agent với cơ chế kiểm soát công cụ và fallback an toàn.",
+        icon: "fa-solid fa-brain",
+      },
+      {
+        titleEn: "HybridRAG & GraphRAG Pipeline",
+        titleVi: "Đường ống Truy xuất HybridRAG & GraphRAG",
+        descriptionEn: "Combined dense vector search (Qdrant), BM25 keyword matching, and Neo4j knowledge graph traversal for grounded answers.",
+        descriptionVi: "Kết hợp tìm kiếm ngữ nghĩa vector (Qdrant), đối sánh từ khóa BM25 và duyệt đồ thị tri thức Neo4j.",
+        icon: "fa-solid fa-circle-nodes",
+      },
+      {
+        titleEn: "Real-time Biometrics Streaming",
+        titleVi: "Xử lý Dữ liệu Sinh hiệu Thời gian thực",
+        descriptionEn: "Architected high-throughput Kafka & Redis pub/sub pipelines for wearable anomaly detection with <500ms latency.",
+        descriptionVi: "Thiết kế đường ống luồng dữ liệu Kafka & Redis phân tích bất thường nhịp tim thời gian thực với độ trễ <500ms.",
+        icon: "fa-solid fa-heart-pulse",
+      },
+      {
+        titleEn: "Cross-Platform Flutter Client & Voice AI",
+        titleVi: "Ứng dụng Đa nền tảng Flutter & Voice AI",
+        descriptionEn: "Developed mobile applications integrating food vision recognition and voice-guided cooking assistance.",
+        descriptionVi: "Lập trình ứng dụng di động Flutter tích hợp nhận diện ảnh món ăn và hướng dẫn nấu ăn bằng giọng nói.",
+        icon: "fa-solid fa-mobile-screen",
+      },
+    ],
     project: {
       titleEn: "Multimodal AI Health & Nutrition Suite",
       titleVi: "Hệ sinh thái AI Đa phương thức (Sức khỏe & Dinh dưỡng)",
       statusEn: "Open Source & Research",
       statusVi: "Mã nguồn mở & Nghiên cứu",
-      descriptionEn: "A connected suite of intelligent applications including OmniMer Health (anomaly detection & safety-aware RAG) and OmniMer Food (vision & voice cooking assistant).",
-      descriptionVi: "Bộ ứng dụng AI thông minh gồm OmniMer Health (phát hiện bất thường & RAG an toàn) và OmniMer Food (trợ lý dinh dưỡng nhận diện món ăn & giọng nói).",
+      descriptionEn: "A connected suite of intelligent applications including OmniMer Health (anomaly detection & safety-aware RAG), OmniMer Food (vision & voice cooking assistant), and ViNar (deep-tech circular agritech & AI farmer assistant).",
+      descriptionVi: "Bộ ứng dụng AI thông minh gồm OmniMer Health (phát hiện bất thường & RAG an toàn), OmniMer Food (trợ lý dinh dưỡng nhận diện món ăn & giọng nói) và ViNar (nông nghiệp tuần hoàn sinh học & trợ lý AI nông vụ).",
       links: [
         {
           labelEn: "Omnimer GitHub",
