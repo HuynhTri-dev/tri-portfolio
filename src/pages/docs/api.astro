@@ -32,8 +32,8 @@ const BASE_URL = "https://trihuynh.omnimer.io.vn";
         <div class="meta-card">
           <small data-en="BASE URL" data-vi="ĐỊA CHỈ NGUỒN">BASE URL</small>
           <div class="code-pill">
-            <code>https://trihuynh.omnimer.io.vn</code>
-            <button class="copy-btn-mini" data-copy="https://trihuynh.omnimer.io.vn" title="Copy Base URL">
+            <code title="https://trihuynh.omnimer.io.vn">https://trihuynh.omnimer.io.vn</code>
+            <button class="copy-btn-mini icon-only" data-copy="https://trihuynh.omnimer.io.vn" title="Copy Base URL" aria-label="Copy Base URL">
               <i class="fa-regular fa-copy"></i>
             </button>
           </div>
@@ -78,14 +78,14 @@ const BASE_URL = "https://trihuynh.omnimer.io.vn";
       </div>
 
       <div class="agent-tabs-container">
-        <!-- Cursor -->
+        <!-- 1. Cursor IDE -->
         <article class="agent-card">
           <div class="agent-header">
             <span class="agent-badge cursor-badge"><i class="fa-solid fa-compass"></i> Cursor IDE</span>
-            <span class="method-chip">Indexing &amp; Rules</span>
+            <span class="method-chip">Docs &amp; .cursorrules</span>
           </div>
-          <p class="agent-text" data-en="Add the catalog URL into Cursor Indexing to grant Cursor semantic access to all architecture notes and problem fixes:" data-vi="Thêm URL danh mục vào Cursor Indexing để Cursor tự động nắm bắt toàn bộ kiến trúc và cách xử lý lỗi:">
-            Add the catalog URL into Cursor Indexing to grant Cursor semantic access to all architecture notes and problem fixes:
+          <p class="agent-text" data-en="1. Add catalog to Cursor Indexing for semantic context across all codebase chats:" data-vi="1. Thêm danh mục vào Cursor Indexing để tự động nhận biết ngữ cảnh dự án:">
+            1. Add catalog to Cursor Indexing for semantic context across all codebase chats:
           </p>
           <div class="code-box">
             <div class="code-box-header">
@@ -94,53 +94,201 @@ const BASE_URL = "https://trihuynh.omnimer.io.vn";
             </div>
             <pre><code>https://trihuynh.omnimer.io.vn/llms.txt</code></pre>
           </div>
-          <p class="agent-subtext" data-en="Or append this rule to your project's .cursorrules:" data-vi="Hoặc thêm chỉ dẫn sau vào tệp .cursorrules trong dự án của bạn:">
-            Or append this rule to your project's <code>.cursorrules</code>:
+          <p class="agent-subtext" data-en="2. Create or append to .cursorrules (or .cursor/rules/knowledge-base.mdc):" data-vi="2. Thêm vào tệp .cursorrules (hoặc .cursor/rules/knowledge-base.mdc):">
+            2. Create or append to <code>.cursorrules</code> (or <code>.cursor/rules/knowledge-base.mdc</code>):
           </p>
           <div class="code-box">
             <div class="code-box-header">
               <span>.cursorrules</span>
-              <button class="copy-btn-mini" data-copy="When encountering architectural decisions or errors with Cloudflare, D1, Astro, or Fastify, query the author's knowledge base via:
-https://trihuynh.omnimer.io.vn/api/kb/search?q={query}"><i class="fa-regular fa-copy"></i> Copy</button>
+              <button class="copy-btn-mini" data-copy="# Knowledge Base Integration
+When encountering architectural decisions, refactoring, or bugs with Kafka, Redpanda, Cloudflare D1, Fastify, or Astro:
+1. Search author's verified knowledge base:
+   https://trihuynh.omnimer.io.vn/api/kb/search?q={query}
+2. Fetch raw markdown specification without HTML overhead:
+   https://trihuynh.omnimer.io.vn/api/kb/{slug}?format=raw
+3. Check verified problem solutions before writing fixes:
+   https://trihuynh.omnimer.io.vn/api/kb/{parent-slug}/problems"><i class="fa-regular fa-copy"></i> Copy</button>
             </div>
-            <pre><code>When encountering architectural decisions or errors with Cloudflare, D1, Astro, or Fastify, query the author's knowledge base via:
-https://trihuynh.omnimer.io.vn/api/kb/search?q=&#123;query&#125;</code></pre>
+            <pre><code># Knowledge Base Integration
+When encountering architectural decisions or bugs with Kafka, D1, Fastify:
+1. Search: https://trihuynh.omnimer.io.vn/api/kb/search?q=&#123;query&#125;
+2. Raw MD: https://trihuynh.omnimer.io.vn/api/kb/&#123;slug&#125;?format=raw
+3. Problems: https://trihuynh.omnimer.io.vn/api/kb/&#123;parent-slug&#125;/problems</code></pre>
           </div>
         </article>
 
-        <!-- Claude / MCP -->
+        <!-- 2. Claude Code & Claude Desktop -->
         <article class="agent-card">
           <div class="agent-header">
             <span class="agent-badge claude-badge"><i class="fa-solid fa-brain"></i> Claude / Claude Code</span>
-            <span class="method-chip">REST &amp; MCP</span>
+            <span class="method-chip">CLAUDE.md &amp; MCP</span>
           </div>
-          <p class="agent-text" data-en="Configure Claude to fetch article raw markdown or search troubleshooting case studies directly:" data-vi="Cấu hình Claude để đọc Markdown thô hoặc tra cứu các tình huống xử lý lỗi thực tế:">
-            Configure Claude to fetch article raw markdown or search troubleshooting case studies directly:
+          <p class="agent-text" data-en="1. Add rule to CLAUDE.md in project root for automatic knowledge extraction:" data-vi="1. Tạo tệp CLAUDE.md tại thư mục gốc dự án để Claude tự động đọc tri thức:">
+            1. Add rule to <code>CLAUDE.md</code> in project root for automatic knowledge extraction:
           </p>
           <div class="code-box">
             <div class="code-box-header">
-              <span>Claude Code / CLI Command</span>
-              <button class="copy-btn-mini" data-copy="curl -s 'https://trihuynh.omnimer.io.vn/api/kb/search?q=fhir+memory+leak'"><i class="fa-regular fa-copy"></i> Copy</button>
+              <span>CLAUDE.md</span>
+              <button class="copy-btn-mini" data-copy="## Knowledge Base Rules
+- Before suggesting system architecture or debugging edge/kafka issues, query:
+  curl -s 'https://trihuynh.omnimer.io.vn/api/kb/search?q={keyword}'
+- Retrieve clean markdown specs without HTML markup:
+  curl -s 'https://trihuynh.omnimer.io.vn/api/kb/{slug}?format=raw'
+- Never scrape web pages directly when format=raw endpoint is available."><i class="fa-regular fa-copy"></i> Copy</button>
             </div>
-            <pre><code>curl -s 'https://trihuynh.omnimer.io.vn/api/kb/search?q=fhir+memory+leak'</code></pre>
+            <pre><code>## Knowledge Base Rules
+- Search: curl -s 'https://trihuynh.omnimer.io.vn/api/kb/search?q=&#123;keyword&#125;'
+- Raw MD: curl -s 'https://trihuynh.omnimer.io.vn/api/kb/&#123;slug&#125;?format=raw'</code></pre>
+          </div>
+          <p class="agent-subtext" data-en="2. Fast CLI command for Claude Code terminal sessions:" data-vi="2. Lệnh tra cứu nhanh trong phiên dòng lệnh Claude Code:">
+            2. Fast CLI command for Claude Code terminal sessions:
+          </p>
+          <div class="code-box">
+            <div class="code-box-header">
+              <span>Claude Code Terminal</span>
+              <button class="copy-btn-mini" data-copy="curl -s 'https://trihuynh.omnimer.io.vn/api/kb/search?q=kafka+rebalance'"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+            <pre><code>curl -s 'https://trihuynh.omnimer.io.vn/api/kb/search?q=kafka+rebalance'</code></pre>
           </div>
         </article>
 
-        <!-- Antigravity -->
+        <!-- 3. Google Antigravity & Gemini IDE -->
         <article class="agent-card">
           <div class="agent-header">
             <span class="agent-badge anti-badge"><i class="fa-solid fa-atom"></i> Antigravity Agent</span>
-            <span class="method-chip">Custom Skill</span>
+            <span class="method-chip">AGENTS.md &amp; Custom Skill</span>
           </div>
-          <p class="agent-text" data-en="Antigravity agents can directly call the unified cloud endpoint to retrieve verified problem solutions:" data-vi="Antigravity agent có thể gọi trực tiếp endpoint đám mây tập trung để lấy giải pháp xử lý lỗi đã kiểm chứng:">
-            Antigravity agents can directly call the unified cloud endpoint to retrieve verified problem solutions:
+          <p class="agent-text" data-en="1. Place rule in workspace AGENTS.md or .agents/rules/knowledge.md:" data-vi="1. Đặt chỉ dẫn trong tệp AGENTS.md hoặc .agents/rules/knowledge.md:">
+            1. Place rule in workspace <code>AGENTS.md</code> or <code>.agents/rules/knowledge.md</code>:
           </p>
           <div class="code-box">
             <div class="code-box-header">
-              <span>GET Troubleshooting API</span>
-              <button class="copy-btn-mini" data-copy="https://trihuynh.omnimer.io.vn/api/kb/cloudflare-d1-hybrid-setup/problems"><i class="fa-regular fa-copy"></i> Copy</button>
+              <span>AGENTS.md</span>
+              <button class="copy-btn-mini" data-copy="## Knowledge Repository Protocol
+- Check author's knowledge items before implementing complex features:
+  GET https://trihuynh.omnimer.io.vn/api/kb/search?q={query}
+- When resolving a production error, log the verified root cause and fix back to D1:
+  python3 .agents/skills/knowledge_create/scripts/kb_helper.py add-problem \
+    --slug '{parent-slug}' --title '{error_title}' --solution '{verified_fix}'"><i class="fa-regular fa-copy"></i> Copy</button>
             </div>
-            <pre><code>GET https://trihuynh.omnimer.io.vn/api/kb/&#123;parent-slug&#125;/problems</code></pre>
+            <pre><code>## Knowledge Repository Protocol
+- Search: GET https://trihuynh.omnimer.io.vn/api/kb/search?q=&#123;query&#125;
+- Two-way sync: Log verified bugs via knowledge_create skill</code></pre>
+          </div>
+          <p class="agent-subtext" data-en="2. Query and publish via Antigravity custom skill CLI:" data-vi="2. Tra cứu và đăng bài thông qua skill CLI độc quyền:">
+            2. Query and publish via Antigravity custom skill CLI:
+          </p>
+          <div class="code-box">
+            <div class="code-box-header">
+              <span>knowledge_create helper</span>
+              <button class="copy-btn-mini" data-copy="python3 .agents/skills/knowledge_create/scripts/kb_helper.py search --q 'hot partition'"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+            <pre><code>python3 .agents/skills/knowledge_create/scripts/kb_helper.py search --q 'hot partition'</code></pre>
+          </div>
+        </article>
+
+        <!-- 4. GitHub Copilot -->
+        <article class="agent-card">
+          <div class="agent-header">
+            <span class="agent-badge copilot-badge"><i class="fa-brands fa-github"></i> GitHub Copilot</span>
+            <span class="method-chip">copilot-instructions</span>
+          </div>
+          <p class="agent-text" data-en="Configure .github/copilot-instructions.md in your repository:" data-vi="Cấu hình tệp .github/copilot-instructions.md trong dự án của bạn:">
+            Configure <code>.github/copilot-instructions.md</code> in your repository:
+          </p>
+          <div class="code-box">
+            <div class="code-box-header">
+              <span>.github/copilot-instructions.md</span>
+              <button class="copy-btn-mini" data-copy="# Copilot Engineering Instructions
+- Architecture Reference: Prioritize established patterns from https://trihuynh.omnimer.io.vn/llms.txt
+- Problem Solving: Search verified case studies via https://trihuynh.omnimer.io.vn/api/kb/search?q={error}
+- Follow Cloudflare D1 FTS5, Fastify, and Kafka linkedid partitioning conventions."><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+            <pre><code># Copilot Engineering Instructions
+- Architecture Reference: https://trihuynh.omnimer.io.vn/llms.txt
+- Search Fixes: https://trihuynh.omnimer.io.vn/api/kb/search?q=&#123;error&#125;</code></pre>
+          </div>
+        </article>
+
+        <!-- 5. Windsurf Editor -->
+        <article class="agent-card">
+          <div class="agent-header">
+            <span class="agent-badge windsurf-badge"><i class="fa-solid fa-water"></i> Windsurf (Cascade)</span>
+            <span class="method-chip">.windsurfrules</span>
+          </div>
+          <p class="agent-text" data-en="Provide Cascade with direct directives in .windsurfrules:" data-vi="Cung cấp chỉ dẫn trực tiếp cho Cascade trong tệp .windsurfrules:">
+            Provide Cascade with direct directives in <code>.windsurfrules</code>:
+          </p>
+          <div class="code-box">
+            <div class="code-box-header">
+              <span>.windsurfrules</span>
+              <button class="copy-btn-mini" data-copy="# Windsurf Directives
+- Knowledge Catalog: https://trihuynh.omnimer.io.vn/llms.txt
+- When refactoring backend pipelines, retrieve raw markdown specifications:
+  https://trihuynh.omnimer.io.vn/api/kb/{slug}?format=raw
+- Check existing bug resolutions before attempting trial-and-error fixes."><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+            <pre><code># Windsurf Directives
+- Catalog: https://trihuynh.omnimer.io.vn/llms.txt
+- Raw Spec: https://trihuynh.omnimer.io.vn/api/kb/&#123;slug&#125;?format=raw</code></pre>
+          </div>
+        </article>
+
+        <!-- 6. Aider & CLI Agents -->
+        <article class="agent-card">
+          <div class="agent-header">
+            <span class="agent-badge aider-badge"><i class="fa-solid fa-terminal"></i> Aider / CLI Agents</span>
+            <span class="method-chip">--read &amp; .aider.conf</span>
+          </div>
+          <p class="agent-text" data-en="Load knowledge catalog directly into Aider terminal sessions:" data-vi="Nạp danh mục tri thức trực tiếp vào phiên dòng lệnh Aider:">
+            Load knowledge catalog directly into Aider terminal sessions:
+          </p>
+          <div class="code-box">
+            <div class="code-box-header">
+              <span>Aider Terminal Command</span>
+              <button class="copy-btn-mini" data-copy="aider --read https://trihuynh.omnimer.io.vn/llms.txt"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+            <pre><code>aider --read https://trihuynh.omnimer.io.vn/llms.txt</code></pre>
+          </div>
+          <p class="agent-subtext" data-en="Or set in .aider.conf.yml:" data-vi="Hoặc cấu hình cố định trong .aider.conf.yml:">
+            Or set in <code>.aider.conf.yml</code>:
+          </p>
+          <div class="code-box">
+            <div class="code-box-header">
+              <span>.aider.conf.yml</span>
+              <button class="copy-btn-mini" data-copy="read:
+  - https://trihuynh.omnimer.io.vn/llms.txt"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+            <pre><code>read:
+  - https://trihuynh.omnimer.io.vn/llms.txt</code></pre>
+          </div>
+        </article>
+
+        <!-- 7. Optimization Best Practices Strategy -->
+        <article class="agent-card" style="grid-column: 1 / -1;">
+          <div class="agent-header">
+            <span class="agent-badge strategy-badge"><i class="fa-solid fa-gauge-high"></i> 3 Nguyên Tắc Vàng Tối Ưu Hóa Token &amp; Tránh Ảo Giác</span>
+            <span class="method-chip" style="background: rgb(16 185 129 / 20%); color: #34d399;">Best Practices</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 4px;">
+            <div style="background: rgba(0,0,0,0.3); padding: 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
+              <h4 style="color: var(--brand-green); margin: 0 0 6px 0; font-size: 13px;"><i class="fa-solid fa-file-lines"></i> 1. Tiết Kiệm 85% Token với format=raw</h4>
+              <p style="font-size: 12px; color: var(--text-secondary); margin: 0; line-height: 1.5;">
+                Không bao giờ cào toàn bộ HTML/CSS của trang web. Luôn gọi endpoint <code>?format=raw</code> để nhận văn bản Markdown thuần túy, giữ cho context window của mô hình luôn gọn gàng và rẻ nhất.
+              </p>
+            </div>
+            <div style="background: rgba(0,0,0,0.3); padding: 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
+              <h4 style="color: #60a5fa; margin: 0 0 6px 0; font-size: 13px;"><i class="fa-solid fa-shield-halved"></i> 2. Triệt Tiêu Ảo Giác (Zero Hallucination)</h4>
+              <p style="font-size: 12px; color: var(--text-secondary); margin: 0; line-height: 1.5;">
+                Khi gặp ngoại lệ runtime hoặc lỗi compile, truyền ngay mã lỗi (ví dụ: <code>CommitFailedException</code>) vào <code>/api/kb/search?q=...</code> để lấy nguyên nhân gốc rễ và giải pháp đã kiểm chứng thay vì để AI đoán mò.
+              </p>
+            </div>
+            <div style="background: rgba(0,0,0,0.3); padding: 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
+              <h4 style="color: #f59e0b; margin: 0 0 6px 0; font-size: 13px;"><i class="fa-solid fa-arrows-rotate"></i> 3. Vòng Lặp Học Tập Hai Chiều (Bi-directional)</h4>
+              <p style="font-size: 12px; color: var(--text-secondary); margin: 0; line-height: 1.5;">
+                Sau khi sửa xong một lỗi mới, tự động gửi <code>POST /api/kb/&#123;slug&#125;/problems</code> ghi nhận vào D1. Nhờ đó, tất cả các AI Agents và đồng nghiệp khác trong tương lai sẽ không bao giờ lặp lại lỗi đó nữa.
+              </p>
+            </div>
           </div>
         </article>
       </div>
@@ -480,7 +628,12 @@ https://trihuynh.omnimer.io.vn/api/kb/search?q=&#123;query&#125;</code></pre>
         try {
           await navigator.clipboard.writeText(text);
           const orig = btn.innerHTML;
-          btn.innerHTML = `<i class="fa-solid fa-check text-green-400"></i> Copied!`;
+          const isIconOnly = btn.classList.contains("icon-only") || btn.closest(".code-pill");
+          if (isIconOnly) {
+            btn.innerHTML = `<i class="fa-solid fa-check text-green-400"></i>`;
+          } else {
+            btn.innerHTML = `<i class="fa-solid fa-check text-green-400"></i> Copied!`;
+          }
           setTimeout(() => {
             btn.innerHTML = orig;
           }, 2000);
@@ -623,7 +776,7 @@ https://trihuynh.omnimer.io.vn/api/kb/search?q=&#123;query&#125;</code></pre>
 
   .api-meta-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 16px;
     margin-top: 12px;
   }
@@ -636,6 +789,8 @@ https://trihuynh.omnimer.io.vn/api/kb/search?q=&#123;query&#125;</code></pre>
     display: flex;
     flex-direction: column;
     gap: 6px;
+    min-width: 0;
+    overflow: hidden;
   }
 
   .meta-card small {
@@ -649,6 +804,9 @@ https://trihuynh.omnimer.io.vn/api/kb/search?q=&#123;query&#125;</code></pre>
     font-size: 13px;
     font-weight: 600;
     color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .text-accent {
@@ -660,16 +818,24 @@ https://trihuynh.omnimer.io.vn/api/kb/search?q=&#123;query&#125;</code></pre>
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    background: rgba(0, 0, 0, 0.4);
-    padding: 4px 8px 4px 10px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 4px 6px 4px 10px;
     border-radius: 6px;
-    border: 1px solid rgb(255 255 255 / 8%);
+    border: 1px solid rgb(255 255 255 / 10%);
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .code-pill code {
     font-family: var(--font-mono);
-    font-size: 12px;
+    font-size: 11.5px;
     color: var(--brand-soft);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    flex: 1;
   }
 
   .copy-btn-mini {
@@ -680,10 +846,19 @@ https://trihuynh.omnimer.io.vn/api/kb/search?q=&#123;query&#125;</code></pre>
     font-size: 12px;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 4px;
     padding: 4px 6px;
     border-radius: 4px;
+    flex-shrink: 0;
     transition: all var(--duration-fast);
+  }
+
+  .code-pill .copy-btn-mini,
+  .copy-btn-mini.icon-only {
+    width: 24px;
+    height: 24px;
+    padding: 0;
   }
 
   .copy-btn-mini:hover {
@@ -798,6 +973,10 @@ https://trihuynh.omnimer.io.vn/api/kb/search?q=&#123;query&#125;</code></pre>
   .cursor-badge { color: #60a5fa; }
   .claude-badge { color: #f59e0b; }
   .anti-badge { color: #34d399; }
+  .copilot-badge { color: #a78bfa; }
+  .windsurf-badge { color: #38bdf8; }
+  .aider-badge { color: #f43f5e; }
+  .strategy-badge { color: #34d399; }
 
   .method-chip {
     font-size: 11px;

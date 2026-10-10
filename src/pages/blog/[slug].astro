@@ -7,6 +7,7 @@ import { getCollection, render } from "astro:content";
 import { marked } from "marked";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { KnowledgeService, type ProblemRecord } from "../../lib/services/knowledge.service";
+import "katex/dist/katex.min.css";
 
 export const prerender = false;
 
@@ -262,6 +263,114 @@ const jsonld = {
   </article>
 </BaseLayout>
 
+<script>
+  /**
+   * Initializes and renders Mermaid diagrams in blog articles
+   */
+  async function initMermaid() {
+    const codeBlocks = document.querySelectorAll<HTMLElement>(
+      'pre[data-language="mermaid"], pre.astro-code[data-language="mermaid"], pre:has(code.language-mermaid), pre code.language-mermaid, pre.language-mermaid'
+    );
+    if (!codeBlocks.length) return;
+
+    try {
+      const { default: mermaid } = await import("mermaid");
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "base",
+        themeVariables: {
+          darkMode: true,
+          fontFamily: "var(--font-mono, 'IBM Plex Mono', monospace)",
+          fontSize: "12px",
+          background: "transparent",
+          mainBkg: "#071711",
+          nodeBorder: "#18c785",
+          primaryColor: "#0b251a",
+          primaryTextColor: "#f1f5f9",
+          primaryBorderColor: "rgba(24, 199, 133, 0.7)",
+          lineColor: "#52b788",
+          secondaryColor: "#051810",
+          secondaryBorderColor: "rgba(117, 230, 178, 0.4)",
+          secondaryTextColor: "#f1f5f9",
+          tertiaryColor: "#030e09",
+          tertiaryBorderColor: "rgba(117, 230, 178, 0.2)",
+          tertiaryTextColor: "#f1f5f9",
+          clusterBkg: "rgba(8, 26, 19, 0.75)",
+          clusterBorder: "rgba(24, 199, 133, 0.35)",
+          defaultLinkColor: "#52b788",
+          titleColor: "#18c785",
+          edgeLabelBackground: "#06130e",
+          nodeTextColor: "#f1f5f9",
+        },
+        securityLevel: "loose",
+      });
+
+      const processedPres = new Set<HTMLElement>();
+
+      for (let i = 0; i < codeBlocks.length; i++) {
+        const target = codeBlocks[i];
+        const pre = (target.tagName.toLowerCase() === "code" ? target.closest("pre") : target) as HTMLElement;
+        if (!pre || processedPres.has(pre)) continue;
+        processedPres.add(pre);
+
+        const code = (pre.textContent || "").trim();
+        if (!code) continue;
+
+        const id = `mermaid-blog-${i}-${Math.random().toString(36).slice(2, 8)}`;
+        try {
+          const { svg } = await mermaid.render(id, code);
+          const wrapper = document.createElement("div");
+          wrapper.className = "mermaid-diagram-card";
+          wrapper.innerHTML = svg;
+          pre.replaceWith(wrapper);
+        } catch (err) {
+          console.error("Mermaid diagram render error:", err);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load mermaid library:", err);
+    }
+  }
+
+  /**
+   * Initializes KaTeX math rendering for LaTeX formulas ($...$ and $$...$$)
+   */
+  async function initKatex() {
+    const targets = document.querySelectorAll(".article-body, .solution-content");
+    if (!targets.length) return;
+
+    try {
+      const { default: renderMathInElement } = await import("katex/dist/contrib/auto-render.mjs");
+      targets.forEach((target) => {
+        renderMathInElement(target as HTMLElement, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false },
+            { left: "\\(", right: "\\)", display: false },
+            { left: "\\[", right: "\\]", display: true },
+          ],
+          throwOnError: false,
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+        });
+      });
+    } catch (err) {
+      console.error("Failed to load KaTeX auto-render:", err);
+    }
+  }
+
+  function initContentEnhancements() {
+    initMermaid();
+    initKatex();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initContentEnhancements);
+  } else {
+    initContentEnhancements();
+  }
+  document.addEventListener("astro:page-load", initContentEnhancements);
+</script>
+
 <style>
   .blog-article {
     padding-top: 118px;
@@ -510,6 +619,102 @@ const jsonld = {
     padding: 22px;
     border: 0;
     background: transparent;
+  }
+
+  /* KaTeX Math Styling */
+  .article-body :global(.katex),
+  .solution-content :global(.katex) {
+    color: #e8f2ed;
+    font-size: 1.08em;
+  }
+
+  .article-body :global(.katex-display),
+  .solution-content :global(.katex-display) {
+    position: relative;
+    margin: 24px 0 28px;
+    padding: 24px 22px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border: 1px solid rgb(117 230 178 / 22%);
+    border-left: 3px solid var(--brand-green);
+    border-radius: 14px;
+    background:
+      radial-gradient(circle at 94% 0%, rgb(59 130 246 / 10%), transparent 34%),
+      linear-gradient(135deg, rgb(24 199 133 / 6%), transparent 44%),
+      rgb(5 14 11 / 92%);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 3%),
+      0 16px 36px rgb(0 0 0 / 14%);
+    scrollbar-color: rgb(117 230 178 / 28%) transparent;
+    scrollbar-width: thin;
+  }
+
+  .article-body :global(.katex-display > .katex),
+  .solution-content :global(.katex-display > .katex) {
+    min-width: max-content;
+    text-align: left;
+  }
+
+  .article-body :global(.katex-display::before),
+  .solution-content :global(.katex-display::before) {
+    position: absolute;
+    top: 8px;
+    left: 12px;
+    color: var(--brand-green);
+    content: "FORMULA / MATH";
+    font-family: var(--font-mono);
+    font-size: 0.44rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+  }
+
+  .article-body :global(.katex-display .base),
+  .solution-content :global(.katex-display .base) {
+    line-height: 1.5;
+  }
+
+  /* Mermaid Architecture Diagram Styling */
+  .article-body :global(.mermaid-diagram-card),
+  .solution-content :global(.mermaid-diagram-card) {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 32px 0;
+    padding: 42px 20px 26px;
+    overflow-x: auto;
+    border: 1px solid rgb(117 230 178 / 25%);
+    border-radius: 16px;
+    background:
+      radial-gradient(circle at 94% 0%, rgb(59 130 246 / 10%), transparent 36%),
+      linear-gradient(180deg, rgb(8 24 17 / 95%), rgb(4 14 10 / 96%));
+    box-shadow:
+      0 12px 32px -8px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgb(255 255 255 / 4%);
+    scrollbar-color: rgb(117 230 178 / 28%) transparent;
+    scrollbar-width: thin;
+  }
+
+  .article-body :global(.mermaid-diagram-card::before),
+  .solution-content :global(.mermaid-diagram-card::before) {
+    position: absolute;
+    top: 12px;
+    left: 16px;
+    color: var(--brand-green);
+    content: "ARCHITECTURE DIAGRAM";
+    font-family: var(--font-mono);
+    font-size: 0.48rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    opacity: 0.85;
+  }
+
+  .article-body :global(.mermaid-diagram-card svg),
+  .solution-content :global(.mermaid-diagram-card svg) {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 8px auto 0;
   }
 
   /* TROUBLESHOOTING BOX */
