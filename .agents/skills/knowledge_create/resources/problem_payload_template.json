@@ -1,0 +1,9 @@
+{
+  "title": "Clear Symptom-Oriented Problem Title (e.g. Memory Leak under High Concurrency)",
+  "errorCode": "ERR_SYSTEM_OR_EXCEPTION_CODE",
+  "errorSnippet": "Exact stack trace or log excerpt captured from compiler/runtime terminal:\nTypeError: Cannot read properties of undefined ...",
+  "environment": "macOS Sequoia, Node 22, Astro 7.3, Cloudflare workerd",
+  "rootCause": "In-depth root cause analysis explaining the exact mechanical reason the failure happened.",
+  "solution": "## Verified Solution\n\n1. Step-by-step resolution\n2. Code modification diff:\n```ts\n- brokenCode()\n+ fixedCode()\n```\n3. Verification steps confirming the error is permanently resolved.",
+  "tags": ["runtime", "memory", "debugging", "edge"]
+}

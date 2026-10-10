@@ -1,0 +1,16 @@
+{
+  "slug": "technology-or-architecture-slug",
+  "title": "Clear, Descriptive Headline of the Architecture or System",
+  "description": "Concise 1-2 sentence human-readable summary of what this article covers.",
+  "pubDate": "2026-10-10T00:00:00.000Z",
+  "thumbnail": "/images/blog/default.png",
+  "thumbnailAlt": "Descriptive cover image alt text",
+  "hashtags": ["Architecture", "Cloudflare", "Backend"],
+  "seoKeywords": ["edge computing", "d1 database", "astro ssr"],
+  "draft": false,
+  "isKnowledgeBase": true,
+  "kbCategory": "architecture",
+  "targetAgents": ["claude", "cursor", "codex", "anti"],
+  "summaryForAgents": "High-density technical summary for LLMs: core primitives, invariants, throughput limits, and integration patterns.",
+  "content": "# Technology Architecture\n\n## Overview\nDetailed technical analysis, system diagrams, and architectural decisions."
+}
