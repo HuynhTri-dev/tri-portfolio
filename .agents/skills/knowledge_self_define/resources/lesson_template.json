@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Template for logging a self-defined engineering lesson and troubleshooting case study",
+  "parentSlug": "kafka-pbx-event-streaming-architecture",
+  "title": "Database Connection Pool Exhaustion from Unbounded Concurrent Event Processing in Worker",
+  "errorCode": "ERR_POOL_EXHAUSTED_CONCURRENCY",
+  "errorSnippet": "error: timeout exceeded when trying to connect, active connections: 20, max: 20\n    at Pool.acquire (/node_modules/pg-pool/index.js:312:15)\n    at processCallEvent (worker.ts:88:24)",
+  "environment": "Node.js v22, PostgreSQL 16 (PgBouncer pool size 20), BullMQ / Kafka Consumer",
+  "rootCause": "### 5-Whys Root Cause Analysis\n1. **Why did the worker fail?** Database pool threw timeout errors under traffic spikes.\n2. **Why was the pool exhausted?** 200 Kafka events were processed simultaneously via `Promise.all(records.map(processEvent))`.\n3. **Why were they all processed simultaneously?** The consumer loop did not enforce backpressure or concurrency limits.\n4. **Why was there no backpressure?** Assumed Node.js asynchronous event loop would naturally queue tasks without overwhelming downstream connections.\n5. **Core Root Cause (Mental Model Flaw):** Conflating asynchronous non-blocking I/O with infinite downstream capacity. Without a concurrency limiter (semaphore/p-limit), unbounded asynchronous concurrency exhausts socket and database pools.",
+  "solution": "## 1. Verified Code Resolution\nReplace unbounded `Promise.all` with a bounded concurrency pool using `p-limit`:\n\n```typescript\nimport pLimit from 'p-limit';\n\n// Guardrail: Never exceed 50% of dedicated database pool connections per worker isolate\nconst limit = pLimit(8);\n\nawait Promise.all(\n  records.map((record) => limit(() => processCallEvent(record)))\n);\n```\n\n## 2. Systemic Guardrails\n* Add a lint or code review rule banning raw `Promise.all(items.map(...))` when the mapper function performs database or network I/O.\n* Configure database pool acquisition timeout with circuit breaker alerts.\n\n## 3. Personal Engineering Takeaway\n> *\"Asynchronous non-blocking I/O does not mean infinite concurrency. Every external resource (DB, TCP, file descriptors) has finite physical ceilings. Always bound concurrency at the producer boundary.\"*",
+  "tags": [
+    "nodejs",
+    "postgresql",
+    "connection-pool",
+    "concurrency",
+    "p-limit",
+    "lesson-learned",
+    "postmortem"
+  ]
+}
