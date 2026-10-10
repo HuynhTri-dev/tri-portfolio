@@ -27,6 +27,74 @@ export interface IDatabase {
 let localDbInstance: any = null;
 
 /**
+ * Automatically applies non-destructive column additions and FTS5 rebuilds for SQLite database.
+ * 
+ * @param db better-sqlite3 database instance
+ */
+function applySqliteMigrations(db: any): void {
+  try {
+    // 1. Ensure new columns on articles
+    const articleCols = db.prepare("PRAGMA table_info(articles)").all().map((c: any) => c.name);
+    if (articleCols.length > 0) {
+      if (!articleCols.includes("source")) {
+        db.exec("ALTER TABLE articles ADD COLUMN source TEXT DEFAULT 'git'");
+      }
+      if (!articleCols.includes("search_text")) {
+        db.exec("ALTER TABLE articles ADD COLUMN search_text TEXT");
+      }
+    }
+
+    // 2. Ensure new columns on kb_problems
+    const problemCols = db.prepare("PRAGMA table_info(kb_problems)").all().map((c: any) => c.name);
+    if (problemCols.length > 0) {
+      if (!problemCols.includes("error_code_norm")) {
+        db.exec("ALTER TABLE kb_problems ADD COLUMN error_code_norm TEXT");
+      }
+      if (!problemCols.includes("search_text")) {
+        db.exec("ALTER TABLE kb_problems ADD COLUMN search_text TEXT");
+      }
+    }
+
+    // 3. Drop triggers to ensure latest definition with old. prefix is applied
+    db.exec(`
+      DROP TRIGGER IF EXISTS articles_ai;
+      DROP TRIGGER IF EXISTS articles_ad;
+      DROP TRIGGER IF EXISTS articles_au;
+      DROP TRIGGER IF EXISTS kb_problems_ai;
+      DROP TRIGGER IF EXISTS kb_problems_ad;
+      DROP TRIGGER IF EXISTS kb_problems_au;
+      DROP TRIGGER IF EXISTS sections_ai;
+      DROP TRIGGER IF EXISTS sections_ad;
+      DROP TRIGGER IF EXISTS sections_au;
+    `);
+
+    // Check if FTS tables need migration to remove_diacritics 2 or add search_text
+    const ftsMaster = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='articles_fts'").get();
+    if (ftsMaster && (!ftsMaster.sql.includes("remove_diacritics 2") || !ftsMaster.sql.includes("search_text"))) {
+      db.exec(`
+        DROP TABLE IF EXISTS articles_fts;
+        DROP TABLE IF EXISTS kb_problems_fts;
+        DROP TABLE IF EXISTS sections_fts;
+      `);
+    }
+
+    // 4. Execute the schema definitions (will create missing tables, triggers, and FTS tables)
+    db.exec(SCHEMA_SQL);
+
+    // 5. Rebuild virtual tables if data exists
+    try {
+      db.exec("INSERT INTO articles_fts(articles_fts) VALUES('rebuild')");
+      db.exec("INSERT INTO kb_problems_fts(kb_problems_fts) VALUES('rebuild')");
+      db.exec("INSERT INTO sections_fts(sections_fts) VALUES('rebuild')");
+    } catch {
+      // Ignore if empty
+    }
+  } catch (err) {
+    console.warn("[LocalSqlite] Migration notice:", err);
+  }
+}
+
+/**
  * Initializes and returns a local SQLite database instance via better-sqlite3 for Node.js environments
  */
 async function getLocalSqliteDatabase(): Promise<any> {
@@ -52,8 +120,8 @@ async function getLocalSqliteDatabase(): Promise<any> {
   db.pragma("journal_mode = WAL");
   db.pragma("foreign_keys = ON");
 
-  // Read and execute schema migration if tables don't exist
-  db.exec(SCHEMA_SQL);
+  // Run schema migration and FTS initialization
+  applySqliteMigrations(db);
 
   localDbInstance = db;
   return localDbInstance;

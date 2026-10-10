@@ -1,9 +1,18 @@
 {
-  "title": "Clear Symptom-Oriented Problem Title (e.g. Memory Leak under High Concurrency)",
-  "errorCode": "ERR_SYSTEM_OR_EXCEPTION_CODE",
-  "errorSnippet": "Exact stack trace or log excerpt captured from compiler/runtime terminal:\nTypeError: Cannot read properties of undefined ...",
-  "environment": "macOS Sequoia, Node 22, Astro 7.3, Cloudflare workerd",
-  "rootCause": "In-depth root cause analysis explaining the exact mechanical reason the failure happened.",
-  "solution": "## Verified Solution\n\n1. Step-by-step resolution\n2. Code modification diff:\n```ts\n- brokenCode()\n+ fixedCode()\n```\n3. Verification steps confirming the error is permanently resolved.",
-  "tags": ["runtime", "memory", "debugging", "edge"]
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "JSON payload template for logging a verified troubleshooting case study to POST /api/kb/{parentSlug}/problems",
+  "title": "Cloudflare Worker Terminated with Out of Memory (128MB Ceiling) During Large JSON Stream Parsing",
+  "errorCode": "ERR_WORKER_OUT_OF_MEMORY",
+  "errorSnippet": "Error: Worker exceeded memory limit (128 MiB).\n    at JSON.parse (<anonymous>)\n    at handleStreamChunk (worker.js:142:21)\n    at async dispatchFetch (runtime:31:9)",
+  "environment": "Cloudflare Workers workerd runtime, Node 22 compat, Astro 5 SSR, D1 SQLite",
+  "rootCause": "The worker buffered an entire 150MB multi-part audio payload into a single Buffer in isolate heap memory before running JSON.parse(), breaching the hard 128MB memory limit per Cloudflare Worker isolate.",
+  "solution": "## Verified Solution\n\n### 1. Architectural Fix\nTransition from full in-memory buffering to incremental stream chunking using `TransformStream` and `@streamparser/json`.\n\n### 2. Code Modification\n```typescript\n// Before (Heap exhaustion):\nconst fullBody = await request.arrayBuffer();\nconst parsed = JSON.parse(new TextDecoder().decode(fullBody));\n\n// After (Constant O(1) ~4MB memory consumption):\nimport { JSONParser } from '@streamparser/json-whatwg';\nconst parser = new JSONParser({\n  paths: ['$.records.*'],\n  keepStack: false\n});\nconst stream = request.body.pipeThrough(parser);\nfor await (const { value } of stream) {\n  await processRecord(value);\n}\n```\n\n### 3. Verification\nExecuted stress test with 300MB payloads. Peak heap memory stayed strictly at 14.2MB with zero isolate termination events.",
+  "tags": [
+    "cloudflare-workers",
+    "out-of-memory",
+    "heap-limit",
+    "streaming",
+    "json-parse",
+    "troubleshooting"
+  ]
 }

@@ -1,6 +1,6 @@
 /**
  * @name llms.txt.ts (/llms.txt)
- * @description Standardized machine-readable catalog for LLMs and AI Agents (Cursor, Claude, OpenAI).
+ * @description Standardized machine-readable catalog for LLMs and AI Agents (Cursor, Claude, OpenAI, Antigravity).
  */
 
 import type { APIRoute } from "astro";
@@ -18,24 +18,29 @@ export const GET: APIRoute = async (context) => {
     let text = `# Huynh Minh Tri — Engineering Knowledge Base & Research
 > Technical architecture notes, verified troubleshooting guides, and system designs for AI Coding Agents (Claude, Cursor, Codex, Antigravity).
 
-## API Endpoints for AI Agents
+## API Endpoints for AI Agents (High Token Efficiency)
 - API Documentation (Web): ${siteUrl}/docs/api
-- Search Full-Text: ${siteUrl}/api/kb/search?q={query}
-- List Articles (JSON): ${siteUrl}/api/kb
-- Raw Markdown Template: ${siteUrl}/api/kb/{slug}?format=raw
-- Troubleshooting by Parent: ${siteUrl}/api/kb/{parentSlug}/problems
+- Search (Universal JSON): ${siteUrl}/api/kb/search?q={query}
+- Search (Section Granularity): ${siteUrl}/api/kb/search?q={query}&granularity=section
+- Search (Agent Plain Text): ${siteUrl}/api/kb/search?q={query}&format=agent
+- Article Outline & Headings (~150 tokens): ${siteUrl}/api/kb/{slug}?format=outline
+- Granular Section Markdown: ${siteUrl}/api/kb/{slug}?format=raw&section={anchor}
+- Full Raw Markdown Body: ${siteUrl}/api/kb/{slug}?format=raw
+- Verified Troubleshooting Fixes: ${siteUrl}/api/kb/{parentSlug}/problems
+- Top Missing Content Feedback: ${siteUrl}/api/kb/misses
 
 ## Knowledge Base Articles
 `;
 
     if (articles.length === 0) {
-      text += `\n*No articles indexed yet. Use POST /api/kb or POST /api/kb/sync to populate.*`;
+      text += `\n*No articles indexed yet. Use npm run kb:sync or POST /api/kb to populate.*`;
     } else {
       for (const a of articles) {
         const rawUrl = `${siteUrl}/api/kb/${a.slug}?format=raw`;
+        const outlineUrl = `${siteUrl}/api/kb/${a.slug}?format=outline`;
         const summary = a.summary_for_agents || a.description || "";
         const tags = a.hashtags.join(", ");
-        text += `\n- [${a.title}](${rawUrl}): ${summary} (Category: ${a.kb_category} | Tags: ${tags})`;
+        text += `\n- [${a.title}](${rawUrl}): ${summary}\n  - Outline: ${outlineUrl}\n  - Category: ${a.kb_category} | Tags: ${tags}\n`;
       }
     }
 

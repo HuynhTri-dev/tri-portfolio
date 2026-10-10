@@ -1,16 +1,34 @@
 {
-  "slug": "technology-or-architecture-slug",
-  "title": "Clear, Descriptive Headline of the Architecture or System",
-  "description": "Concise 1-2 sentence human-readable summary of what this article covers.",
-  "pubDate": "2026-10-10T00:00:00.000Z",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "JSON payload template for publishing or updating an engineering knowledge base article via POST/PUT /api/kb",
+  "slug": "sample-edge-streaming-architecture",
+  "title": "High-Throughput Edge Streaming Architecture with Cloudflare and SQLite FTS5",
+  "description": "A comprehensive engineering guide detailing full-duplex WebSocket streaming, distributed FTS5 indexing, and edge worker memory limits under 10k RPS load.",
+  "pubDate": "2026-10-10T12:00:00.000Z",
   "thumbnail": "/images/blog/default.png",
-  "thumbnailAlt": "Descriptive cover image alt text",
-  "hashtags": ["Architecture", "Cloudflare", "Backend"],
-  "seoKeywords": ["edge computing", "d1 database", "astro ssr"],
+  "thumbnailAlt": "Architecture diagram illustrating edge workers connected to Cloudflare D1 and Vectorize",
+  "hashtags": [
+    "Architecture",
+    "Cloudflare",
+    "EdgeComputing",
+    "DistributedSystems"
+  ],
+  "seoKeywords": [
+    "edge computing",
+    "cloudflare workers",
+    "d1 database",
+    "sqlite fts5",
+    "websocket streaming"
+  ],
   "draft": false,
   "isKnowledgeBase": true,
   "kbCategory": "architecture",
-  "targetAgents": ["claude", "cursor", "codex", "anti"],
-  "summaryForAgents": "High-density technical summary for LLMs: core primitives, invariants, throughput limits, and integration patterns.",
-  "content": "# Technology Architecture\n\n## Overview\nDetailed technical analysis, system diagrams, and architectural decisions."
+  "targetAgents": [
+    "claude",
+    "cursor",
+    "codex",
+    "anti"
+  ],
+  "summaryForAgents": "Covers bidirectional streaming patterns over Cloudflare Workers, SQLite FTS5 BM25 scoring with Vietnamese diacritic folding, memory limits (128MB per isolate), and zero-copy JSON parsing strategies.",
+  "content": "# High-Throughput Edge Streaming Architecture\n\n## 1. System Overview\nThis document describes the architectural layout of our edge event broker connecting Cloudflare Workers with SQLite FTS5 indexing.\n\n## 2. Invariants and Constraints\n* Isolates have a strict memory ceiling of 128MB.\n* SQLite FTS5 queries must enforce BM25 weights to prioritize titles and heading anchors.\n* Outgoing WebSocket messages must use compact binary or plain-text formats to minimize serialization latency.\n\n## 3. Production Configuration\n```typescript\nexport const config = {\n  maxPayloadBytes: 1024 * 512,\n  timeoutMs: 15000,\n  enableFts5Bm25: true\n};\n```\n\n## 4. Verification and Benchmarks\nLoad-tested at 10,000 RPS using k6 with 0% dropped packets and P99 latency below 38ms."
 }

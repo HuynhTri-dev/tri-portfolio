@@ -11,19 +11,22 @@ import { KnowledgeService } from "../../lib/services/knowledge.service";
 export const prerender = false;
 
 // 1. Top Tier: Showcase & Product Articles from Git source (.mdx)
-const staticPosts = await getCollection("blog", ({ data }) => !data.draft);
-const showcasePosts = staticPosts.sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-);
+const allStaticPosts = await getCollection("blog", ({ data }) => !data.draft);
+const showcasePosts = allStaticPosts
+  .filter((post) => !post.data.isKnowledgeBase)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const showcaseSlugs = new Set(showcasePosts.map((p) => p.id));
 
 // 2. Bottom Tier: Live Knowledge Base & Case Studies from Cloudflare D1 / SQLite
 const service = new KnowledgeService();
 
 let kbArticlesWithProblems: any[] = [];
 try {
-  const kbArticles = await service.listArticles({ isKnowledgeBase: true, limit: 30 });
+  const kbArticles = await service.listArticles({ isKnowledgeBase: true, limit: 50 });
+  const dedupedKbArticles = kbArticles.filter((art) => !showcaseSlugs.has(art.slug));
   kbArticlesWithProblems = await Promise.all(
-    kbArticles.map(async (art) => {
+    dedupedKbArticles.map(async (art) => {
       const problems = await service.getProblemsByParent(art.slug);
       return {
         ...art,

@@ -335,14 +335,14 @@ When encountering architectural decisions or bugs with Kafka, D1, Fastify:
       <article id="endpoint-search" class="endpoint-item panel">
         <div class="endpoint-top">
           <span class="badge-get">GET</span>
-          <span class="endpoint-path">/api/kb/search?q=&#123;query&#125;&amp;type=all</span>
+          <span class="endpoint-path">/api/kb/search?q=&#123;query&#125;&amp;granularity=all&amp;format=json</span>
           <span class="auth-tag public"><i class="fa-solid fa-lock-open"></i> Public</span>
         </div>
-        <h3 class="endpoint-title" data-en="FTS5 Full-Text Search (Articles &amp; Problems)" data-vi="Tìm Kiếm Toàn Văn FTS5 (Bài Viết &amp; Lỗi Đã Xử Lý)">
-          FTS5 Full-Text Search (Articles &amp; Problems)
+        <h3 class="endpoint-title" data-en="FTS5 Full-Text Search (Articles, Sections &amp; Problems)" data-vi="Tìm Kiếm Toàn Văn FTS5 (Bài Viết, Mục Nhỏ &amp; Lỗi Đã Xử Lý)">
+          FTS5 Full-Text Search (Articles, Sections &amp; Problems)
         </h3>
-        <p class="endpoint-desc" data-en="Searches across indexed articles and documented bug solutions using Cloudflare D1 SQLite FTS5 BM25 ranking algorithm with keyword highlights." data-vi="Truy vấn toàn văn trên bài viết và kho lỗi thực chiến sử dụng thuật toán xếp hạng BM25 của FTS5, tự động tô đậm từ khóa phù hợp.">
-          Searches across indexed articles and documented bug solutions using Cloudflare D1 SQLite FTS5 BM25 ranking algorithm with keyword highlights.
+        <p class="endpoint-desc" data-en="High-recall search with Vietnamese diacritic folding, weighted BM25 ranking, AND-to-OR relaxation, and section-level granularity to save LLM tokens." data-vi="Truy vấn toàn văn độ hồi tưởng cao với chuẩn hóa tiếng Việt, xếp hạng BM25 có trọng số, nới lỏng AND sang OR và hỗ trợ lấy theo từng đoạn mục nhỏ để tiết kiệm token cho LLM.">
+          High-recall search with Vietnamese diacritic folding, weighted BM25 ranking, AND-to-OR relaxation, and section-level granularity to save LLM tokens.
         </p>
 
         <div class="params-table-wrapper">
@@ -360,19 +360,31 @@ When encountering architectural decisions or bugs with Kafka, D1, Fastify:
                 <td><code>q</code> (required)</td>
                 <td>string</td>
                 <td>-</td>
-                <td>Search keyword (e.g. <code>workerd</code>, <code>memory leak</code>, <code>fhir</code>)</td>
+                <td>Search keyword or natural language query (e.g. <code>acks</code>, <code>commit failed</code>, <code>đảm bảo</code>)</td>
               </tr>
               <tr>
-                <td><code>type</code></td>
+                <td><code>granularity</code></td>
                 <td>string</td>
                 <td><code>all</code></td>
-                <td>Target index: <code>all</code>, <code>article</code>, or <code>problem</code></td>
+                <td>Target level: <code>all</code>, <code>section</code> (highest agent efficiency), <code>article</code>, or <code>problem</code></td>
+              </tr>
+              <tr>
+                <td><code>format</code></td>
+                <td>string</td>
+                <td><code>json</code></td>
+                <td>Output format: <code>json</code> or <code>agent</code> (clean plain-text without HTML markup)</td>
+              </tr>
+              <tr>
+                <td><code>include</code></td>
+                <td>string</td>
+                <td>-</td>
+                <td>Pass <code>include=solution</code> to include full problem solution markdown (default is compact summary)</td>
               </tr>
               <tr>
                 <td><code>limit</code></td>
                 <td>number</td>
                 <td><code>10</code></td>
-                <td>Maximum results returned (1-50)</td>
+                <td>Maximum results returned (clamped 1-50)</td>
               </tr>
             </tbody>
           </table>
@@ -380,10 +392,10 @@ When encountering architectural decisions or bugs with Kafka, D1, Fastify:
 
         <div class="endpoint-box">
           <div class="box-bar">
-            <span>cURL Example</span>
-            <button class="copy-btn-mini" data-copy="curl -s 'https://trihuynh.omnimer.io.vn/api/kb/search?q=workerd'"><i class="fa-regular fa-copy"></i> Copy</button>
+            <span>cURL Example (Section Search)</span>
+            <button class="copy-btn-mini" data-copy="curl -s 'https://trihuynh.omnimer.io.vn/api/kb/search?q=acks&granularity=section&format=agent'"><i class="fa-regular fa-copy"></i> Copy</button>
           </div>
-          <pre><code>curl -s 'https://trihuynh.omnimer.io.vn/api/kb/search?q=workerd'</code></pre>
+          <pre><code>curl -s 'https://trihuynh.omnimer.io.vn/api/kb/search?q=acks&granularity=section&format=agent'</code></pre>
         </div>
       </article>
 
@@ -420,8 +432,8 @@ When encountering architectural decisions or bugs with Kafka, D1, Fastify:
         <h3 class="endpoint-title" data-en="Create / Index Knowledge Base Article" data-vi="Tạo &amp; Lập Chỉ Mục Bài Viết Mới">
           Create / Index Knowledge Base Article
         </h3>
-        <p class="endpoint-desc" data-en="Creates a new article directly in Cloudflare D1 and synchronizes into FTS5 index. Requires Bearer Token." data-vi="Thêm bài viết mới vào Cloudflare D1 và tự động đồng bộ vào bảng tìm kiếm FTS5. Yêu cầu Bearer Token.">
-          Creates a new article directly in Cloudflare D1 and synchronizes into FTS5 index. Requires Bearer Token.
+        <p class="endpoint-desc" data-en="Creates a new article directly in Cloudflare D1, extracts section headings, and synchronizes into FTS5 index. Requires Bearer Token." data-vi="Thêm bài viết mới vào Cloudflare D1, tự động bóc tách các mục nhỏ và đồng bộ vào bảng tìm kiếm FTS5. Yêu cầu Bearer Token.">
+          Creates a new article directly in Cloudflare D1, extracts section headings, and synchronizes into FTS5 index. Requires Bearer Token.
         </p>
 
         <div class="endpoint-box">
@@ -457,26 +469,34 @@ When encountering architectural decisions or bugs with Kafka, D1, Fastify:
         </div>
       </article>
 
-      <!-- Endpoint 5: Get Article & Raw Markdown -->
+      <!-- Endpoint 5: Get Article, Outline & Granular Section -->
       <article class="endpoint-item panel">
         <div class="endpoint-top">
           <span class="badge-get">GET</span>
-          <span class="endpoint-path">/api/kb/&#123;slug&#125;?format=raw</span>
+          <span class="endpoint-path">/api/kb/&#123;slug&#125;[?format=outline|raw][&amp;section=&#123;anchor&#125;]</span>
           <span class="auth-tag public"><i class="fa-solid fa-lock-open"></i> Public</span>
         </div>
-        <h3 class="endpoint-title" data-en="Get Article Detail &amp; Raw Markdown" data-vi="Lấy Chi Tiết Bài Viết &amp; Markdown Thô">
-          Get Article Detail &amp; Raw Markdown
+        <h3 class="endpoint-title" data-en="Get Article, Outline &amp; Granular Section" data-vi="Lấy Bài Viết, Dàn Ý &amp; Từng Mục Riêng Lẻ">
+          Get Article, Outline &amp; Granular Section
         </h3>
-        <p class="endpoint-desc" data-en="Fetches full article metadata + attached troubleshooting problems in JSON, or pass ?format=raw to receive pristine Markdown for LLM prompt injections." data-vi="Lấy đầy đủ thông tin bài viết và các lỗi đính kèm dưới dạng JSON, hoặc truyền ?format=raw để nhận Markdown sạch phục vụ nạp ngữ cảnh cho LLM.">
-          Fetches full article metadata + attached troubleshooting problems in JSON, or pass <code>?format=raw</code> to receive pristine Markdown for LLM prompt injections.
+        <p class="endpoint-desc" data-en="Pass format=outline to get a lightweight headings outline with token estimates (~150 tokens), section={anchor} to fetch ONLY that section, or format=raw for the full markdown body." data-vi="Truyền format=outline để lấy dàn ý các đề mục kèm ước tính token (~150 token), section={anchor} để chỉ lấy nội dung mục cụ thể đó, hoặc format=raw để lấy toàn văn markdown.">
+          Pass <code>format=outline</code> to get a lightweight headings outline with token estimates (~150 tokens), <code>section=&#123;anchor&#125;</code> to fetch ONLY that section, or <code>format=raw</code> for the full markdown body.
         </p>
 
         <div class="endpoint-box">
           <div class="box-bar">
-            <span>cURL Example (Raw Markdown)</span>
-            <button class="copy-btn-mini" data-copy="curl -s 'https://trihuynh.omnimer.io.vn/api/kb/cloudflare-d1-hybrid-setup?format=raw'"><i class="fa-regular fa-copy"></i> Copy</button>
+            <span>cURL Example 1: Article Outline (~150 tokens)</span>
+            <button class="copy-btn-mini" data-copy="curl -s 'https://trihuynh.omnimer.io.vn/api/kb/kafka-core-concepts-and-architecture?format=outline'"><i class="fa-regular fa-copy"></i> Copy</button>
           </div>
-          <pre><code>curl -s 'https://trihuynh.omnimer.io.vn/api/kb/cloudflare-d1-hybrid-setup?format=raw'</code></pre>
+          <pre><code>curl -s 'https://trihuynh.omnimer.io.vn/api/kb/kafka-core-concepts-and-architecture?format=outline'</code></pre>
+        </div>
+
+        <div class="endpoint-box" style="margin-top: 10px;">
+          <div class="box-bar">
+            <span>cURL Example 2: Granular Section Only (~200-400 tokens)</span>
+            <button class="copy-btn-mini" data-copy="curl -s 'https://trihuynh.omnimer.io.vn/api/kb/kafka-core-concepts-and-architecture?format=raw&section=72-cấu-hình-độ-an-toàn-acks-của-producer'"><i class="fa-regular fa-copy"></i> Copy</button>
+          </div>
+          <pre><code>curl -s 'https://trihuynh.omnimer.io.vn/api/kb/kafka-core-concepts-and-architecture?format=raw&section=72-cấu-hình-độ-an-toàn-acks-của-producer'</code></pre>
         </div>
       </article>
 
@@ -593,9 +613,19 @@ When encountering architectural decisions or bugs with Kafka, D1, Fastify:
             id="tester-query-input"
             type="text"
             class="tester-input"
-            placeholder="Nhập từ khóa tìm kiếm (ví dụ: workerd, d1, astro, memory)..."
-            value="workerd"
+            placeholder="Nhập từ khóa tìm kiếm (ví dụ: acks, commit failed, đảm bảo, memory)..."
+            value="acks"
           />
+          <select id="tester-granularity" class="tester-input" style="max-width: 160px; padding: 8px 12px; font-size: 13px; background: rgba(5, 11, 9, 0.8);">
+            <option value="all">All Targets</option>
+            <option value="section" selected>Sections (Token Saving)</option>
+            <option value="problem">Problems Only</option>
+            <option value="article">Articles Only</option>
+          </select>
+          <select id="tester-format" class="tester-input" style="max-width: 130px; padding: 8px 12px; font-size: 13px; background: rgba(5, 11, 9, 0.8);">
+            <option value="json" selected>JSON</option>
+            <option value="agent">Agent Text</option>
+          </select>
           <button id="tester-run-btn" class="tester-btn">
             <i class="fa-solid fa-play"></i> <span data-en="Send Request" data-vi="Gửi truy vấn">Send Request</span>
           </button>
@@ -604,12 +634,12 @@ When encountering architectural decisions or bugs with Kafka, D1, Fastify:
         <div class="tester-status-bar">
           <span id="tester-status-badge" class="tester-status">Ready</span>
           <span id="tester-time-badge" class="tester-time">0 ms</span>
-          <span id="tester-url-display" class="tester-url">https://trihuynh.omnimer.io.vn/api/kb/search?q=workerd</span>
+          <span id="tester-url-display" class="tester-url">https://trihuynh.omnimer.io.vn/api/kb/search?q=acks&granularity=section</span>
         </div>
 
         <div class="tester-output-wrapper">
           <div class="tester-output-header">
-            <span>Response Body (JSON)</span>
+            <span>Response Body</span>
             <button id="copy-tester-output" class="copy-btn-mini" title="Copy response"><i class="fa-regular fa-copy"></i> Copy</button>
           </div>
           <pre id="tester-output" class="tester-output"><code>&#123; "message": "Click 'Send Request' to query live edge database..." &#125;</code></pre>
@@ -646,6 +676,8 @@ When encountering architectural decisions or bugs with Kafka, D1, Fastify:
 
   // Interactive Live Tester script
   const queryInput = document.getElementById("tester-query-input") as HTMLInputElement;
+  const granularitySelect = document.getElementById("tester-granularity") as HTMLSelectElement;
+  const formatSelect = document.getElementById("tester-format") as HTMLSelectElement;
   const runBtn = document.getElementById("tester-run-btn");
   const statusBadge = document.getElementById("tester-status-badge");
   const timeBadge = document.getElementById("tester-time-badge");
@@ -655,8 +687,10 @@ When encountering architectural decisions or bugs with Kafka, D1, Fastify:
 
   async function executeTestQuery() {
     if (!queryInput || !outputPre || !statusBadge || !timeBadge || !urlDisplay) return;
-    const q = encodeURIComponent(queryInput.value.trim() || "workerd");
-    const targetUrl = `/api/kb/search?q=${q}`;
+    const q = encodeURIComponent(queryInput.value.trim() || "acks");
+    const gran = granularitySelect?.value || "section";
+    const fmt = formatSelect?.value || "json";
+    const targetUrl = `/api/kb/search?q=${q}&granularity=${gran}&format=${fmt}`;
     urlDisplay.textContent = targetUrl;
     statusBadge.textContent = "Querying...";
     statusBadge.className = "tester-status running";
@@ -671,8 +705,13 @@ When encountering architectural decisions or bugs with Kafka, D1, Fastify:
       statusBadge.textContent = `${res.status} ${res.statusText}`;
       statusBadge.className = res.ok ? "tester-status success" : "tester-status error";
 
-      const data = await res.json();
-      outputPre.textContent = JSON.stringify(data, null, 2);
+      if (fmt === "agent") {
+        const text = await res.text();
+        outputPre.textContent = text;
+      } else {
+        const data = await res.json();
+        outputPre.textContent = JSON.stringify(data, null, 2);
+      }
     } catch (err: any) {
       statusBadge.textContent = "Failed";
       statusBadge.className = "tester-status error";

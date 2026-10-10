@@ -1,6 +1,6 @@
 /**
  * @name [slug].ts (/api/kb/[slug])
- * @description API endpoint to retrieve a single article in JSON or raw Markdown (GET) and update it (PUT).
+ * @description API endpoint to retrieve an article in JSON, outline, section markdown, or full raw Markdown (GET) and update it (PUT).
  */
 
 import type { APIRoute } from "astro";
@@ -21,6 +21,61 @@ export const GET: APIRoute = async (context) => {
 
     const service = new KnowledgeService();
 
+    const url = new URL(context.request.url);
+    const format = url.searchParams.get("format");
+    const sectionAnchor = url.searchParams.get("section");
+    const acceptHeader = context.request.headers.get("Accept") || "";
+
+    // 1. Outline format: Returns table of contents + section anchors + token estimates (~150 tokens)
+    if (format === "outline") {
+      const outline = await service.getArticleOutline(slug);
+      if (!outline) {
+        return new Response(JSON.stringify({ success: false, error: "Article not found" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify({ success: true, outline }), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "public, max-age=120, s-maxage=600",
+        },
+      });
+    }
+
+    // 2. Section extraction: Returns raw markdown for ONLY that section anchor
+    if (sectionAnchor) {
+      const section = await service.getArticleSection(slug, sectionAnchor);
+      if (!section) {
+        return new Response(
+          JSON.stringify({ success: false, error: `Section '#${sectionAnchor}' not found in article '${slug}'` }),
+          { status: 404, headers: { "Content-Type": "application/json" } }
+        );
+      }
+
+      if (format === "raw" || acceptHeader.includes("text/markdown")) {
+        return new Response(section.content, {
+          status: 200,
+          headers: {
+            "Content-Type": "text/markdown; charset=utf-8",
+            "Cache-Control": "public, max-age=120, s-maxage=600",
+            "X-Token-Estimate": String(section.token_estimate),
+            "X-Section-Anchor": section.anchor,
+          },
+        });
+      }
+
+      return new Response(JSON.stringify({ success: true, section }), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "public, max-age=120, s-maxage=600",
+        },
+      });
+    }
+
+    // Fetch full article record
     const article = await service.getArticleBySlug(slug);
     if (!article) {
       return new Response(JSON.stringify({ success: false, error: "Article not found" }), {
@@ -29,12 +84,8 @@ export const GET: APIRoute = async (context) => {
       });
     }
 
-    // Check if client requested raw markdown format (via query param or Accept header)
-    const url = new URL(context.request.url);
-    const format = url.searchParams.get("format");
-    const acceptHeader = context.request.headers.get("Accept") || "";
+    // 3. Raw full markdown format
     const wantsRawMarkdown = format === "raw" || acceptHeader.includes("text/markdown");
-
     if (wantsRawMarkdown) {
       return new Response(article.raw_content || article.raw_markdown, {
         status: 200,
@@ -45,14 +96,18 @@ export const GET: APIRoute = async (context) => {
       });
     }
 
-    // Also fetch any attached troubleshooting problems
-    const problems = await service.getProblemsByParent(slug);
+    // 4. Full JSON response with problems and outline
+    const [problems, outline] = await Promise.all([
+      service.getProblemsByParent(slug),
+      service.getArticleOutline(slug),
+    ]);
 
     return new Response(
       JSON.stringify({
         success: true,
         article,
         problems,
+        outline: outline?.sections || [],
       }),
       {
         status: 200,
@@ -112,6 +167,7 @@ export const PUT: APIRoute = async (context) => {
         targetAgents: body.targetAgents || existing.target_agents,
         summaryForAgents: body.summaryForAgents || existing.summary_for_agents,
         content: body.content !== undefined ? body.content : existing.raw_markdown,
+        source: existing.source || "api",
       },
       { writeToDisk: true }
     );

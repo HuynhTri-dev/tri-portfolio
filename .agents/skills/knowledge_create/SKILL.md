@@ -1,6 +1,6 @@
 ---
 name: knowledge_create
-description: "Guides the creation, indexing, troubleshooting logging, and querying of technical knowledge base articles and problem resolutions via the Knowledge Base Edge REST API. Activates whenever the user asks to write, publish, or document a new technical article, architecture guide, or when recording an encounter with a bug/error and its verified fix into the knowledge repository. Also guides AI agents on retrieving compressed raw Markdown and troubleshooting patterns via FTS5 search."
+description: "Guides the authoring, publishing, and indexing of technical engineering articles and verified troubleshooting case studies into Cloudflare D1 via the Knowledge Base REST API. Activates whenever the user asks to write, publish, or document a new technical article, architecture guide, or when recording an encounter with a bug/error and its verified fix into the knowledge repository."
 triggers:
   - "create knowledge base"
   - "write knowledge base"
@@ -15,179 +15,175 @@ triggers:
   - "knowledge_create"
 ---
 
-# Knowledge Base & Troubleshooting Case Study Creator Skill
+# Knowledge Base Authoring & Troubleshooting Logger Skill
 
-This skill guides AI Agents (Cursor, Claude, Antigravity, Codex) and developers on how to interact with the Knowledge Base REST API (`https://trihuynh.omnimer.io.vn` or `https://tri-portfolio.huynhminhtri1109.workers.dev`) to create technical documentation, record verified bug resolutions, and query knowledge with zero token waste.
+This skill guides AI Agents (Cursor, Claude, Antigravity, Codex) and developers on how to author, publish, and index technical architecture guides and verified troubleshooting case studies into the Edge Knowledge Base (`https://trihuynh.omnimer.io.vn` or `https://tri-portfolio.huynhminhtri1109.workers.dev`).
+
+> [!NOTE]
+> For searching, reading article outlines, and section-level querying with minimal token consumption, activate the companion **`knowlege_search`** skill (`.agents/skills/knowlege_search/SKILL.md`).
 
 ---
 
 ## 1. When to Use This Skill
 
 Activate this skill when:
-- The user requests to write, publish, or index a new engineering knowledge article or architecture specification.
-- A bug or runtime error is solved during coding, and the user wants to log the error symptom, root cause, and verified fix into the repository for future reference.
-- An AI Agent needs to fetch compressed context, search solutions with BM25 ranking, or read raw Markdown without HTML markup.
-- The user wants to automate synchronization between local Markdown files and Cloudflare D1.
+- **Authoring Articles**: The user requests to write, publish, or index a new engineering knowledge article, system architecture specification, or technical guide.
+- **Logging Bug Solutions**: A bug, compiler error, or runtime exception was encountered and solved, and the user wants to record the symptom, root cause, and verified fix for future reference.
+- **Syncing Knowledge**: Synchronizing local Markdown files (`src/content/blog/` and `src/content/problems/`) to Cloudflare D1.
 
 ---
 
-## 2. API Endpoints Reference
+## 2. API Endpoints Reference (Authoring & Ingestion)
 
-| Purpose | Method | Endpoint | Auth Required | Format |
+| Purpose | Method | Endpoint | Auth Required | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| **LLM Catalog** | `GET` | `/llms.txt` | No | Plain Text |
-| **Search (FTS5 BM25)** | `GET` | `/api/kb/search?q={query}&type=all` | No | JSON |
-| **List Articles** | `GET` | `/api/kb?limit=50&category={cat}` | No | JSON |
-| **Create Article** | `POST` | `/api/kb` | **Yes** (`Bearer`) | JSON |
-| **Get Article Detail** | `GET` | `/api/kb/{slug}` | No | JSON |
-| **Get Raw Markdown** | `GET` | `/api/kb/{slug}?format=raw` | No | Text/Markdown |
-| **Update Article** | `PUT` | `/api/kb/{slug}` | **Yes** (`Bearer`) | JSON |
-| **List Problems** | `GET` | `/api/kb/{parentSlug}/problems` | No | JSON |
-| **Add Problem Fix** | `POST` | `/api/kb/{parentSlug}/problems` | **Yes** (`Bearer`) | JSON |
-| **Sync Disk to DB** | `POST` | `/api/kb/sync` | **Yes** (`Bearer`) | JSON |
+| **Create Article** | `POST` | `/api/kb` | **Yes** (`Bearer`) | Inserts article & automatically indexes sections into FTS5. |
+| **Update Article** | `PUT` | `/api/kb/{slug}` | **Yes** (`Bearer`) | Updates content & regenerates FTS5 section index. |
+| **Add Problem Fix** | `POST` | `/api/kb/{parentSlug}/problems` | **Yes** (`Bearer`) | Attaches verified fix to parent article & indexes into FTS5. |
+| **Sync Disk to D1** | `POST` | `/api/kb/sync` | **Yes** (`Bearer`) | Scans local markdown files and syncs to D1 database. |
 
-**Base URL**: `https://trihuynh.omnimer.io.vn` (Fallback: `https://tri-portfolio.huynhminhtri1109.workers.dev` or `http://localhost:4321` in dev).
+**Base URL**: `https://trihuynh.omnimer.io.vn` (Fallback: `https://tri-portfolio.huynhminhtri1109.workers.dev`).
 
 ---
 
 ## 3. Authentication
 
-All write endpoints (`POST`, `PUT`, `sync`) require the Bearer token header:
+All write operations (`POST`, `PUT`, `sync`) require the Bearer token header:
 
 ```http
 Authorization: Bearer <KB_API_KEY>
 ```
 
-- In production: Set via Cloudflare Worker secret `KB_API_KEY`.
-- In local development: Defaults to `tri-kb-secret-key-2026` if `KB_API_KEY` is not exported.
-- When scripting or calling via cURL, always read from environment variable `os.environ.get("KB_API_KEY", "tri-kb-secret-key-2026")`.
+- In production: Configured via Cloudflare Worker secret `KB_API_KEY`.
+- In local development: Defaults to `tri-kb-secret-key-2026`.
+- The CLI helper `kb_helper.py` reads `os.environ.get("KB_API_KEY", "tri-kb-secret-key-2026")` automatically.
 
 ---
 
 ## 4. Workflows
 
-### Workflow A: Creating a New Knowledge Base Article
+### Workflow A: Publishing a New Knowledge Base Article
 
-When writing a new technical guide, follow this 4-step sequence:
+Follow this standard process when writing and indexing new engineering documentation:
 
-1. **Verify Uniqueness**: Check if an article with a similar slug or title already exists:
+1. **Check for Existing Content**:
+   Before authoring, check if an article covering the topic already exists using the search tool:
    ```bash
-   curl -s "https://trihuynh.omnimer.io.vn/api/kb/search?q=my-topic"
+   python3 .agents/skills/knowlege_search/scripts/search_helper.py query "<topic>"
    ```
-2. **Format the Payload**:
-   - `slug`: Kebab-case, URL-safe identifier (e.g. `fastify-stream-compression`).
+2. **Draft Content Using the JSON Template**:
+   Inspect or copy the template at:
+   [article_payload_template.json](file:///Users/macbookair/Downloads/huynh_minh_tri/tri-portfolio/.agents/skills/knowledge_create/resources/article_payload_template.json)
+
+   Key fields:
+   - `slug`: Kebab-case URL identifier (e.g. `sample-edge-streaming-architecture`).
    - `title`: Clear, descriptive technical headline.
-   - `description`: 1-2 sentence overview for humans.
-   - `isKnowledgeBase`: `true` (places it in Tier 02 / D1 Repository).
+   - `description`: 1-2 sentence overview for human readers.
+   - `isKnowledgeBase`: `true` (registers into Tier 02 Knowledge Base).
    - `kbCategory`: One of: `architecture`, `research`, `guidelines`, `devops`, `ai-agents`, `backend`.
    - `targetAgents`: Array: `["claude", "cursor", "codex", "anti"]`.
    - `summaryForAgents`: High-density technical summary (30-80 words) optimized for LLM context compression.
-   - `content`: Clean Markdown body.
-   - `thumbnail`: Default `/images/blog/default.png` or path to custom graphic.
-3. **Execute `POST /api/kb`**:
+   - `content`: Clean, structured Markdown with `##` headings for automatic section-level FTS indexing.
+3. **Submit via CLI Helper**:
    ```bash
-   curl -X POST https://trihuynh.omnimer.io.vn/api/kb \
-     -H "Authorization: Bearer $KB_API_KEY" \
-     -H "Content-Type: application/json" \
-     -d '{
-       "slug": "fastify-stream-compression",
-       "title": "Fastify Streaming Compression at Scale",
-       "description": "Techniques for high-throughput payload compression with backpressure handling.",
-       "isKnowledgeBase": true,
-       "kbCategory": "backend",
-       "targetAgents": ["claude", "cursor", "codex", "anti"],
-       "summaryForAgents": "Covers Brotli/Gzip stream pipelines, backpressure management, and memory limits in Fastify.",
-       "content": "# Fastify Streaming Compression\n\nHigh-performance guide on handling gzip/brotli backpressure."
-     }'
+   python3 .agents/skills/knowledge_create/scripts/kb_helper.py create-article -f .agents/skills/knowledge_create/resources/article_payload_template.json
    ```
-4. **Verify Live Output**:
-   Check `GET /api/kb/fastify-stream-compression?format=raw` or visit `https://trihuynh.omnimer.io.vn/blog/fastify-stream-compression`.
-
----
-
-### Workflow B: Logging a Troubleshooting Case Study (Attached to Parent)
-
-Whenever an unexpected error occurs and is successfully solved, document it immediately as a Troubleshooting Case Study.
-
-1. **Identify Parent Slug**: Find the parent article's slug representing the technology (e.g. `cloudflare-d1-hybrid-setup` or `building-omnimer-health`).
-2. **Structure the Problem Record**:
-   - `title`: Clear symptom-oriented title (e.g., `workerd runtime rejects better-sqlite3 native addon`).
-   - `errorCode`: Exact machine error or exception name (e.g., `ERR_DLOPEN_FAILED`, `SQLITE_BUSY`, `EADDRINUSE`).
-   - `errorSnippet`: The exact terminal stack trace or error log snippet.
-   - `environment`: OS, runtime versions, package versions (e.g. `macOS Sequoia, Astro 7.3, Cloudflare workerd`).
-   - `rootCause`: Precise technical analysis explaining *why* the failure happened.
-   - `solution`: Step-by-step fix, code diff, or architectural workaround.
-   - `tags`: Array of keywords for FTS5 index (e.g. `["workerd", "cloudflare", "d1", "sqlite"]`).
-3. **Execute `POST /api/kb/{parentSlug}/problems`**:
+4. **Verify Live Section Indexing**:
+   Confirm that the section extractor broke down the article into searchable headings:
    ```bash
-   curl -X POST https://trihuynh.omnimer.io.vn/api/kb/cloudflare-d1-hybrid-setup/problems \
-     -H "Authorization: Bearer $KB_API_KEY" \
-     -H "Content-Type: application/json" \
-     -d '{
-       "title": "workerd runtime rejects better-sqlite3 native addon",
-       "errorCode": "ERR_DLOPEN_FAILED",
-       "errorSnippet": "TypeError: Cannot read properties of undefined (reading glibcVersionRuntime) at isLinuxMusl",
-       "environment": "macOS Sequoia, Astro 7.3, Cloudflare workerd",
-       "rootCause": "Workerd runtime does not support native C++ Node addons. Attempting to load better-sqlite3 causes runtime crash.",
-       "solution": "Use UniversalDatabaseAdapter that dynamically branches to env.DB from cloudflare:workers inside workerd, and only loads better-sqlite3 during CLI Node.js tasks.",
-       "tags": ["workerd", "cloudflare", "d1", "sqlite"]
-     }'
-   ```
-4. **Verify Searchability**:
-   ```bash
-   curl -s "https://trihuynh.omnimer.io.vn/api/kb/search?q=glibcVersionRuntime"
-   ```
-   The response will immediately return the problem record with BM25 highlighted `<mark>` snippet.
-
----
-
-### Workflow C: Querying Context for AI Coding Agents
-
-When pair-programming or fixing issues:
-1. **Search across both articles and problems**:
-   ```bash
-   curl -s "https://trihuynh.omnimer.io.vn/api/kb/search?q=memory+leak"
-   ```
-2. **Inject Pristine Markdown (Zero HTML overhead)**:
-   ```bash
-   curl -s "https://trihuynh.omnimer.io.vn/api/kb/{slug}?format=raw"
-   ```
-3. **Fetch all verified fixes for a technology**:
-   ```bash
-   curl -s "https://trihuynh.omnimer.io.vn/api/kb/{parentSlug}/problems"
+   python3 .agents/skills/knowlege_search/scripts/search_helper.py outline "<your-slug>"
    ```
 
 ---
 
-## 5. Helper Script Usage
+### Workflow B: Logging a Troubleshooting Case Study
 
-A companion helper script is provided in `.agents/skills/knowledge_create/scripts/kb_helper.py`.
+Whenever an unexpected error occurs during development and is successfully fixed, log it immediately so future agent sessions or developers don't have to re-solve it.
 
-### Quick Commands:
+1. **Identify Parent System Slug**:
+   Choose the parent article slug representing the relevant domain (e.g., `kafka-pbx-event-streaming-architecture`, `kafka-core-concepts-and-architecture`, or `building-omnimer-health`).
+2. **Structure Problem Using the JSON Template**:
+   Inspect or copy the template at:
+   [problem_payload_template.json](file:///Users/macbookair/Downloads/huynh_minh_tri/tri-portfolio/.agents/skills/knowledge_create/resources/problem_payload_template.json)
+
+   Key fields:
+   - `title`: Symptom-oriented problem description.
+   - `errorCode`: Exact compiler error code or exception class (e.g. `ERR_WORKER_OUT_OF_MEMORY`, `CommitFailedException`).
+   - `errorSnippet`: Verbatim stack trace or error log snippet. **Do not summarize or paraphrase error messages.**
+   - `environment`: Runtime, versions, and OS details.
+   - `rootCause`: Precise mechanical explanation of why the failure occurred.
+   - `solution`: Step-by-step resolution, code diff, and verification steps.
+   - `tags`: Array of keywords for FTS5 index.
+3. **Submit via CLI Helper**:
+   ```bash
+   python3 .agents/skills/knowledge_create/scripts/kb_helper.py add-problem \
+     --parent "<parent-slug>" \
+     -f .agents/skills/knowledge_create/resources/problem_payload_template.json
+   ```
+4. **Test Fast-Path Retrieval**:
+   Verify that the problem is instantly discoverable by its error code:
+   ```bash
+   python3 .agents/skills/knowlege_search/scripts/search_helper.py query "<errorCode>" --include-solution
+   ```
+
+---
+
+### Workflow C: Disk-to-Database Synchronization
+
+When working directly with local Git files:
+1. Markdown articles live in `src/content/blog/<slug>.md`.
+2. Troubleshooting case studies live in `src/content/problems/<parentSlug>/<problemName>.md`.
+3. To sync local changes into Cloudflare D1:
+   ```bash
+   # Option 1: Via CLI Helper
+   python3 .agents/skills/knowledge_create/scripts/kb_helper.py sync
+
+   # Option 2: Via npm script
+   npm run kb:sync
+   ```
+
+---
+
+## 5. Helper Script Reference (`kb_helper.py`)
+
+Located at:
+`.agents/skills/knowledge_create/scripts/kb_helper.py`
+
+### Authoring Commands:
 ```bash
-# Search
-python3 .agents/skills/knowledge_create/scripts/kb_helper.py search "workerd"
+# Create article from payload file
+python3 .agents/skills/knowledge_create/scripts/kb_helper.py create-article -f payload.json
 
-# Add problem
+# Create article with inline arguments
+python3 .agents/skills/knowledge_create/scripts/kb_helper.py create-article \
+  --slug "my-feature-guide" \
+  --title "My Feature Architecture Guide" \
+  --description "Overview of architecture" \
+  --category "architecture" \
+  --content "# My Feature\n\n## Overview\nGuide content..."
+
+# Add problem case study from payload file
 python3 .agents/skills/knowledge_create/scripts/kb_helper.py add-problem \
-  --parent "cloudflare-d1-hybrid-setup" \
-  --title "D1 triggers syntax error with exec" \
-  --error-code "D1_EXEC_ERROR" \
-  --error-snippet "Error in line 1: incomplete input: SQLITE_ERROR" \
-  --env "Cloudflare D1, Wrangler 4.x" \
-  --root-cause "Triggers contain semicolons inside BEGIN...END which naive exec splits incorrectly." \
-  --solution "Execute schema via wrangler d1 execute DB --file=scripts/schema.sql." \
-  --tags "d1,triggers,schema"
+  --parent "my-feature-guide" \
+  -f problem.json
 
-# Fetch raw markdown
-python3 .agents/skills/knowledge_create/scripts/kb_helper.py get-raw "cloudflare-d1-hybrid-setup"
+# Add problem with inline arguments
+python3 .agents/skills/knowledge_create/scripts/kb_helper.py add-problem \
+  --parent "my-feature-guide" \
+  --title "Memory Leak under High Load" \
+  --error-code "ERR_HEAP_EXHAUSTED" \
+  --root-cause "Buffer retaining unbounded stream chunks" \
+  --solution "Use stream chunking" \
+  --tags "memory,leak,streaming"
+
+# Trigger disk sync
+python3 .agents/skills/knowledge_create/scripts/kb_helper.py sync
 ```
 
 ---
 
-## 6. Best Practices & Quality Standards
+## 6. Authoring Quality Standards
 
-1. **Token Efficiency**: Always write `summaryForAgents` with high information density. Avoid fluff words ("In this article we will explore..."). Instead write: "Covers X, resolves Y using pattern Z."
-2. **Preserve Error Snippets**: Never summarize an error message when logging a problem. Keep the exact compiler/runtime error message in `errorSnippet` so future Agents can match it verbatim.
-3. **Deterministic Slugs**: Use hyphen-separated lowercase strings without special characters or accents (e.g. `fhir-bundle-memory-leak`).
-4. **Dual Storage**: When adding problems, the API stores records in Cloudflare D1 for fast Edge queries, and also mirrors to `src/content/problems/{parentSlug}/{problemSlug}.md` for Git versioning.
+1. **Clear Heading Hierarchy**: Use standard Markdown `##` (H2) and `###` (H3) headings. Each heading is indexed as an independent section for granular AI agent retrieval.
+2. **Preserve Raw Error Snippets**: Never truncate or reword compiler stack traces in `errorSnippet`. Exact text ensures instant BM25 matching when agents search by exact error signatures.
+3. **High-Density Agent Summaries**: Always write a concise 30-80 word technical summary in `summaryForAgents` emphasizing invariants, throughput limits, and integration contracts.
