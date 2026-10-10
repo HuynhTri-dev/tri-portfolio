@@ -1,3 +1,8 @@
+/**
+ * @name content.config.ts
+ * @description Astro Content Collections definition for Projects, Blog (Showcase & Knowledge Base), and Problems.
+ */
+
 import { defineCollection, z } from "astro:content";
 import { glob } from "astro/loaders";
 
@@ -41,12 +46,30 @@ const blog = defineCollection({
     description: z.string(),
     pubDate: z.coerce.date(),
     updatedDate: z.coerce.date().optional(),
-    thumbnail: z.string(),
-    thumbnailAlt: z.string(),
+    thumbnail: z.string().default("/images/blog/default.png"),
+    thumbnailAlt: z.string().default("Post thumbnail"),
     hashtags: z.array(z.string()).min(1),
     draft: z.boolean().default(false),
     seoKeywords: z.array(z.string()).optional(),
+    // Knowledge Base & AI Agent Extensions
+    isKnowledgeBase: z.boolean().default(false),
+    kbCategory: z.string().default("general"),
+    targetAgents: z.array(z.string()).default(["claude", "cursor", "codex", "anti"]),
+    summaryForAgents: z.string().optional(),
   }),
 });
 
-export const collections = { projects, blog };
+const problems = defineCollection({
+  loader: glob({ base: "./src/content/problems", pattern: "**/*.{md,mdx}" }),
+  schema: z.object({
+    title: z.string(),
+    parentSlug: z.string(),
+    errorCode: z.string().optional(),
+    errorSnippet: z.string().optional(),
+    environment: z.string().optional(),
+    tags: z.array(z.string()).default([]),
+    date: z.coerce.date().optional(),
+  }),
+});
+
+export const collections = { projects, blog, problems };

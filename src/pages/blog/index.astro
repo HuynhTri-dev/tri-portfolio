@@ -1,32 +1,60 @@
 ---
 /**
  * @name index.astro (blog)
- * @description Visual card grid for engineering blog articles and technical deep dives.
+ * @description Two-Tier Visual card grid for engineering blog: Top tier showcase posts, Bottom tier live Knowledge Base & Case Studies from Cloudflare D1.
  */
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import ContactSection from "../../components/home/ContactSection.astro";
+import { KnowledgeService } from "../../lib/services/knowledge.service";
 
-const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+export const prerender = false;
+
+// 1. Top Tier: Showcase & Product Articles from Git source (.mdx)
+const staticPosts = await getCollection("blog", ({ data }) => !data.draft);
+const showcasePosts = staticPosts.sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
 
-const formatDate = (date: Date) =>
-  new Intl.DateTimeFormat("vi-VN", {
+// 2. Bottom Tier: Live Knowledge Base & Case Studies from Cloudflare D1 / SQLite
+const service = new KnowledgeService();
+
+let kbArticlesWithProblems: any[] = [];
+try {
+  const kbArticles = await service.listArticles({ isKnowledgeBase: true, limit: 30 });
+  kbArticlesWithProblems = await Promise.all(
+    kbArticles.map(async (art) => {
+      const problems = await service.getProblemsByParent(art.slug);
+      return {
+        ...art,
+        problemCount: problems.length,
+        problems,
+      };
+    })
+  );
+} catch (err) {
+  console.warn("[blog/index.astro] Error loading D1 KB articles:", err);
+}
+
+const formatDate = (date: Date | string) => {
+  const d = typeof date === "string" ? new Date(date) : date;
+  return new Intl.DateTimeFormat("vi-VN", {
     day: "2-digit",
     month: "long",
     year: "numeric",
-  }).format(date);
+  }).format(d);
+};
 ---
 
 <BaseLayout
-  title="Blog — Huynh Minh Tri"
-  description="Technical field notes, system architectures, and practical lessons from building software."
+  title="Engineering Notes & Knowledge Base — Huynh Minh Tri"
+  description="Technical field notes, system architectures, and live knowledge base case studies for engineers and AI agents."
 >
   <section class="blog-index shell" aria-labelledby="blog-title">
+    <!-- Main Hero -->
     <header class="blog-hero">
       <div class="hero-left">
-        <span class="section-index">FIELD NOTES / {String(posts.length).padStart(2, "0")}</span>
+        <span class="section-index">FIELD NOTES &amp; KNOWLEDGE BASE / {String(showcasePosts.length + kbArticlesWithProblems.length).padStart(2, "0")}</span>
         <h1 id="blog-title" data-en="Engineering notes & ideas." data-vi="Ghi chép kỹ thuật & ý tưởng.">
           Engineering notes & ideas.
         </h1>
@@ -38,57 +66,152 @@ const formatDate = (date: Date) =>
         </p>
       </div>
 
-      <div class="blog-badge panel">
-        <strong>{String(posts.length).padStart(2, "0")}</strong>
-        <span data-en="Articles Published" data-vi="Bài viết đã đăng">Articles Published</span>
+      <div class="hero-stats">
+        <div class="blog-badge panel">
+          <strong>{String(showcasePosts.length).padStart(2, "0")}</strong>
+          <span data-en="Showcase Articles" data-vi="Bài viết Showcase">Showcase Articles</span>
+        </div>
+        <div class="blog-badge panel highlight">
+          <strong>{String(kbArticlesWithProblems.length).padStart(2, "0")}</strong>
+          <span data-en="Live KB Studies" data-vi="Case Studies D1">Live KB Studies</span>
+        </div>
       </div>
     </header>
 
-    <!-- Visual Card Grid -->
-    <div class="post-grid">
-      {posts.map((post) => (
-        <article class="post-card panel">
-          <a class="post-media" href={`/blog/${post.id}`} aria-label={post.data.title}>
-            <img
-              src={post.data.thumbnail}
-              alt={post.data.thumbnailAlt}
-              loading="lazy"
-            />
-            <div class="post-media-overlay"></div>
-            <time datetime={post.data.pubDate.toISOString()} class="post-time-badge">
-              {formatDate(post.data.pubDate)}
-            </time>
-          </a>
+    <!-- TẦNG TRÊN: SHOWCASE & PRODUCT FIELD NOTES -->
+    <div class="tier-section">
+      <div class="tier-header">
+        <div class="tier-title-wrap">
+          <span class="tier-tag">TIER 01 / STATIC SHOWCASE</span>
+          <h2 class="tier-title" data-en="Product Case Studies & Deep Dives" data-vi="Bài Viết Sản Phẩm & Nghiên Cứu Sâu">
+            Product Case Studies & Deep Dives
+          </h2>
+        </div>
+        <span class="tier-count">{showcasePosts.length} posts</span>
+      </div>
 
-          <div class="post-card-body">
-            <h2 class="post-title">
-              <a href={`/blog/${post.id}`}>{post.data.title}</a>
-            </h2>
+      <div class="post-grid">
+        {showcasePosts.map((post) => (
+          <article class="post-card panel">
+            <a class="post-media" href={`/blog/${post.id}`} aria-label={post.data.title}>
+              <img
+                src={post.data.thumbnail}
+                alt={post.data.thumbnailAlt}
+                loading="lazy"
+              />
+              <div class="post-media-overlay"></div>
+              <time datetime={post.data.pubDate.toISOString()} class="post-time-badge">
+                {formatDate(post.data.pubDate)}
+              </time>
+            </a>
 
-            <p class="post-desc">{post.data.description}</p>
+            <div class="post-card-body">
+              <h3 class="post-title">
+                <a href={`/blog/${post.id}`}>{post.data.title}</a>
+              </h3>
 
-            <div class="post-footer">
-              <div class="hashtag-list" aria-label="Hashtags">
-                {post.data.hashtags.slice(0, 3).map((tag) => <span>#{tag}</span>)}
+              <p class="post-desc">{post.data.description}</p>
+
+              <div class="post-footer">
+                <div class="hashtag-list" aria-label="Hashtags">
+                  {post.data.hashtags.slice(0, 3).map((tag) => <span>#{tag}</span>)}
+                </div>
+
+                <a class="post-action-link" href={`/blog/${post.id}`}>
+                  <span data-en="Read Article" data-vi="Đọc bài">Read Article</span>
+                  <i class="fa-solid fa-arrow-right"></i>
+                </a>
               </div>
-
-              <a class="post-action-link" href={`/blog/${post.id}`}>
-                <span data-en="Read" data-vi="Đọc">Read</span>
-                <i class="fa-solid fa-arrow-right"></i>
-              </a>
             </div>
-          </div>
-        </article>
-      ))}
+          </article>
+        ))}
+      </div>
     </div>
 
-    {posts.length === 0 && (
-      <div class="empty panel">
-        <span data-en="The first note is being written." data-vi="Bài viết đầu tiên đang được chuẩn bị.">
-          The first note is being written.
-        </span>
+    <!-- TẦNG DƯỚI: LIVE ENGINEERING KNOWLEDGE BASE & PROBLEMS (TỪ D1) -->
+    <div class="tier-section kb-tier">
+      <div class="tier-header">
+        <div class="tier-title-wrap">
+          <span class="tier-tag kb-tag">TIER 02 / D1 REPOSITORY</span>
+          <h2 class="tier-title" data-en="Technical Knowledge Base & Verified Bug Solutions" data-vi="Kho Tri Thức Kỹ Thuật & Cách Xử Lý Lỗi Thực Chiến">
+            Technical Knowledge Base & Verified Bug Solutions
+          </h2>
+          <p class="tier-subdesc">
+            Live-indexed in Cloudflare D1 for real-time querying by AI Agents (Claude, Cursor, Codex, Anti) and engineering review.
+          </p>
+        </div>
+
+        <div class="agent-api-pills">
+          <a href="/docs/api" class="api-pill docs-pill" title="API Documentation & Agent Guide">
+            <i class="fa-solid fa-book-bookmark"></i>
+            <span data-en="API Docs & Guide" data-vi="Tài Liệu API & Hướng Dẫn">API Docs & Guide</span>
+          </a>
+          <a href="/llms.txt" class="api-pill" target="_blank" rel="noopener">
+            <i class="fa-solid fa-robot"></i>
+            <span>/llms.txt</span>
+          </a>
+          <a href="/api/kb" class="api-pill" target="_blank" rel="noopener">
+            <i class="fa-solid fa-code"></i>
+            <span>/api/kb</span>
+          </a>
+        </div>
       </div>
-    )}
+
+      <div class="kb-grid">
+        {kbArticlesWithProblems.map((article) => (
+          <article class="kb-card panel">
+            <div class="kb-card-top">
+              <span class="kb-category-badge">{article.kb_category.toUpperCase()}</span>
+              <time datetime={article.pub_date} class="kb-date">
+                {formatDate(article.pub_date)}
+              </time>
+            </div>
+
+            <h3 class="kb-title">
+              <a href={`/blog/${article.slug}`}>{article.title}</a>
+            </h3>
+
+            <p class="kb-desc">{article.summary_for_agents || article.description}</p>
+
+            {article.problemCount > 0 ? (
+              <div class="kb-problem-counter alert-has-problems">
+                <i class="fa-solid fa-bug"></i>
+                <span>{article.problemCount} problem solution(s) documented</span>
+              </div>
+            ) : (
+              <div class="kb-problem-counter verified">
+                <i class="fa-solid fa-check-circle"></i>
+                <span>Verified technical pattern</span>
+              </div>
+            )}
+
+            <div class="kb-footer">
+              <div class="hashtag-list">
+                {article.hashtags.slice(0, 3).map((tag: string) => <span>#{tag}</span>)}
+              </div>
+
+              <div class="kb-actions">
+                <a class="kb-ai-raw" href={`/api/kb/${article.slug}?format=raw`} target="_blank" title="View clean raw markdown for AI Prompt">
+                  <span>RAW MD</span>
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
+                <a class="post-action-link" href={`/blog/${article.slug}`}>
+                  <span>Study</span>
+                  <i class="fa-solid fa-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      {kbArticlesWithProblems.length === 0 && (
+        <div class="empty panel">
+          <p>No knowledge base items found in database yet.</p>
+          <p class="small">Run <code>npm run kb:sync</code> to index existing articles or use <code>POST /api/kb</code>.</p>
+        </div>
+      )}
+    </div>
   </section>
 
   <ContactSection />
@@ -110,6 +233,11 @@ const formatDate = (date: Date) =>
     margin-bottom: 48px;
   }
 
+  .hero-stats {
+    display: flex;
+    gap: 16px;
+  }
+
   .section-index {
     color: var(--brand-green);
     font-family: var(--font-mono);
@@ -127,7 +255,7 @@ const formatDate = (date: Date) =>
 
   .hero-left p {
     margin: 0;
-    max-width: 520px;
+    max-width: 540px;
     color: var(--text-muted);
     font-size: 0.95rem;
     line-height: 1.55;
@@ -138,9 +266,14 @@ const formatDate = (date: Date) =>
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 16px 24px;
+    padding: 16px 20px;
     border-radius: 16px;
-    min-width: 130px;
+    min-width: 120px;
+  }
+
+  .blog-badge.highlight {
+    border-color: rgb(24 199 133 / 40%);
+    background: linear-gradient(170deg, rgb(24 199 133 / 10%), rgb(7 16 12 / 85%));
   }
 
   .blog-badge strong {
@@ -159,7 +292,84 @@ const formatDate = (date: Date) =>
     white-space: nowrap;
   }
 
-  /* Grid */
+  /* TIER SECTIONS */
+  .tier-section {
+    margin-bottom: 64px;
+  }
+
+  .tier-section.kb-tier {
+    margin-top: 80px;
+    padding-top: 48px;
+    border-top: 1px dashed rgb(24 199 133 / 25%);
+  }
+
+  .tier-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+
+  .tier-tag {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .tier-tag.kb-tag {
+    color: #4eedb0;
+  }
+
+  .tier-title {
+    margin: 0;
+    font-size: 1.7rem;
+    letter-spacing: -0.04em;
+    color: var(--text-main);
+  }
+
+  .tier-subdesc {
+    margin: 6px 0 0;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    max-width: 600px;
+  }
+
+  .tier-count {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .agent-api-pills {
+    display: flex;
+    gap: 10px;
+  }
+
+  .api-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: var(--radius-pill);
+    background: rgb(24 199 133 / 10%);
+    border: 1px solid rgb(24 199 133 / 30%);
+    color: #4eedb0;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-decoration: none;
+    transition: all var(--duration-fast) ease;
+  }
+
+  .api-pill:hover {
+    background: rgb(24 199 133 / 20%);
+    transform: translateY(-2px);
+  }
+
+  /* Grid Showcase */
   .post-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -296,12 +506,149 @@ const formatDate = (date: Date) =>
     transform: translateX(3px);
   }
 
+  /* TIER 2: KB GRID */
+  .kb-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+
+  .kb-card {
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    border-radius: 18px;
+    background: linear-gradient(170deg, rgb(16 35 27 / 75%), rgb(8 18 13 / 90%));
+    border: 1px solid rgb(24 199 133 / 22%);
+    transition: all var(--duration-normal) ease;
+  }
+
+  .kb-card:hover {
+    transform: translateY(-4px);
+    border-color: rgb(24 199 133 / 50%);
+    box-shadow: 0 16px 32px -10px rgb(0 0 0 / 60%), 0 0 20px -5px rgb(24 199 133 / 15%);
+  }
+
+  .kb-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .kb-category-badge {
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: rgb(24 199 133 / 15%);
+    color: #4eedb0;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  .kb-date {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    color: var(--text-muted);
+  }
+
+  .kb-title {
+    margin: 0 0 8px;
+    font-size: 1.2rem;
+    letter-spacing: -0.03em;
+    line-height: 1.3;
+  }
+
+  .kb-title a {
+    color: var(--text-main);
+    text-decoration: none;
+    transition: color var(--duration-fast) ease;
+  }
+
+  .kb-title a:hover {
+    color: var(--brand-soft);
+  }
+
+  .kb-desc {
+    margin: 0 0 16px;
+    color: var(--text-muted);
+    font-size: 0.83rem;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .kb-problem-counter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 0.72rem;
+    font-family: var(--font-mono);
+  }
+
+  .kb-problem-counter.alert-has-problems {
+    background: rgb(234 179 8 / 10%);
+    border: 1px solid rgb(234 179 8 / 30%);
+    color: #facc15;
+  }
+
+  .kb-problem-counter.verified {
+    background: rgb(24 199 133 / 8%);
+    border: 1px solid rgb(24 199 133 / 20%);
+    color: #4eedb0;
+  }
+
+  .kb-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid rgb(255 255 255 / 5%);
+  }
+
+  .kb-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .kb-ai-raw {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    text-decoration: none;
+    transition: color var(--duration-fast) ease;
+  }
+
+  .kb-ai-raw:hover {
+    color: #4eedb0;
+  }
+
   .empty {
     margin-top: 30px;
-    padding: 80px 24px;
+    padding: 60px 24px;
     border-radius: var(--radius-standard);
     color: var(--text-muted);
     text-align: center;
+  }
+
+  .empty p {
+    margin: 0;
+  }
+
+  .empty .small {
+    margin-top: 8px;
+    font-size: 0.8rem;
   }
 
   @media (max-width: 860px) {
@@ -311,7 +658,22 @@ const formatDate = (date: Date) =>
       gap: 20px;
     }
 
-    .post-grid {
+    .hero-stats {
+      width: 100%;
+    }
+
+    .blog-badge {
+      flex: 1;
+    }
+
+    .tier-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .post-grid,
+    .kb-grid {
       grid-template-columns: 1fr;
     }
   }
@@ -321,12 +683,14 @@ const formatDate = (date: Date) =>
       padding-top: 50px;
     }
 
-    .post-card-body {
+    .post-card-body,
+    .kb-card {
       padding: 18px 20px;
     }
 
-    .post-title {
-      font-size: 1.15rem;
+    .post-title,
+    .kb-title {
+      font-size: 1.12rem;
     }
   }
 </style>

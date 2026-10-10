@@ -1,21 +1,92 @@
 ---
-import { getCollection, render, type CollectionEntry } from "astro:content";
+/**
+ * @name [slug].astro (/blog/[slug])
+ * @description Dynamic blog article reader supporting both static showcase MDX and real-time Cloudflare D1 Knowledge Base posts with verified troubleshooting problems.
+ */
+import { getCollection, render } from "astro:content";
+import { marked } from "marked";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { KnowledgeService, type ProblemRecord } from "../../lib/services/knowledge.service";
 
-export async function getStaticPaths() {
-  const posts = await getCollection("blog", ({ data }) => !data.draft);
-  return posts.map((entry) => ({
-    params: { slug: entry.id },
-    props: { entry },
-  }));
+export const prerender = false;
+
+const { slug } = Astro.params;
+if (!slug) {
+  return Astro.redirect("/blog");
 }
 
-interface Props {
-  entry: CollectionEntry<"blog">;
+const service = new KnowledgeService();
+
+// 1. Check if the post exists in static MDX collections
+const allStaticPosts = await getCollection("blog", ({ data }) => !data.draft);
+const staticEntry = allStaticPosts.find((p) => p.id === slug);
+
+let title = "";
+let description = "";
+let pubDate = new Date();
+let updatedDate: Date | undefined;
+let thumbnail = "/images/blog/default.png";
+let thumbnailAlt = "Article cover";
+let hashtags: string[] = [];
+let seoKeywords: string[] = [];
+let isKB = false;
+let kbCategory = "general";
+let summaryForAgents = "";
+let headings: { depth: number; slug: string; text: string }[] = [];
+let ContentComponent: any = null;
+let dynamicHtmlContent = "";
+
+if (staticEntry) {
+  const rendered = await render(staticEntry);
+  ContentComponent = rendered.Content;
+  headings = rendered.headings;
+  title = staticEntry.data.title;
+  description = staticEntry.data.description;
+  pubDate = staticEntry.data.pubDate;
+  updatedDate = staticEntry.data.updatedDate;
+  thumbnail = staticEntry.data.thumbnail;
+  thumbnailAlt = staticEntry.data.thumbnailAlt;
+  hashtags = staticEntry.data.hashtags;
+  seoKeywords = staticEntry.data.seoKeywords || [];
+  isKB = staticEntry.data.isKnowledgeBase;
+  kbCategory = staticEntry.data.kbCategory || "general";
+  summaryForAgents = staticEntry.data.summaryForAgents || "";
+} else {
+  // 2. Fallback to Cloudflare D1 Database
+  const dbArticle = await service.getArticleBySlug(slug);
+  if (!dbArticle) {
+    return Astro.redirect("/blog");
+  }
+
+  title = dbArticle.title;
+  description = dbArticle.description;
+  pubDate = new Date(dbArticle.pub_date);
+  updatedDate = dbArticle.updated_date ? new Date(dbArticle.updated_date) : undefined;
+  thumbnail = dbArticle.thumbnail;
+  thumbnailAlt = dbArticle.thumbnail_alt;
+  hashtags = dbArticle.hashtags;
+  seoKeywords = dbArticle.seo_keywords || [];
+  isKB = dbArticle.is_knowledge_base;
+  kbCategory = dbArticle.kb_category;
+  summaryForAgents = dbArticle.summary_for_agents || "";
+
+  // Render raw markdown to HTML using marked
+  dynamicHtmlContent = await marked.parse(dbArticle.raw_markdown);
 }
 
-const { entry } = Astro.props;
-const { Content, headings } = await render(entry);
+// 3. Load attached troubleshooting problems from D1
+let attachedProblems: (ProblemRecord & { renderedSolution: string })[] = [];
+try {
+  const rawProblems = await service.getProblemsByParent(slug);
+  attachedProblems = await Promise.all(
+    rawProblems.map(async (p) => ({
+      ...p,
+      renderedSolution: await marked.parse(p.solution_markdown),
+    }))
+  );
+} catch (err) {
+  console.warn("[blog/[slug].astro] Error loading problems:", err);
+}
 
 const formatDate = (date: Date) =>
   new Intl.DateTimeFormat("vi-VN", {
@@ -27,55 +98,77 @@ const formatDate = (date: Date) =>
 const jsonld = {
   "@context": "https://schema.org",
   "@type": "Article",
-  "headline": entry.data.title,
-  "description": entry.data.description,
-  "author": {
+  headline: title,
+  description: description,
+  author: {
     "@type": "Person",
-    "name": "Huynh Minh Tri"
+    name: "Huynh Minh Tri",
   },
-  "image": new URL(entry.data.thumbnail, Astro.site).toString(),
-  "datePublished": entry.data.pubDate,
-  "dateModified": entry.data.updatedDate || entry.data.pubDate,
-  "keywords": entry.data.seoKeywords ? entry.data.seoKeywords.join(", ") : entry.data.hashtags.join(", "),
+  image: new URL(thumbnail, Astro.site).toString(),
+  datePublished: pubDate,
+  dateModified: updatedDate || pubDate,
+  keywords: seoKeywords.length ? seoKeywords.join(", ") : hashtags.join(", "),
 };
 ---
 
 <BaseLayout 
-  title={`${entry.data.title} — Huynh Minh Tri`} 
-  description={entry.data.description}
+  title={`${title} — Huynh Minh Tri`} 
+  description={description}
   type="article"
-  image={entry.data.thumbnail}
+  image={thumbnail}
   jsonld={jsonld}
 >
   <article class="blog-article shell">
-    <a class="back-link" href="/blog">
-      <span aria-hidden="true">←</span>
-      <span data-en="All notes" data-vi="Tất cả bài viết">All notes</span>
-    </a>
+    <div class="top-nav-bar">
+      <a class="back-link" href="/blog">
+        <span aria-hidden="true">←</span>
+        <span data-en="All notes &amp; Knowledge Base" data-vi="Tất cả bài viết &amp; Tri thức">All notes &amp; Knowledge Base</span>
+      </a>
+
+      {isKB && (
+        <a class="ai-raw-pill" href={`/api/kb/${slug}?format=raw`} target="_blank" rel="noopener">
+          <i class="fa-solid fa-robot"></i>
+          <span>AI RAW MD (Zero Tokens Waste)</span>
+        </a>
+      )}
+    </div>
 
     <header class="article-header">
-      <time datetime={entry.data.pubDate.toISOString()}>{formatDate(entry.data.pubDate)}</time>
-      <h1>{entry.data.title}</h1>
-      <p>{entry.data.description}</p>
+      <div class="header-badge-row">
+        <time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time>
+        {isKB && <span class="kb-badge">KNOWLEDGE BASE / {kbCategory.toUpperCase()}</span>}
+      </div>
+
+      <h1>{title}</h1>
+      <p>{description}</p>
+      
       <div class="hashtag-list" aria-label="Hashtags">
-        {entry.data.hashtags.map((tag) => <span>#{tag}</span>)}
+        {hashtags.map((tag) => <span>#{tag}</span>)}
       </div>
     </header>
 
     <figure class="article-cover">
-      <img src={entry.data.thumbnail} alt={entry.data.thumbnailAlt} />
+      <img src={thumbnail} alt={thumbnailAlt} />
     </figure>
 
     <div class="article-layout">
       <aside class="article-aside">
         <div>
           <span data-en="Published" data-vi="Ngày đăng">Published</span>
-          <strong>{formatDate(entry.data.pubDate)}</strong>
+          <strong>{formatDate(pubDate)}</strong>
         </div>
-        {entry.data.updatedDate && (
+        {updatedDate && (
           <div>
             <span data-en="Updated" data-vi="Cập nhật">Updated</span>
-            <strong>{formatDate(entry.data.updatedDate)}</strong>
+            <strong>{formatDate(updatedDate)}</strong>
+          </div>
+        )}
+        {attachedProblems.length > 0 && (
+          <div>
+            <span data-en="Troubleshooting" data-vi="Lỗi đã xử lý">Troubleshooting</span>
+            <strong class="problem-count-text">
+              <a href="#troubleshooting-section">{attachedProblems.length} issue(s) documented</a>
+            </strong>
           </div>
         )}
         {headings.length > 0 && (
@@ -84,12 +177,70 @@ const jsonld = {
             {headings.filter((heading) => heading.depth === 2).map((heading) => (
               <a href={`#${heading.slug}`}>{heading.text}</a>
             ))}
+            {attachedProblems.length > 0 && (
+              <a href="#troubleshooting-section">Troubleshooting Case Studies</a>
+            )}
           </nav>
         )}
       </aside>
 
-      <div class="article-body">
-        <Content />
+      <div class="article-content-container">
+        <!-- Main Article Content Body -->
+        <div class="article-body">
+          {ContentComponent ? (
+            <ContentComponent />
+          ) : (
+            <div set:html={dynamicHtmlContent} />
+          )}
+        </div>
+
+        <!-- Section: Troubleshooting & Verified Problem Solutions (Case Studies để ôn tập) -->
+        {attachedProblems.length > 0 && (
+          <section id="troubleshooting-section" class="troubleshooting-box panel">
+            <header class="troubleshoot-header">
+              <div class="troubleshoot-icon">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+              </div>
+              <div>
+                <h2>Troubleshooting Case Studies &amp; Verified Fixes</h2>
+                <p>
+                  Ghi chú các lỗi thực tế gặp phải khi triển khai kiến trúc này, phân tích nguyên nhân gốc rễ và cách xử lý đã được kiểm chứng.
+                </p>
+              </div>
+            </header>
+
+            <div class="problem-list">
+              {attachedProblems.map((p, idx) => (
+                <div class="problem-item panel">
+                  <div class="problem-item-top">
+                    <span class="problem-index">CASE #{String(idx + 1).padStart(2, "0")}</span>
+                    {p.error_code && <span class="error-code-badge">{p.error_code}</span>}
+                    {p.environment && <span class="env-badge">{p.environment}</span>}
+                  </div>
+
+                  <h3 class="problem-title">{p.title}</h3>
+
+                  {p.error_snippet && (
+                    <div class="symptom-box">
+                      <span class="box-label">Error Symptoms / Logs</span>
+                      <pre><code>{p.error_snippet}</code></pre>
+                    </div>
+                  )}
+
+                  <div class="cause-box">
+                    <span class="box-label">Root Cause Analysis</span>
+                    <p>{p.root_cause}</p>
+                  </div>
+
+                  <div class="solution-box">
+                    <span class="box-label">Verified Solution &amp; Workaround</span>
+                    <div class="solution-content" set:html={p.renderedSolution} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </div>
 
@@ -111,6 +262,14 @@ const jsonld = {
     padding-bottom: 120px;
   }
 
+  .top-nav-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
   .back-link {
     display: inline-flex;
     align-items: center;
@@ -122,9 +281,36 @@ const jsonld = {
     text-transform: uppercase;
   }
 
+  .ai-raw-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: var(--radius-pill);
+    background: rgb(24 199 133 / 10%);
+    border: 1px solid rgb(24 199 133 / 30%);
+    color: #4eedb0;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    text-decoration: none;
+    transition: all var(--duration-fast) ease;
+  }
+
+  .ai-raw-pill:hover {
+    background: rgb(24 199 133 / 20%);
+    transform: translateY(-1px);
+  }
+
   .article-header {
     max-width: 980px;
-    padding: 60px 0 54px;
+    padding: 40px 0 50px;
+  }
+
+  .header-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
   }
 
   time {
@@ -135,17 +321,29 @@ const jsonld = {
     text-transform: uppercase;
   }
 
+  .kb-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgb(24 199 133 / 15%);
+    border: 1px solid rgb(24 199 133 / 30%);
+    color: #4eedb0;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+  }
+
   h1 {
-    margin: 18px 0 24px;
-    font-size: clamp(2.8rem, 7vw, 6.6rem);
-    letter-spacing: -0.07em;
-    line-height: 0.98;
+    margin: 12px 0 20px;
+    font-size: clamp(2.6rem, 6vw, 5.2rem);
+    letter-spacing: -0.06em;
+    line-height: 1.05;
   }
 
   .article-header > p {
     max-width: 800px;
     color: var(--text-muted);
     font-size: clamp(0.95rem, 1.6vw, 1.14rem);
+    line-height: 1.6;
   }
 
   .hashtag-list {
@@ -207,6 +405,11 @@ const jsonld = {
     font-weight: 500;
   }
 
+  .problem-count-text a {
+    color: #facc15;
+    text-decoration: none;
+  }
+
   .article-aside nav {
     position: sticky;
     top: 150px;
@@ -223,13 +426,18 @@ const jsonld = {
 
   .article-aside nav a {
     line-height: 1.45;
+    color: var(--text-muted);
+    text-decoration: none;
     transition: color var(--duration-fast) ease;
   }
 
   .article-aside nav a:hover { color: var(--brand-soft); }
 
-  .article-body {
+  .article-content-container {
     min-width: 0;
+  }
+
+  .article-body {
     color: var(--text-secondary);
     font-size: 0.96rem;
     line-height: 1.9;
@@ -273,15 +481,6 @@ const jsonld = {
     font-size: 1.05rem;
   }
 
-  .article-body > :global(img),
-  .article-body :global(p > img) {
-    width: 100%;
-    margin: 2em 0 0.7em;
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius-standard);
-    background: var(--elevated-background);
-  }
-
   .article-body :global(code) {
     padding: 0.18em 0.38em;
     border: 1px solid var(--border-default);
@@ -307,10 +506,154 @@ const jsonld = {
     background: transparent;
   }
 
-  .article-body :global(hr) {
-    margin: 3em 0;
-    border: 0;
-    border-top: 1px solid var(--border-default);
+  /* TROUBLESHOOTING BOX */
+  .troubleshooting-box {
+    margin-top: 80px;
+    padding: 36px;
+    border-radius: 20px;
+    border: 1px solid rgb(234 179 8 / 35%);
+    background: linear-gradient(175deg, rgb(30 25 10 / 60%), rgb(12 10 4 / 80%));
+  }
+
+  .troubleshoot-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgb(234 179 8 / 20%);
+  }
+
+  .troubleshoot-icon {
+    font-size: 1.8rem;
+    color: #facc15;
+  }
+
+  .troubleshoot-header h2 {
+    margin: 0 0 6px;
+    font-size: 1.5rem;
+    color: #fef08a;
+  }
+
+  .troubleshoot-header p {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .problem-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .problem-item {
+    padding: 24px;
+    border-radius: 14px;
+    background: rgb(7 16 12 / 60%);
+    border: 1px solid rgb(255 255 255 / 8%);
+  }
+
+  .problem-item-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .problem-index {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: #facc15;
+    font-weight: 700;
+  }
+
+  .error-code-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgb(239 68 68 / 15%);
+    border: 1px solid rgb(239 68 68 / 30%);
+    color: #f87171;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+  }
+
+  .env-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgb(255 255 255 / 5%);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+  }
+
+  .problem-title {
+    margin: 0 0 16px;
+    font-size: 1.2rem;
+    color: var(--text-main);
+  }
+
+  .box-label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .symptom-box pre {
+    background: #020604;
+    border: 1px solid rgb(239 68 68 / 25%);
+    border-radius: 8px;
+    padding: 14px;
+    overflow-x: auto;
+    margin: 0 0 16px;
+  }
+
+  .symptom-box code {
+    color: #fca5a5;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+  }
+
+  .cause-box {
+    margin-bottom: 18px;
+  }
+
+  .cause-box p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .solution-box {
+    padding-top: 14px;
+    border-top: 1px dashed rgb(24 199 133 / 20%);
+  }
+
+  .solution-content {
+    color: var(--text-main);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .solution-content :global(pre) {
+    background: #020604;
+    border: 1px solid rgb(24 199 133 / 25%);
+    border-radius: 8px;
+    padding: 14px;
+    margin: 10px 0;
+    overflow-x: auto;
+  }
+
+  .solution-content :global(code) {
+    color: #4eedb0;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
   }
 
   .article-footer {
@@ -347,12 +690,13 @@ const jsonld = {
       gap: 16px;
     }
     .article-aside nav { display: none; }
+    .troubleshooting-box { padding: 24px 18px; }
   }
 
   @media (max-width: 540px) {
     .blog-article { padding-top: 54px; padding-bottom: 80px; }
     .article-header { padding: 44px 0 36px; }
-    h1 { font-size: clamp(2.5rem, 13vw, 4rem); }
+    h1 { font-size: clamp(2.3rem, 11vw, 3.8rem); }
     .article-cover { aspect-ratio: 4 / 3; border-radius: var(--radius-standard); }
     .article-footer { align-items: flex-start; flex-direction: column; padding: 25px; }
   }

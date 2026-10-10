@@ -1,5 +1,5 @@
-// @ts-check
 import { defineConfig } from 'astro/config';
+import cloudflare from '@astrojs/cloudflare';
 import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
 import { unified } from '@astrojs/markdown-remark';
@@ -11,6 +11,7 @@ import sitemap from '@astrojs/sitemap';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://trihuynh.omnimer.io.vn',
+  adapter: cloudflare(),
   integrations: [mdx(), react(), sitemap()],
   markdown: {
     processor: unified({

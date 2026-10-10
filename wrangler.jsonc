@@ -1,9 +1,20 @@
 {
-    "$schema": "./node_modules/wrangler/config-schema.json",
-    "name": "tri-portfolio",
-    "compatibility_date": "2026-07-29",
-    "assets": {
-        "directory": "./dist",
-        "not_found_handling": "404-page"
-    }
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "tri-portfolio",
+	"compatibility_date": "2026-07-29",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"assets": {
+		"directory": "./dist",
+		"not_found_handling": "404-page"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "tri-knowledge-db",
+			"database_id": "9124646b-a6eb-49cd-be70-be2d48a58940",
+			"migrations_dir": "../../migrations"
+		}
+	]
 }

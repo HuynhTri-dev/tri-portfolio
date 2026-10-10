@@ -22,3 +22,15 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# local database & wrangler state
+.wrangler/
+data/*.db*
+!data/.gitkeep
+
+# Sensitive MCP configuration & tokens
+.mcp.json
+
+# IDE and tool history
+.vscode/
+.specstory/

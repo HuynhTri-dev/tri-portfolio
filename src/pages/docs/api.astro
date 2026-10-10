@@ -1,0 +1,1078 @@
+---
+/**
+ * @name api.astro (/docs/api)
+ * @description Interactive Knowledge Base & AI Agent REST API Documentation page with copyable cURLs, payloads, and Agent setup guides.
+ */
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export const prerender = true;
+
+const BASE_URL = "https://trihuynh.omnimer.io.vn";
+---
+
+<BaseLayout
+  title="API Documentation — Knowledge Base & AI Agent Engine"
+  description="Comprehensive REST API guide and AI Agent integration instructions (Cursor, Claude, OpenAI, Antigravity) for Huynh Minh Tri's Knowledge Base."
+>
+  <main class="api-docs-page shell">
+    <!-- Header Hero -->
+    <header class="api-hero panel">
+      <div class="hero-tag">
+        <span class="live-dot"></span>
+        <span data-en="EDGE REST API · D1 FTS5 SEARCH" data-vi="EDGE REST API · TÌM KIẾM D1 FTS5">EDGE REST API · D1 FTS5 SEARCH</span>
+      </div>
+      <h1 data-en="Knowledge Base & AI Agent REST API" data-vi="REST API Hệ Thống Tri Thức & AI Agent">
+        Knowledge Base & AI Agent REST API
+      </h1>
+      <p class="hero-desc" data-en="Production-ready edge API endpoints delivering raw Markdown and verified troubleshooting case studies directly to LLMs, Coding Agents, and Developers." data-vi="Hệ thống API tại biên phục vụ chuẩn Markdown và các ca xử lý lỗi thực chiến trực tiếp cho LLM, Coding Agent (Cursor, Claude, Codex, Antigravity) và Lập trình viên.">
+        Production-ready edge API endpoints delivering raw Markdown and verified troubleshooting case studies directly to LLMs, Coding Agents, and Developers.
+      </p>
+
+      <div class="api-meta-grid">
+        <div class="meta-card">
+          <small data-en="BASE URL" data-vi="ĐỊA CHỈ NGUỒN">BASE URL</small>
+          <div class="code-pill">
+            <code>https://trihuynh.omnimer.io.vn</code>
+            <button class="copy-btn-mini" data-copy="https://trihuynh.omnimer.io.vn" title="Copy Base URL">
+              <i class="fa-regular fa-copy"></i>
+            </button>
+          </div>
+        </div>
+        <div class="meta-card">
+          <small data-en="ARCHITECTURE" data-vi="KIẾN TRÚC">ARCHITECTURE</small>
+          <span class="meta-val">Cloudflare Workers + D1 + FTS5</span>
+        </div>
+        <div class="meta-card">
+          <small data-en="LATENCY" data-vi="ĐỘ TRỄ">LATENCY</small>
+          <span class="meta-val text-accent">&lt; 15ms (Global Anycast Edge)</span>
+        </div>
+        <div class="meta-card">
+          <small data-en="AUTH HEADER" data-vi="XÁC THỰC">AUTH HEADER</small>
+          <span class="meta-val font-mono">Authorization: Bearer &lt;KEY&gt;</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Quick Navigation / TOC -->
+    <nav class="api-nav-pills" aria-label="API Sections">
+      <a href="#quick-agent-setup" class="nav-pill active"><i class="fa-solid fa-robot"></i> <span data-en="Agent Setup" data-vi="Cài đặt Agent">Agent Setup</span></a>
+      <a href="#endpoint-catalog" class="nav-pill"><i class="fa-solid fa-list-check"></i> <span data-en="LLM Catalog" data-vi="Danh mục LLM">LLM Catalog</span></a>
+      <a href="#endpoint-search" class="nav-pill"><i class="fa-solid fa-magnifying-glass"></i> <span data-en="FTS5 Search" data-vi="Tìm kiếm FTS5">FTS5 Search</span></a>
+      <a href="#endpoint-articles" class="nav-pill"><i class="fa-solid fa-book-bookmark"></i> <span data-en="Articles API" data-vi="API Bài viết">Articles API</span></a>
+      <a href="#endpoint-problems" class="nav-pill"><i class="fa-solid fa-bug-slash"></i> <span data-en="Troubleshooting API" data-vi="API Ghi nhận lỗi">Troubleshooting API</span></a>
+      <a href="#live-playground" class="nav-pill"><i class="fa-solid fa-terminal"></i> <span data-en="Live Tester" data-vi="Thử nghiệm trực tiếp">Live Tester</span></a>
+    </nav>
+
+    <!-- Section 1: AI Agent Setup Guides -->
+    <section id="quick-agent-setup" class="api-section panel">
+      <div class="section-heading">
+        <span class="section-icon"><i class="fa-solid fa-bolt"></i></span>
+        <div>
+          <h2 data-en="1. Rapid AI Coding Agent Setup" data-vi="1. Hướng Dẫn Tích Hợp Cho AI Coding Agents">
+            1. Rapid AI Coding Agent Setup
+          </h2>
+          <p data-en="Connect Cursor, Claude Code, Antigravity, or OpenAI Codex to this centralized knowledge base." data-vi="Kết nối Cursor, Claude Code, Antigravity hoặc OpenAI Codex vào nguồn tri thức tập trung này.">
+            Connect Cursor, Claude Code, Antigravity, or OpenAI Codex to this centralized knowledge base.
+          </p>
+        </div>
+      </div>
+
+      <div class="agent-tabs-container">
+        <!-- Cursor -->
+        <article class="agent-card">
+          <div class="agent-header">
+            <span class="agent-badge cursor-badge"><i class="fa-solid fa-compass"></i> Cursor IDE</span>
+            <span class="method-chip">Indexing &amp; Rules</span>
+          </div>
+          <p class="agent-text" data-en="Add the catalog URL into Cursor Indexing to grant Cursor semantic access to all architecture notes and problem fixes:" data-vi="Thêm URL danh mục vào Cursor Indexing để Cursor tự động nắm bắt toàn bộ kiến trúc và cách xử lý lỗi:">
+            Add the catalog URL into Cursor Indexing to grant Cursor semantic access to all architecture notes and problem fixes:
+          </p>
+          <div class="code-box">
+            <div class="code-box-header">
+              <span>Cursor Settings &gt; Features &gt; Docs</span>
+              <button class="copy-btn-mini" data-copy="https://trihuynh.omnimer.io.vn/llms.txt"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+            <pre><code>https://trihuynh.omnimer.io.vn/llms.txt</code></pre>
+          </div>
+          <p class="agent-subtext" data-en="Or append this rule to your project's .cursorrules:" data-vi="Hoặc thêm chỉ dẫn sau vào tệp .cursorrules trong dự án của bạn:">
+            Or append this rule to your project's <code>.cursorrules</code>:
+          </p>
+          <div class="code-box">
+            <div class="code-box-header">
+              <span>.cursorrules</span>
+              <button class="copy-btn-mini" data-copy="When encountering architectural decisions or errors with Cloudflare, D1, Astro, or Fastify, query the author's knowledge base via:
+https://trihuynh.omnimer.io.vn/api/kb/search?q={query}"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+            <pre><code>When encountering architectural decisions or errors with Cloudflare, D1, Astro, or Fastify, query the author's knowledge base via:
+https://trihuynh.omnimer.io.vn/api/kb/search?q=&#123;query&#125;</code></pre>
+          </div>
+        </article>
+
+        <!-- Claude / MCP -->
+        <article class="agent-card">
+          <div class="agent-header">
+            <span class="agent-badge claude-badge"><i class="fa-solid fa-brain"></i> Claude / Claude Code</span>
+            <span class="method-chip">REST &amp; MCP</span>
+          </div>
+          <p class="agent-text" data-en="Configure Claude to fetch article raw markdown or search troubleshooting case studies directly:" data-vi="Cấu hình Claude để đọc Markdown thô hoặc tra cứu các tình huống xử lý lỗi thực tế:">
+            Configure Claude to fetch article raw markdown or search troubleshooting case studies directly:
+          </p>
+          <div class="code-box">
+            <div class="code-box-header">
+              <span>Claude Code / CLI Command</span>
+              <button class="copy-btn-mini" data-copy="curl -s 'https://trihuynh.omnimer.io.vn/api/kb/search?q=fhir+memory+leak'"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+            <pre><code>curl -s 'https://trihuynh.omnimer.io.vn/api/kb/search?q=fhir+memory+leak'</code></pre>
+          </div>
+        </article>
+
+        <!-- Antigravity -->
+        <article class="agent-card">
+          <div class="agent-header">
+            <span class="agent-badge anti-badge"><i class="fa-solid fa-atom"></i> Antigravity Agent</span>
+            <span class="method-chip">Custom Skill</span>
+          </div>
+          <p class="agent-text" data-en="Antigravity agents can directly call the unified cloud endpoint to retrieve verified problem solutions:" data-vi="Antigravity agent có thể gọi trực tiếp endpoint đám mây tập trung để lấy giải pháp xử lý lỗi đã kiểm chứng:">
+            Antigravity agents can directly call the unified cloud endpoint to retrieve verified problem solutions:
+          </p>
+          <div class="code-box">
+            <div class="code-box-header">
+              <span>GET Troubleshooting API</span>
+              <button class="copy-btn-mini" data-copy="https://trihuynh.omnimer.io.vn/api/kb/cloudflare-d1-hybrid-setup/problems"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+            <pre><code>GET https://trihuynh.omnimer.io.vn/api/kb/&#123;parent-slug&#125;/problems</code></pre>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Section 2: Endpoints Specification -->
+    <section class="api-section panel">
+      <div class="section-heading">
+        <span class="section-icon"><i class="fa-solid fa-code"></i></span>
+        <div>
+          <h2 data-en="2. Complete REST API Specifications" data-vi="2. Chi Tiết Thông Số Kỹ Thuật REST API">
+            2. Complete REST API Specifications
+          </h2>
+          <p data-en="All endpoints return standard UTF-8 JSON or plain text with explicit HTTP status codes." data-vi="Tất cả các endpoint trả về dữ liệu chuẩn UTF-8 JSON hoặc Plain text với mã trạng thái HTTP rõ ràng.">
+            All endpoints return standard UTF-8 JSON or plain text with explicit HTTP status codes.
+          </p>
+        </div>
+      </div>
+
+      <!-- Endpoint 1: llms.txt -->
+      <article id="endpoint-catalog" class="endpoint-item panel">
+        <div class="endpoint-top">
+          <span class="badge-get">GET</span>
+          <span class="endpoint-path">/llms.txt</span>
+          <span class="auth-tag public"><i class="fa-solid fa-lock-open"></i> Public</span>
+        </div>
+        <h3 class="endpoint-title" data-en="Machine-Readable LLM Catalog" data-vi="Danh Mục Đọc Dành Riêng Cho LLM">
+          Machine-Readable LLM Catalog
+        </h3>
+        <p class="endpoint-desc" data-en="Generates a standardized text catalog describing all available knowledge articles, categories, and direct raw markdown links for LLMs." data-vi="Sinh danh mục tóm tắt theo chuẩn llms.txt liệt kê toàn bộ bài viết, chuyên mục và đường dẫn markdown thô cho các mô hình ngôn ngữ lớn.">
+          Generates a standardized text catalog describing all available knowledge articles, categories, and direct raw markdown links for LLMs.
+        </p>
+
+        <div class="endpoint-box">
+          <div class="box-bar">
+            <span>cURL Example</span>
+            <button class="copy-btn-mini" data-copy="curl -s https://trihuynh.omnimer.io.vn/llms.txt"><i class="fa-regular fa-copy"></i> Copy</button>
+          </div>
+          <pre><code>curl -s https://trihuynh.omnimer.io.vn/llms.txt</code></pre>
+        </div>
+      </article>
+
+      <!-- Endpoint 2: Full-Text Search -->
+      <article id="endpoint-search" class="endpoint-item panel">
+        <div class="endpoint-top">
+          <span class="badge-get">GET</span>
+          <span class="endpoint-path">/api/kb/search?q=&#123;query&#125;&amp;type=all</span>
+          <span class="auth-tag public"><i class="fa-solid fa-lock-open"></i> Public</span>
+        </div>
+        <h3 class="endpoint-title" data-en="FTS5 Full-Text Search (Articles &amp; Problems)" data-vi="Tìm Kiếm Toàn Văn FTS5 (Bài Viết &amp; Lỗi Đã Xử Lý)">
+          FTS5 Full-Text Search (Articles &amp; Problems)
+        </h3>
+        <p class="endpoint-desc" data-en="Searches across indexed articles and documented bug solutions using Cloudflare D1 SQLite FTS5 BM25 ranking algorithm with keyword highlights." data-vi="Truy vấn toàn văn trên bài viết và kho lỗi thực chiến sử dụng thuật toán xếp hạng BM25 của FTS5, tự động tô đậm từ khóa phù hợp.">
+          Searches across indexed articles and documented bug solutions using Cloudflare D1 SQLite FTS5 BM25 ranking algorithm with keyword highlights.
+        </p>
+
+        <div class="params-table-wrapper">
+          <table class="params-table">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Default</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>q</code> (required)</td>
+                <td>string</td>
+                <td>-</td>
+                <td>Search keyword (e.g. <code>workerd</code>, <code>memory leak</code>, <code>fhir</code>)</td>
+              </tr>
+              <tr>
+                <td><code>type</code></td>
+                <td>string</td>
+                <td><code>all</code></td>
+                <td>Target index: <code>all</code>, <code>article</code>, or <code>problem</code></td>
+              </tr>
+              <tr>
+                <td><code>limit</code></td>
+                <td>number</td>
+                <td><code>10</code></td>
+                <td>Maximum results returned (1-50)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="endpoint-box">
+          <div class="box-bar">
+            <span>cURL Example</span>
+            <button class="copy-btn-mini" data-copy="curl -s 'https://trihuynh.omnimer.io.vn/api/kb/search?q=workerd'"><i class="fa-regular fa-copy"></i> Copy</button>
+          </div>
+          <pre><code>curl -s 'https://trihuynh.omnimer.io.vn/api/kb/search?q=workerd'</code></pre>
+        </div>
+      </article>
+
+      <!-- Endpoint 3: List Articles -->
+      <article id="endpoint-articles" class="endpoint-item panel">
+        <div class="endpoint-top">
+          <span class="badge-get">GET</span>
+          <span class="endpoint-path">/api/kb</span>
+          <span class="auth-tag public"><i class="fa-solid fa-lock-open"></i> Public</span>
+        </div>
+        <h3 class="endpoint-title" data-en="List Knowledge Base Articles" data-vi="Lấy Danh Sách Bài Viết Tri Thức">
+          List Knowledge Base Articles
+        </h3>
+        <p class="endpoint-desc" data-en="Returns indexed articles with pagination and optional filtering by category, hashtag, or target agent." data-vi="Trả về danh sách bài viết đã lập chỉ mục kèm phân trang và bộ lọc theo chuyên mục, hashtag hoặc agent mục tiêu.">
+          Returns indexed articles with pagination and optional filtering by category, hashtag, or target agent.
+        </p>
+
+        <div class="endpoint-box">
+          <div class="box-bar">
+            <span>cURL Example</span>
+            <button class="copy-btn-mini" data-copy="curl -s 'https://trihuynh.omnimer.io.vn/api/kb?limit=20'"><i class="fa-regular fa-copy"></i> Copy</button>
+          </div>
+          <pre><code>curl -s 'https://trihuynh.omnimer.io.vn/api/kb?limit=20'</code></pre>
+        </div>
+      </article>
+
+      <!-- Endpoint 4: Create Article -->
+      <article class="endpoint-item panel">
+        <div class="endpoint-top">
+          <span class="badge-post">POST</span>
+          <span class="endpoint-path">/api/kb</span>
+          <span class="auth-tag protected"><i class="fa-solid fa-key"></i> Protected (KB_API_KEY)</span>
+        </div>
+        <h3 class="endpoint-title" data-en="Create / Index Knowledge Base Article" data-vi="Tạo &amp; Lập Chỉ Mục Bài Viết Mới">
+          Create / Index Knowledge Base Article
+        </h3>
+        <p class="endpoint-desc" data-en="Creates a new article directly in Cloudflare D1 and synchronizes into FTS5 index. Requires Bearer Token." data-vi="Thêm bài viết mới vào Cloudflare D1 và tự động đồng bộ vào bảng tìm kiếm FTS5. Yêu cầu Bearer Token.">
+          Creates a new article directly in Cloudflare D1 and synchronizes into FTS5 index. Requires Bearer Token.
+        </p>
+
+        <div class="endpoint-box">
+          <div class="box-bar">
+            <span>cURL Example</span>
+            <button class="copy-btn-mini" data-copy={`curl -X POST https://trihuynh.omnimer.io.vn/api/kb \\
+  -H "Authorization: Bearer <YOUR_KB_API_KEY>" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "slug": "fastify-stream-compression",
+    "title": "Fastify Streaming Compression at Scale",
+    "description": "Techniques for high throughput payload compression.",
+    "isKnowledgeBase": true,
+    "kbCategory": "backend",
+    "targetAgents": ["claude", "cursor"],
+    "summaryForAgents": "High density notes on gzip/brotli backpressure.",
+    "content": "# Fastify Streaming Compression\\n\\nProduction configuration guide."
+  }'`}><i class="fa-regular fa-copy"></i> Copy</button>
+          </div>
+          <pre><code>curl -X POST https://trihuynh.omnimer.io.vn/api/kb \
+  -H "Authorization: Bearer &lt;YOUR_KB_API_KEY&gt;" \
+  -H "Content-Type: application/json" \
+  -d '&#123;
+    "slug": "fastify-stream-compression",
+    "title": "Fastify Streaming Compression at Scale",
+    "description": "Techniques for high throughput payload compression.",
+    "isKnowledgeBase": true,
+    "kbCategory": "backend",
+    "targetAgents": ["claude", "cursor"],
+    "summaryForAgents": "High density notes on gzip/brotli backpressure.",
+    "content": "# Fastify Streaming Compression\n\nProduction configuration guide."
+  &#125;'</code></pre>
+        </div>
+      </article>
+
+      <!-- Endpoint 5: Get Article & Raw Markdown -->
+      <article class="endpoint-item panel">
+        <div class="endpoint-top">
+          <span class="badge-get">GET</span>
+          <span class="endpoint-path">/api/kb/&#123;slug&#125;?format=raw</span>
+          <span class="auth-tag public"><i class="fa-solid fa-lock-open"></i> Public</span>
+        </div>
+        <h3 class="endpoint-title" data-en="Get Article Detail &amp; Raw Markdown" data-vi="Lấy Chi Tiết Bài Viết &amp; Markdown Thô">
+          Get Article Detail &amp; Raw Markdown
+        </h3>
+        <p class="endpoint-desc" data-en="Fetches full article metadata + attached troubleshooting problems in JSON, or pass ?format=raw to receive pristine Markdown for LLM prompt injections." data-vi="Lấy đầy đủ thông tin bài viết và các lỗi đính kèm dưới dạng JSON, hoặc truyền ?format=raw để nhận Markdown sạch phục vụ nạp ngữ cảnh cho LLM.">
+          Fetches full article metadata + attached troubleshooting problems in JSON, or pass <code>?format=raw</code> to receive pristine Markdown for LLM prompt injections.
+        </p>
+
+        <div class="endpoint-box">
+          <div class="box-bar">
+            <span>cURL Example (Raw Markdown)</span>
+            <button class="copy-btn-mini" data-copy="curl -s 'https://trihuynh.omnimer.io.vn/api/kb/cloudflare-d1-hybrid-setup?format=raw'"><i class="fa-regular fa-copy"></i> Copy</button>
+          </div>
+          <pre><code>curl -s 'https://trihuynh.omnimer.io.vn/api/kb/cloudflare-d1-hybrid-setup?format=raw'</code></pre>
+        </div>
+      </article>
+
+      <!-- Endpoint 6: List Problems by Parent -->
+      <article id="endpoint-problems" class="endpoint-item panel">
+        <div class="endpoint-top">
+          <span class="badge-get">GET</span>
+          <span class="endpoint-path">/api/kb/&#123;parentSlug&#125;/problems</span>
+          <span class="auth-tag public"><i class="fa-solid fa-lock-open"></i> Public</span>
+        </div>
+        <h3 class="endpoint-title" data-en="List Troubleshooting Problems by Parent Article" data-vi="Lấy Các Ca Xử Lý Lỗi Thuộc Bài Viết Cha">
+          List Troubleshooting Problems by Parent Article
+        </h3>
+        <p class="endpoint-desc" data-en="Retrieves all verified real-world bug fixes, error snippets, and root cause analyses linked to a specific parent article." data-vi="Lấy danh sách các bài học kinh nghiệm xử lý lỗi, đoạn mã lỗi và giải pháp đã kiểm chứng liên kết với bài viết cha.">
+          Retrieves all verified real-world bug fixes, error snippets, and root cause analyses linked to a specific parent article.
+        </p>
+
+        <div class="endpoint-box">
+          <div class="box-bar">
+            <span>cURL Example</span>
+            <button class="copy-btn-mini" data-copy="curl -s https://trihuynh.omnimer.io.vn/api/kb/cloudflare-d1-hybrid-setup/problems"><i class="fa-regular fa-copy"></i> Copy</button>
+          </div>
+          <pre><code>curl -s https://trihuynh.omnimer.io.vn/api/kb/cloudflare-d1-hybrid-setup/problems</code></pre>
+        </div>
+      </article>
+
+      <!-- Endpoint 7: Create Problem -->
+      <article class="endpoint-item panel">
+        <div class="endpoint-top">
+          <span class="badge-post">POST</span>
+          <span class="endpoint-path">/api/kb/&#123;parentSlug&#125;/problems</span>
+          <span class="auth-tag protected"><i class="fa-solid fa-key"></i> Protected (KB_API_KEY)</span>
+        </div>
+        <h3 class="endpoint-title" data-en="Attach New Troubleshooting Case Study" data-vi="Ghi Nhận Thêm Ca Xử Lý Lỗi Mới">
+          Attach New Troubleshooting Case Study
+        </h3>
+        <p class="endpoint-desc" data-en="Records a newly encountered error, root cause, and verified resolution attached to a parent knowledge base entry. Requires Bearer Token." data-vi="Ghi nhận lỗi mới phát sinh, phân tích nguyên nhân gốc và giải pháp kiểm chứng đính kèm vào bài viết cha. Yêu cầu Bearer Token.">
+          Records a newly encountered error, root cause, and verified resolution attached to a parent knowledge base entry. Requires Bearer Token.
+        </p>
+
+        <div class="endpoint-box">
+          <div class="box-bar">
+            <span>cURL Example</span>
+            <button class="copy-btn-mini" data-copy={`curl -X POST https://trihuynh.omnimer.io.vn/api/kb/cloudflare-d1-hybrid-setup/problems \\
+  -H "Authorization: Bearer <YOUR_KB_API_KEY>" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "title": "workerd runtime rejects better-sqlite3 native addon",
+    "errorCode": "ERR_DLOPEN_FAILED",
+    "errorSnippet": "TypeError: Cannot read properties of undefined (reading glibcVersionRuntime)",
+    "environment": "macOS Sequoia, Astro 7.3, Cloudflare workerd",
+    "rootCause": "Workerd runtime does not support native C++ Node addons.",
+    "solution": "Use UniversalDatabaseAdapter that dynamically branches to env.DB from cloudflare:workers inside workerd.",
+    "tags": ["workerd", "cloudflare", "d1", "sqlite"]
+  }'`}><i class="fa-regular fa-copy"></i> Copy</button>
+          </div>
+          <pre><code>curl -X POST https://trihuynh.omnimer.io.vn/api/kb/cloudflare-d1-hybrid-setup/problems \
+  -H "Authorization: Bearer &lt;YOUR_KB_API_KEY&gt;" \
+  -H "Content-Type: application/json" \
+  -d '&#123;
+    "title": "workerd runtime rejects better-sqlite3 native addon",
+    "errorCode": "ERR_DLOPEN_FAILED",
+    "errorSnippet": "TypeError: Cannot read properties of undefined (reading glibcVersionRuntime)",
+    "environment": "macOS Sequoia, Astro 7.3, Cloudflare workerd",
+    "rootCause": "Workerd runtime does not support native C++ Node addons.",
+    "solution": "Use UniversalDatabaseAdapter that dynamically branches to env.DB from cloudflare:workers inside workerd.",
+    "tags": ["workerd", "cloudflare", "d1", "sqlite"]
+  &#125;'</code></pre>
+        </div>
+      </article>
+
+      <!-- Endpoint 8: Sync -->
+      <article class="endpoint-item panel">
+        <div class="endpoint-top">
+          <span class="badge-post">POST</span>
+          <span class="endpoint-path">/api/kb/sync</span>
+          <span class="auth-tag protected"><i class="fa-solid fa-key"></i> Protected (KB_API_KEY)</span>
+        </div>
+        <h3 class="endpoint-title" data-en="Trigger Local Markdown Sync to DB" data-vi="Kích Hoạt Đồng Bộ Markdown Vào Database">
+          Trigger Local Markdown Sync to DB
+        </h3>
+        <p class="endpoint-desc" data-en="Scans Markdown files stored on the filesystem and indexes them into the database. Also executable offline via CLI: npm run kb:sync." data-vi="Quét các tệp Markdown trên đĩa và lập chỉ mục vào cơ sở dữ liệu. Cũng có thể chạy trực tiếp trên máy qua lệnh: npm run kb:sync.">
+          Scans Markdown files stored on the filesystem and indexes them into the database. Also executable offline via CLI: <code>npm run kb:sync</code>.
+        </p>
+
+        <div class="endpoint-box">
+          <div class="box-bar">
+            <span>cURL Example</span>
+            <button class="copy-btn-mini" data-copy={`curl -X POST https://trihuynh.omnimer.io.vn/api/kb/sync -H "Authorization: Bearer <YOUR_KB_API_KEY>"`}><i class="fa-regular fa-copy"></i> Copy</button>
+          </div>
+          <pre><code>curl -X POST https://trihuynh.omnimer.io.vn/api/kb/sync -H "Authorization: Bearer &lt;YOUR_KB_API_KEY&gt;"</code></pre>
+        </div>
+      </article>
+    </section>
+
+    <!-- Section 3: Interactive Live API Tester -->
+    <section id="live-playground" class="api-section panel">
+      <div class="section-heading">
+        <span class="section-icon"><i class="fa-solid fa-flask"></i></span>
+        <div>
+          <h2 data-en="3. Live Interactive API Tester" data-vi="3. Trình Thử Nghiệm API Trực Tiếp">
+            3. Live Interactive API Tester
+          </h2>
+          <p data-en="Test live queries directly against the Cloudflare D1 FTS5 engine in real-time." data-vi="Thử nghiệm gửi truy vấn trực tiếp vào công cụ tìm kiếm Cloudflare D1 FTS5 theo thời gian thực.">
+            Test live queries directly against the Cloudflare D1 FTS5 engine in real-time.
+          </p>
+        </div>
+      </div>
+
+      <div class="tester-card panel">
+        <div class="tester-input-row">
+          <span class="method-tag">GET</span>
+          <input
+            id="tester-query-input"
+            type="text"
+            class="tester-input"
+            placeholder="Nhập từ khóa tìm kiếm (ví dụ: workerd, d1, astro, memory)..."
+            value="workerd"
+          />
+          <button id="tester-run-btn" class="tester-btn">
+            <i class="fa-solid fa-play"></i> <span data-en="Send Request" data-vi="Gửi truy vấn">Send Request</span>
+          </button>
+        </div>
+
+        <div class="tester-status-bar">
+          <span id="tester-status-badge" class="tester-status">Ready</span>
+          <span id="tester-time-badge" class="tester-time">0 ms</span>
+          <span id="tester-url-display" class="tester-url">https://trihuynh.omnimer.io.vn/api/kb/search?q=workerd</span>
+        </div>
+
+        <div class="tester-output-wrapper">
+          <div class="tester-output-header">
+            <span>Response Body (JSON)</span>
+            <button id="copy-tester-output" class="copy-btn-mini" title="Copy response"><i class="fa-regular fa-copy"></i> Copy</button>
+          </div>
+          <pre id="tester-output" class="tester-output"><code>&#123; "message": "Click 'Send Request' to query live edge database..." &#125;</code></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<script>
+  // Copy to clipboard helper
+  document.querySelectorAll("[data-copy]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const text = btn.getAttribute("data-copy");
+      if (text) {
+        try {
+          await navigator.clipboard.writeText(text);
+          const orig = btn.innerHTML;
+          btn.innerHTML = `<i class="fa-solid fa-check text-green-400"></i> Copied!`;
+          setTimeout(() => {
+            btn.innerHTML = orig;
+          }, 2000);
+        } catch {
+          // Fallback if clipboard API is unavailable
+        }
+      }
+    });
+  });
+
+  // Interactive Live Tester script
+  const queryInput = document.getElementById("tester-query-input") as HTMLInputElement;
+  const runBtn = document.getElementById("tester-run-btn");
+  const statusBadge = document.getElementById("tester-status-badge");
+  const timeBadge = document.getElementById("tester-time-badge");
+  const urlDisplay = document.getElementById("tester-url-display");
+  const outputPre = document.getElementById("tester-output")?.querySelector("code");
+  const copyOutputBtn = document.getElementById("copy-tester-output");
+
+  async function executeTestQuery() {
+    if (!queryInput || !outputPre || !statusBadge || !timeBadge || !urlDisplay) return;
+    const q = encodeURIComponent(queryInput.value.trim() || "workerd");
+    const targetUrl = `/api/kb/search?q=${q}`;
+    urlDisplay.textContent = targetUrl;
+    statusBadge.textContent = "Querying...";
+    statusBadge.className = "tester-status running";
+
+    const t0 = performance.now();
+    try {
+      const res = await fetch(targetUrl);
+      const t1 = performance.now();
+      const duration = Math.round(t1 - t0);
+      timeBadge.textContent = `${duration} ms`;
+
+      statusBadge.textContent = `${res.status} ${res.statusText}`;
+      statusBadge.className = res.ok ? "tester-status success" : "tester-status error";
+
+      const data = await res.json();
+      outputPre.textContent = JSON.stringify(data, null, 2);
+    } catch (err: any) {
+      statusBadge.textContent = "Failed";
+      statusBadge.className = "tester-status error";
+      outputPre.textContent = JSON.stringify({ error: err.message }, null, 2);
+    }
+  }
+
+  if (runBtn) {
+    runBtn.addEventListener("click", executeTestQuery);
+  }
+
+  if (queryInput) {
+    queryInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        executeTestQuery();
+      }
+    });
+  }
+
+  if (copyOutputBtn && outputPre) {
+    copyOutputBtn.addEventListener("click", async () => {
+      const content = outputPre.textContent || "";
+      if (content) {
+        await navigator.clipboard.writeText(content);
+        const orig = copyOutputBtn.innerHTML;
+        copyOutputBtn.innerHTML = `<i class="fa-solid fa-check text-green-400"></i> Copied!`;
+        setTimeout(() => {
+          copyOutputBtn.innerHTML = orig;
+        }, 2000);
+      }
+    });
+  }
+</script>
+
+<style>
+  .api-docs-page {
+    padding-top: 140px;
+    padding-bottom: 90px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .api-hero {
+    padding: 40px;
+    background: radial-gradient(circle at 10% 10%, rgb(24 199 133 / 12%), transparent 60%),
+                radial-gradient(circle at 90% 90%, rgb(59 130 246 / 10%), transparent 60%),
+                rgba(11, 23, 19, 0.7);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-feature);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    position: relative;
+    backdrop-filter: blur(16px);
+  }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--brand-soft);
+    background: rgb(24 199 133 / 10%);
+    border: 1px solid rgb(24 199 133 / 30%);
+    padding: 4px 12px;
+    border-radius: var(--radius-pill);
+    width: fit-content;
+  }
+
+  .live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--brand-green);
+    box-shadow: 0 0 10px var(--brand-green);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+  }
+
+  .api-hero h1 {
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--text-main);
+    margin: 0;
+  }
+
+  .hero-desc {
+    font-size: 1.05rem;
+    color: var(--text-secondary);
+    max-width: 860px;
+    margin: 0;
+  }
+
+  .api-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 12px;
+  }
+
+  .meta-card {
+    background: rgba(5, 11, 9, 0.6);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-small);
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .meta-card small {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  .meta-val {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+  }
+
+  .text-accent {
+    color: var(--brand-green);
+  }
+
+  .code-pill {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 4px 8px 4px 10px;
+    border-radius: 6px;
+    border: 1px solid rgb(255 255 255 / 8%);
+  }
+
+  .code-pill code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--brand-soft);
+  }
+
+  .copy-btn-mini {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: all var(--duration-fast);
+  }
+
+  .copy-btn-mini:hover {
+    color: var(--text-main);
+    background: rgb(255 255 255 / 10%);
+  }
+
+  /* Navigation Pills */
+  .api-nav-pills {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: rgba(11, 23, 19, 0.5);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-pill);
+    padding: 8px 12px;
+  }
+
+  .nav-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: 6px 14px;
+    border-radius: var(--radius-pill);
+    transition: all var(--duration-fast);
+  }
+
+  .nav-pill:hover,
+  .nav-pill.active {
+    color: var(--brand-soft);
+    background: rgb(24 199 133 / 14%);
+  }
+
+  /* Section Styles */
+  .api-section {
+    padding: 36px;
+    background: rgba(11, 23, 19, 0.6);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-feature);
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .section-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .section-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-small);
+    background: rgb(24 199 133 / 14%);
+    border: 1px solid rgb(24 199 133 / 30%);
+    color: var(--brand-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  .section-heading h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0 0 6px 0;
+  }
+
+  .section-heading p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  /* Agent Cards */
+  .agent-tabs-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+  }
+
+  .agent-card {
+    background: rgba(7, 17, 13, 0.8);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-standard);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .agent-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .agent-badge {
+    font-size: 14px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cursor-badge { color: #60a5fa; }
+  .claude-badge { color: #f59e0b; }
+  .anti-badge { color: #34d399; }
+
+  .method-chip {
+    font-size: 11px;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: var(--text-muted);
+  }
+
+  .agent-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .agent-subtext {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  /* Endpoints */
+  .endpoint-item {
+    background: rgba(7, 17, 13, 0.7);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-standard);
+    padding: 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .endpoint-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .badge-get, .badge-post, .badge-put {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 4px;
+  }
+
+  .badge-get { background: rgb(59 130 246 / 20%); color: #60a5fa; border: 1px solid rgb(59 130 246 / 40%); }
+  .badge-post { background: rgb(24 199 133 / 20%); color: #34d399; border: 1px solid rgb(24 199 133 / 40%); }
+  .badge-put { background: rgb(245 158 11 / 20%); color: #fbbf24; border: 1px solid rgb(245 158 11 / 40%); }
+
+  .endpoint-path {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-main);
+  }
+
+  .auth-tag {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: var(--radius-pill);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .auth-tag.public {
+    background: rgb(255 255 255 / 6%);
+    color: var(--text-muted);
+  }
+
+  .auth-tag.protected {
+    background: rgb(239 68 68 / 15%);
+    color: #f87171;
+    border: 1px solid rgb(239 68 68 / 30%);
+  }
+
+  .endpoint-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0;
+  }
+
+  .endpoint-desc {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* Code Boxes */
+  .code-box, .endpoint-box {
+    background: #030806;
+    border: 1px solid rgb(255 255 255 / 10%);
+    border-radius: var(--radius-small);
+    overflow: hidden;
+  }
+
+  .code-box-header, .box-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid rgb(255 255 255 / 8%);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  pre {
+    margin: 0;
+    padding: 16px;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.5;
+    color: #e2e8f0;
+  }
+
+  /* Parameters Table */
+  .params-table-wrapper {
+    overflow-x: auto;
+    border: 1px solid rgb(255 255 255 / 8%);
+    border-radius: var(--radius-small);
+  }
+
+  .params-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    text-align: left;
+  }
+
+  .params-table th {
+    background: rgba(255, 255, 255, 0.04);
+    padding: 10px 14px;
+    color: var(--text-muted);
+    font-weight: 600;
+    border-bottom: 1px solid rgb(255 255 255 / 8%);
+  }
+
+  .params-table td {
+    padding: 10px 14px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid rgb(255 255 255 / 5%);
+  }
+
+  .params-table code {
+    font-family: var(--font-mono);
+    color: var(--brand-soft);
+    background: rgba(24, 199, 133, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+
+  /* Tester Playground */
+  .tester-card {
+    background: #030806;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-standard);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .tester-input-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .method-tag {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 12px;
+    background: rgb(59 130 246 / 20%);
+    color: #60a5fa;
+    border: 1px solid rgb(59 130 246 / 40%);
+    padding: 8px 14px;
+    border-radius: var(--radius-small);
+  }
+
+  .tester-input {
+    flex: 1;
+    min-width: 240px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgb(255 255 255 / 15%);
+    border-radius: var(--radius-small);
+    color: var(--text-main);
+    padding: 10px 16px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color var(--duration-fast);
+  }
+
+  .tester-input:focus {
+    border-color: var(--brand-green);
+  }
+
+  .tester-btn {
+    background: var(--brand-green);
+    color: #030806;
+    font-weight: 700;
+    font-size: 13px;
+    border: none;
+    padding: 10px 20px;
+    border-radius: var(--radius-small);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform var(--duration-fast), filter var(--duration-fast);
+  }
+
+  .tester-btn:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+  }
+
+  .tester-status-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+  }
+
+  .tester-status {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+
+  .tester-status.running { background: rgb(245 158 11 / 20%); color: #fbbf24; }
+  .tester-status.success { background: rgb(24 199 133 / 20%); color: #34d399; }
+  .tester-status.error { background: rgb(239 68 68 / 20%); color: #f87171; }
+
+  .tester-url {
+    margin-left: auto;
+    color: var(--brand-soft);
+  }
+
+  .tester-output-wrapper {
+    border: 1px solid rgb(255 255 255 / 10%);
+    border-radius: var(--radius-small);
+    overflow: hidden;
+  }
+
+  .tester-output-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .tester-output {
+    background: #000;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+</style>
