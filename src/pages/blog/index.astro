@@ -98,6 +98,7 @@ const formatDate = (date: Date | string) => {
                 src={post.data.thumbnail}
                 alt={post.data.thumbnailAlt}
                 loading="lazy"
+                onerror="this.onerror=null; this.src='/images/blog/default.png';"
               />
               <div class="post-media-overlay"></div>
               <time datetime={post.data.pubDate.toISOString()} class="post-time-badge">

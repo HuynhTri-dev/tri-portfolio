@@ -147,9 +147,15 @@ const jsonld = {
       </div>
     </header>
 
-    <figure class="article-cover">
-      <img src={thumbnail} alt={thumbnailAlt} />
-    </figure>
+    {thumbnail && (
+      <figure class="article-cover">
+        <img 
+          src={thumbnail} 
+          alt={thumbnailAlt} 
+          onerror="this.onerror=null; this.src='/images/blog/default.png';" 
+        />
+      </figure>
+    )}
 
     <div class="article-layout">
       <aside class="article-aside">
