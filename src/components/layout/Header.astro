@@ -12,8 +12,16 @@ const anchor = (id: string) => (isHome ? `#${id}` : `/#${id}`);
     <a
       href={anchor("home")}
       class="mobile-brand"
-      aria-label="Huynh Minh Tri home">HMT</a
+      aria-label="Huynh Minh Tri home"
     >
+      <img
+        src="/logo.png"
+        alt="Huynh Minh Tri Logo"
+        class="mobile-brand-logo"
+        width="26"
+        height="26"
+      />
+    </a>
     <div class="mobile-actions">
       <div
         class="language-switcher language-switcher--mobile"
@@ -47,7 +55,13 @@ const anchor = (id: string) => (isHome ? `#${id}` : `/#${id}`);
         class="home-medallion"
         aria-current={isHome ? "page" : undefined}
       >
-        <span>HMT</span>
+        <img
+          src="/logo.png"
+          alt="Huynh Minh Tri Logo"
+          class="medallion-logo"
+          width="38"
+          height="38"
+        />
         <small data-en="Home" data-vi="Trang chủ">Home</small>
       </a>
       <a href="/blog"
@@ -251,6 +265,20 @@ const anchor = (id: string) => (isHome ? `#${id}` : `/#${id}`);
       0 14px 40px rgb(0 0 0 / 45%);
   }
 
+  .medallion-logo {
+    margin-top: 10px;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 4px 14px rgb(24 199 133 / 24%);
+    transition: transform var(--duration-fast) ease;
+  }
+
+  .home-medallion:hover .medallion-logo {
+    transform: scale(1.08);
+  }
+
   .home-medallion span {
     margin-top: 8px;
     color: var(--brand-soft);
@@ -328,6 +356,13 @@ const anchor = (id: string) => (isHome ? `#${id}` : `/#${id}`);
       color: var(--brand-soft);
       font-family: var(--font-mono);
       font-size: 0.66rem;
+    }
+
+    .mobile-brand-logo {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      object-fit: cover;
     }
 
     .mobile-actions,

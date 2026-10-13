@@ -78,8 +78,13 @@ OmniMer Health is engineered around three strategic pillars:
 ## Vital Rules Engine (VRE) – Real-Time Sensing Layer
 
 <div class="my-8 rounded-2xl overflow-hidden border border-slate-800 bg-slate-950/50 p-2">
+  <img src="/omnimer_health/apple_watch_se_blueprint.png" alt="Smartwatch Health Sensor Module Blueprint" class="w-full h-auto rounded-xl object-contain" />
+  <p class="text-center text-sm text-slate-400 mt-2 italic">Figure 2: Smartwatch Health Sensor Module Blueprint & Optical PPG Sensing Architecture</p>
+</div>
+
+<div class="my-8 rounded-2xl overflow-hidden border border-slate-800 bg-slate-950/50 p-2">
   <img src="/omnimer_health/vre_architecture.png" alt="VRE Architecture" class="w-full h-auto rounded-xl object-contain" />
-  <p class="text-center text-sm text-slate-400 mt-2 italic">Figure 2: Real-time biometric stream processing and adaptive baseline updating pipeline</p>
+  <p class="text-center text-sm text-slate-400 mt-2 italic">Figure 3: Real-time biometric stream processing and adaptive baseline updating pipeline</p>
 </div>
 
 The VRE operates on a dual-path architecture to achieve immediate emergency alerting while maintaining long-term baseline precision:
@@ -121,11 +126,11 @@ Kafka messages (`topic.vital.stream`) are consumed by a Python worker (`vital_ru
 <div class="my-8 grid grid-cols-1 md:grid-cols-2 gap-4">
   <div class="rounded-2xl overflow-hidden border border-slate-800 bg-slate-950/50 p-2">
     <img src="/omnimer_health/memory_architect.png" alt="Memory Architecture" class="w-full h-auto rounded-xl object-contain" />
-    <p class="text-center text-sm text-slate-400 mt-2 italic">Figure 3: 3-Tier Memory Architecture (STM, LTM & Context Window)</p>
+    <p class="text-center text-sm text-slate-400 mt-2 italic">Figure 4: 3-Tier Memory Architecture (STM, LTM & Context Window)</p>
   </div>
   <div class="rounded-2xl overflow-hidden border border-slate-800 bg-slate-950/50 p-2">
     <img src="/omnimer_health/agent_workflow.png" alt="Agent Workflow" class="w-full h-auto rounded-xl object-contain" />
-    <p class="text-center text-sm text-slate-400 mt-2 italic">Figure 4: LangGraph Multi-turn ReAct & Reflexion Loop Execution</p>
+    <p class="text-center text-sm text-slate-400 mt-2 italic">Figure 5: LangGraph Multi-turn ReAct & Reflexion Loop Execution</p>
   </div>
 </div>
 
@@ -219,11 +224,11 @@ To clearly distinguish the AI's role from the standard app UI, the Agent is desi
 <div class="my-8 grid grid-cols-1 md:grid-cols-2 gap-4">
   <div class="rounded-2xl overflow-hidden border border-slate-800 bg-slate-950/50 p-2">
     <img src="/omnimer_health/ragas_benchmark.png" alt="RAGAS Benchmark" class="w-full h-auto rounded-xl object-contain" />
-    <p class="text-center text-sm text-slate-400 mt-2 italic">Figure 5: RAG Quality Evaluation across RAGAS Metrics</p>
+    <p class="text-center text-sm text-slate-400 mt-2 italic">Figure 6: RAG Quality Evaluation across RAGAS Metrics</p>
   </div>
   <div class="rounded-2xl overflow-hidden border border-slate-800 bg-slate-950/50 p-2">
     <img src="/omnimer_health/safety_eval.png" alt="Safety Evaluation" class="w-full h-auto rounded-xl object-contain" />
-    <p class="text-center text-sm text-slate-400 mt-2 italic">Figure 6: Safety Recall and Useful Response Rate comparison</p>
+    <p class="text-center text-sm text-slate-400 mt-2 italic">Figure 7: Safety Recall and Useful Response Rate comparison</p>
   </div>
 </div>
 
