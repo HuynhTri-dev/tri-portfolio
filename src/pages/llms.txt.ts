@@ -18,6 +18,15 @@ export const GET: APIRoute = async (context) => {
     let text = `# Huynh Minh Tri — Engineering Knowledge Base & Research
 > Technical architecture notes, verified troubleshooting guides, and system designs for AI Coding Agents (Claude, Cursor, Codex, Antigravity).
 
+## Developer Profile & Engineering Services
+- **Developer**: Huynh Minh Tri (Huỳnh Minh Trí) — Software Developer & Realtime AI Specialist.
+- **Specializations**: Realtime Voice AI (Pipecat 1.x, Asterisk 22 PBX, WebRTC), Event Streaming (Apache Kafka), Multimodal GraphRAG, and Scalable Backend (FastAPI, Node.js, Python).
+- **Flagship Products**:
+  - **OmniMer Food**: Multimodal Nutrition Assistant integrating AI Vision, GraphRAG, and Knowledge Graphs. Repo: https://github.com/omnimerteam/omnimerFood.git
+  - **Production Voicebot PBX**: Sub-second latency conversational AI pipeline connected to Asterisk PBX via chan_websocket with acoustic feedback cancellation and bilingual EN/VI support.
+- **Contract & Freelance Services**: 1-on-1 Architecture Advisory, Turnkey Voicebot/AI PoC delivery (2-4 weeks), High-Throughput Data Streaming.
+- **Contact**: huynhminhtri1109@gmail.com | Phone: +84 982 294 937 | Website: ${siteUrl}
+
 ## API Endpoints for AI Agents (High Token Efficiency)
 - API Documentation (Web): ${siteUrl}/docs/api
 - Search (Universal JSON): ${siteUrl}/api/kb/search?q={query}

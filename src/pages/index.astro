@@ -19,22 +19,67 @@ const personJsonLd = {
   "@context": "https://schema.org",
   "@type": "Person",
   name: "Huynh Minh Tri",
+  alternateName: ["Huỳnh Minh Trí", "Tri Huynh"],
   url: "https://trihuynh.omnimer.io.vn/",
-  jobTitle: "Software Developer",
+  jobTitle: "Software Developer & Realtime AI Specialist",
+  email: "mailto:huynhminhtri1109@gmail.com",
+  telephone: "+84982294937",
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Ho Chi Minh City",
+    addressCountry: "VN",
+  },
   description:
-    "Product-oriented Software Developer focused on Backend Engineering, Agentic AI, and IoT solutions.",
+    "Product-oriented Software Developer specializing in Realtime Voice AI (Pipecat, Asterisk PBX), Scalable Backend Architecture (Kafka, FastAPI, Node.js), GraphRAG, and Multimodal Systems.",
   sameAs: [
     "https://github.com/HuynhTri-dev",
     "https://www.linkedin.com/in/huỳnh-minh-trí-bb71a0259",
   ],
   knowsAbout: [
+    "Realtime Voicebot AI",
+    "Pipecat AI",
+    "Asterisk PBX",
+    "WebRTC Streaming",
+    "Kafka Event Streaming",
+    "GraphRAG & Knowledge Graphs",
+    "Multimodal AI",
     "Backend Engineering",
-    "Agentic AI",
-    "Internet of Things",
+    "FastAPI",
     "Node.js",
     "Python",
     "System Architecture",
+    "Internet of Things",
   ],
+  hasOfferCatalog: {
+    "@type": "OfferCatalog",
+    name: "Engineering & Consulting Services",
+    itemListElement: [
+      {
+        "@type": "Offer",
+        itemOffered: {
+          "@type": "Service",
+          name: "Voicebot & PBX Telephony AI Integration",
+          description: "Sub-second latency voicebot integration with Asterisk PBX, Pipecat, WebRTC, and bilingual Vietnamese/English conversational flows.",
+        },
+      },
+      {
+        "@type": "Offer",
+        itemOffered: {
+          "@type": "Service",
+          name: "High-Throughput Backend & Event Streaming Systems",
+          description: "Distributed event streaming architectures using Apache Kafka, FastAPI, and Node.js for real-time CDR and IoT telemetry.",
+        },
+      },
+      {
+        "@type": "Offer",
+        itemOffered: {
+          "@type": "Service",
+          name: "Multimodal AI & GraphRAG Solutions",
+          description: "Custom multimodal intelligence, knowledge graphs, and hybrid RAG implementations for health, nutrition, and enterprise domains.",
+        },
+      },
+    ],
+  },
 };
 ---
 

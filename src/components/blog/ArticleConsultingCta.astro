@@ -1,0 +1,285 @@
+---
+/**
+ * @name ArticleConsultingCta.astro
+ * @description Inbound lead conversion component embedded into technical articles and case studies, offering tailored freelance, advisory, and engineering contracts.
+ */
+
+interface Props {
+  articleCategory?: string;
+}
+
+const { articleCategory = "general" } = Astro.props;
+---
+
+<section class="consulting-cta panel" aria-labelledby="consulting-cta-title">
+  <div class="cta-header">
+    <div class="cta-status-badge">
+      <span class="status-pulse-dot"></span>
+      <span data-en="ENGINEERING &amp; CONSULTING" data-vi="TƯ VẤN &amp; TRIỂN KHAI KỸ THUẬT">ENGINEERING &amp; CONSULTING</span>
+    </div>
+    <span class="cta-availability" data-en="Open for Freelance &amp; Turnkey Projects" data-vi="Sẵn sàng nhận dự án Freelance &amp; Chìa khóa trao tay">
+      Open for Freelance &amp; Turnkey Projects
+    </span>
+  </div>
+
+  <div class="cta-body">
+    <h3 id="consulting-cta-title" data-en="Need to build a production Voicebot or AI-native Backend?" data-vi="Cần triển khai hệ thống Voicebot hoặc AI Backend tương tự?">
+      Need to build a production Voicebot or AI-native Backend?
+    </h3>
+    <p class="cta-desc" data-en="I partner with startups and engineering teams to architect, optimize latency, and ship production-grade Voice AI (Pipecat + Asterisk PBX), Event Streaming (Kafka), and GraphRAG systems." data-vi="Tôi hỗ trợ các doanh nghiệp và đội ngũ kỹ thuật thiết kế kiến trúc, tối ưu độ trễ và trực tiếp triển khai giải pháp Voicebot AI (Pipecat + Asterisk PBX), Event Streaming (Kafka) và GraphRAG.">
+      I partner with startups and engineering teams to architect, optimize latency, and ship production-grade Voice AI (Pipecat + Asterisk PBX), Event Streaming (Kafka), and GraphRAG systems.
+    </p>
+
+    <div class="cta-services-grid">
+      <div class="service-card">
+        <div class="service-icon">
+          <i class="fa-solid fa-compass-drafting"></i>
+        </div>
+        <div class="service-info">
+          <h4 data-en="1-on-1 Architecture Advisory" data-vi="Tư vấn Kiến trúc 1-on-1">1-on-1 Architecture Advisory</h4>
+          <p data-en="Sub-second latency tuning, PBX/WebRTC telephony design, VAD &amp; barge-in mechanics, and resilient streaming pipelines." data-vi="Tối ưu độ trễ dưới 1s, thiết kế kết nối tổng đài PBX/WebRTC, tinh chỉnh VAD/barge-in và pipeline streaming chịu tải.">
+            Sub-second latency tuning, PBX/WebRTC telephony design, VAD &amp; barge-in mechanics, and resilient streaming pipelines.
+          </p>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">
+          <i class="fa-solid fa-rocket"></i>
+        </div>
+        <div class="service-info">
+          <h4 data-en="Turnkey Voicebot / AI PoC (2–4 Weeks)" data-vi="Xây dựng PoC Chìa khóa trao tay (2–4 Tuần)">Turnkey Voicebot / AI PoC (2–4 Weeks)</h4>
+          <p data-en="End-to-end working prototype connected to your SIP trunk, LLMs, and multilingual TTS with verified benchmark metrics." data-vi="Bản thử nghiệm hoàn chỉnh kết nối SIP trunk doanh nghiệp, LLMs, TTS song ngữ Anh/Việt kèm báo cáo benchmark thực tế.">
+            End-to-end working prototype connected to your SIP trunk, LLMs, and multilingual TTS with verified benchmark metrics.
+          </p>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">
+          <i class="fa-solid fa-server"></i>
+        </div>
+        <div class="service-info">
+          <h4 data-en="Custom Backend &amp; Event Streaming" data-vi="Hệ thống Backend &amp; Event Streaming">Custom Backend &amp; Event Streaming</h4>
+          <p data-en="High-throughput Kafka streaming for real-time CDR telemetries, FastAPI/Node.js microservices, and Multimodal GraphRAG." data-vi="Xử lý luồng Kafka chịu tải cao cho dữ liệu tổng đài CDR, microservices FastAPI/Node.js và GraphRAG đa phương thức.">
+            High-throughput Kafka streaming for real-time CDR telemetries, FastAPI/Node.js microservices, and Multimodal GraphRAG.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta-actions">
+      <a class="btn-primary" href="/#contact">
+        <i class="fa-solid fa-paper-plane"></i>
+        <span data-en="Discuss Your Project" data-vi="Trao đổi về dự án của bạn">Discuss Your Project</span>
+      </a>
+      <a class="btn-secondary" href="mailto:huynhminhtri1109@gmail.com?subject=%5BInquiry%5D%20AI%20Engineering%20%2F%20Voicebot%20Project">
+        <i class="fa-solid fa-envelope"></i>
+        <span>huynhminhtri1109@gmail.com</span>
+      </a>
+      <a class="btn-secondary" href="tel:+84982294937">
+        <i class="fa-solid fa-phone"></i>
+        <span>+84 982 294 937</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .consulting-cta {
+    position: relative;
+    max-width: 980px;
+    margin: 64px auto 0;
+    padding: 36px 40px;
+    border: 1px solid rgb(24 199 133 / 28%);
+    border-radius: var(--radius-standard, 12px);
+    background: linear-gradient(145deg, rgba(2, 14, 9, 0.94) 0%, rgba(3, 26, 17, 0.85) 100%);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(24, 199 133, 0.2);
+    overflow: hidden;
+  }
+
+  .consulting-cta::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #18c785 40%, #4eedb0 70%, transparent);
+  }
+
+  .cta-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px dashed rgb(24 199 133 / 20%);
+  }
+
+  .cta-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px;
+    border: 1px solid rgb(24 199 133 / 35%);
+    border-radius: 999px;
+    background: rgb(24 199 133 / 10%);
+    color: #4eedb0;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  .status-pulse-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #18c785;
+    box-shadow: 0 0 8px #18c785;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(0.95); opacity: 0.8; }
+    50% { transform: scale(1.3); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.8; }
+  }
+
+  .cta-availability {
+    color: #8fa89b;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.76rem;
+    letter-spacing: 0.04em;
+  }
+
+  .cta-body h3 {
+    margin: 0 0 12px;
+    color: #f1f7f4;
+    font-size: clamp(1.4rem, 2.8vw, 1.9rem);
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+  }
+
+  .cta-desc {
+    max-width: 820px;
+    margin: 0 0 28px;
+    color: #a4beaf;
+    font-size: 0.96rem;
+    line-height: 1.65;
+  }
+
+  .cta-services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 30px;
+  }
+
+  .service-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 18px;
+    border: 1px solid rgb(24 199 133 / 15%);
+    border-radius: 8px;
+    background: rgb(24 199 133 / 4%);
+    transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  }
+
+  .service-card:hover {
+    transform: translateY(-2px);
+    border-color: rgb(24 199 133 / 35%);
+    background: rgb(24 199 133 / 8%);
+  }
+
+  .service-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    background: rgb(24 199 133 / 12%);
+    color: #4eedb0;
+    font-size: 0.95rem;
+  }
+
+  .service-info h4 {
+    margin: 0 0 6px;
+    color: #e5f2eb;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .service-info p {
+    margin: 0;
+    color: #8da496;
+    font-size: 0.78rem;
+    line-height: 1.5;
+  }
+
+  .cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    padding-top: 10px;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: 1px solid #18c785;
+    border-radius: 6px;
+    background: #18c785;
+    color: #03140c;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+
+  .btn-primary:hover {
+    background: #20e097;
+    transform: translateY(-1px);
+    color: #010a06;
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: 1px solid rgb(24 199 133 / 22%);
+    border-radius: 6px;
+    background: rgb(24 199 133 / 6%);
+    color: #b5d4c3;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.78rem;
+    text-decoration: none;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+
+  .btn-secondary:hover {
+    border-color: #18c785;
+    color: #4eedb0;
+  }
+
+  @media (max-width: 860px) {
+    .cta-services-grid {
+      grid-template-columns: 1fr;
+    }
+    .consulting-cta {
+      padding: 28px 24px;
+      margin-top: 48px;
+    }
+  }
+</style>

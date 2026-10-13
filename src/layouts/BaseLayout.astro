@@ -1,4 +1,8 @@
 ---
+/**
+ * @name BaseLayout.astro
+ * @description Base HTML layout providing SEO/GEO meta tags, JSON-LD schemas, typography, ambient background layers, and common page chrome.
+ */
 import Header from "../components/layout/Header.astro";
 import Footer from "../components/layout/Footer.astro";
 import SystemDepthBackground from "../components/home/SystemDepthBackground.astro";
@@ -61,6 +65,13 @@ const socialImageURL = new URL(image, Astro.site);
       referrerpolicy="no-referrer"
     />
     <title>{title}</title>
+    {jsonld && (
+      <script
+        type="application/ld+json"
+        is:inline
+        set:html={JSON.stringify(jsonld)}
+      />
+    )}
     <script is:inline define:vars={{ enableHomeMotion: isHome }}>
       if (
         enableHomeMotion &&

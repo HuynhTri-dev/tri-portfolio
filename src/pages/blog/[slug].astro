@@ -6,6 +6,7 @@
 import { getCollection, render } from "astro:content";
 import { renderMarkdown } from "../../lib/services/markdown.service";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import ArticleConsultingCta from "../../components/blog/ArticleConsultingCta.astro";
 import { KnowledgeService, type ProblemRecord } from "../../lib/services/knowledge.service";
 import "katex/dist/katex.min.css";
 
@@ -96,20 +97,59 @@ const formatDate = (date: Date) =>
     year: "numeric",
   }).format(date);
 
-const jsonld = {
+const articleUrl = new URL(Astro.url.pathname, Astro.site).toString();
+const articleSchema = {
   "@context": "https://schema.org",
-  "@type": "Article",
+  "@type": "TechArticle",
   headline: title,
   description: description,
+  url: articleUrl,
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": articleUrl,
+  },
   author: {
     "@type": "Person",
     name: "Huynh Minh Tri",
+    alternateName: ["Huỳnh Minh Trí", "Tri Huynh"],
+    url: "https://trihuynh.omnimer.io.vn/",
+    sameAs: [
+      "https://github.com/HuynhTri-dev",
+      "https://www.linkedin.com/in/huỳnh-minh-trí-bb71a0259",
+    ],
+  },
+  publisher: {
+    "@type": "Person",
+    name: "Huynh Minh Tri",
+    url: "https://trihuynh.omnimer.io.vn/",
   },
   image: new URL(thumbnail, Astro.site).toString(),
-  datePublished: pubDate,
-  dateModified: updatedDate || pubDate,
+  datePublished: pubDate.toISOString(),
+  dateModified: (updatedDate || pubDate).toISOString(),
   keywords: seoKeywords.length ? seoKeywords.join(", ") : hashtags.join(", "),
+  articleSection: kbCategory,
+  inLanguage: "vi-VN",
 };
+
+let jsonld: any = articleSchema;
+if (attachedProblems.length > 0) {
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: attachedProblems.map((p) => ({
+      "@type": "Question",
+      name: p.title,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: `Nguyên nhân: ${p.root_cause || ""}. Cách xử lý đã kiểm chứng: ${p.solution_markdown || ""}`,
+      },
+    })),
+  };
+  jsonld = {
+    "@context": "https://schema.org",
+    "@graph": [articleSchema, faqSchema],
+  };
+}
 ---
 
 <BaseLayout 
@@ -250,6 +290,9 @@ const jsonld = {
         )}
       </div>
     </div>
+
+    <!-- Inbound Engineering & Consulting Lead Conversion Funnel -->
+    <ArticleConsultingCta articleCategory={kbCategory} />
 
     <footer class="article-footer">
       <p data-en="Have a related idea or want to discuss the system?" data-vi="Bạn có ý tưởng liên quan hoặc muốn trao đổi thêm về hệ thống?">
