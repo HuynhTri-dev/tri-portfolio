@@ -15,7 +15,7 @@ const anchor = (id: string) => (isHome ? `#${id}` : `/#${id}`);
       aria-label="Huynh Minh Tri home"
     >
       <img
-        src="/logo.png"
+        src="/logo.png?v=3"
         alt="Huynh Minh Tri Logo"
         class="mobile-brand-logo"
         width="26"
@@ -56,11 +56,11 @@ const anchor = (id: string) => (isHome ? `#${id}` : `/#${id}`);
         aria-current={isHome ? "page" : undefined}
       >
         <img
-          src="/logo.png"
+          src="/logo.png?v=3"
           alt="Huynh Minh Tri Logo"
           class="medallion-logo"
-          width="38"
-          height="38"
+          width="44"
+          height="34"
         />
         <small data-en="Home" data-vi="Trang chủ">Home</small>
       </a>
@@ -243,10 +243,13 @@ const anchor = (id: string) => (isHome ? `#${id}` : `/#${id}`);
   .home-medallion {
     position: relative;
     z-index: 3;
-    display: grid;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
     width: 102px;
     height: 102px;
-    place-items: center;
     justify-self: center;
     align-self: center;
     border: 7px solid #3e291d;
@@ -254,8 +257,8 @@ const anchor = (id: string) => (isHome ? `#${id}` : `/#${id}`);
     background:
       radial-gradient(
         circle at 45% 35%,
-        rgb(24 199 133 / 20%),
-        transparent 42%
+        rgb(24 199 133 / 24%),
+        transparent 46%
       ),
       #081610;
     box-shadow:
@@ -263,36 +266,28 @@ const anchor = (id: string) => (isHome ? `#${id}` : `/#${id}`);
       inset 0 0 0 5px rgb(24 199 133 / 10%),
       0 0 0 1px rgb(24 199 133 / 45%),
       0 14px 40px rgb(0 0 0 / 45%);
+    text-decoration: none;
   }
 
   .medallion-logo {
-    margin-top: 10px;
-    width: 38px;
-    height: 38px;
-    border-radius: 8px;
-    object-fit: cover;
-    box-shadow: 0 4px 14px rgb(24 199 133 / 24%);
-    transition: transform var(--duration-fast) ease;
+    width: 44px;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 10px rgb(24 199 133 / 35%));
+    transition: transform var(--duration-fast) ease, filter var(--duration-fast) ease;
   }
 
   .home-medallion:hover .medallion-logo {
-    transform: scale(1.08);
-  }
-
-  .home-medallion span {
-    margin-top: 8px;
-    color: var(--brand-soft);
-    font-family: var(--font-mono);
-    font-size: 1rem;
-    letter-spacing: 0.08em;
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 14px rgb(24 199 133 / 60%));
   }
 
   .home-medallion small {
-    margin-top: -28px;
+    margin: 0;
     color: var(--text-muted);
     font-family: var(--font-mono);
     font-size: 0.52rem;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
   }
 
@@ -360,9 +355,9 @@ const anchor = (id: string) => (isHome ? `#${id}` : `/#${id}`);
 
     .mobile-brand-logo {
       width: 26px;
-      height: 26px;
-      border-radius: 6px;
-      object-fit: cover;
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 1px 6px rgb(24 199 133 / 35%));
     }
 
     .mobile-actions,
