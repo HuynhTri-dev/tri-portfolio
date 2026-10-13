@@ -85,6 +85,8 @@ img {
 }
 
 .section {
+  position: relative;
+  z-index: 1;
   padding-top: 104px;
   padding-bottom: 104px;
   border-top: 1px solid rgb(142 190 166 / 12%);
@@ -137,7 +139,8 @@ img {
 
 .skip-link:focus { transform: translateY(0); }
 
-.ambient-layer {
+.ambient-layer,
+.system-depth-container {
   position: fixed;
   inset: 0;
   z-index: 0;
