@@ -1,5 +1,10 @@
 ---
+/**
+ * Name: index.astro
+ * Description: Homepage entry point featuring personal portfolio sections and interactive 3D system depth background.
+ */
 import BaseLayout from "../layouts/BaseLayout.astro";
+import SystemDepthBackground from "../components/home/SystemDepthBackground.astro";
 import Hero from "../components/home/Hero.astro";
 import EducationSection from "../components/home/EducationSection.astro";
 import ExperienceSection from "../components/home/ExperienceSection.astro";
@@ -40,6 +45,7 @@ const personJsonLd = {
   description="Portfolio of Huynh Minh Tri, a Software Developer based in Vietnam specializing in scalable backend systems, Agentic AI integrations, and Internet of Things (IoT)."
   jsonld={personJsonLd}
 >
+  <SystemDepthBackground />
   <Hero />
   <EducationSection />
   <ExperienceSection />

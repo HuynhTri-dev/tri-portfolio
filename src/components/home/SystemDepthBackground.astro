@@ -1,0 +1,449 @@
+---
+/**
+ * Name: SystemDepthBackground.astro
+ * Description: Interactive 3D WebGL background featuring low-poly tech trees,
+ *              perspective depth corridor frames, and scroll-driven descent into the system.
+ */
+---
+
+<div class="system-depth-container" aria-hidden="true">
+  <canvas id="system-depth-canvas"></canvas>
+  <div class="system-depth-overlay"></div>
+</div>
+
+<script>
+  /**
+   * Name: systemDepthEngine
+   * Description: Initializes Three.js WebGL scene with procedural low-poly forest,
+   *              depth perspective tunnel portals, and camera scroll-dive interpolation.
+   */
+  import * as THREE from "three";
+
+  interface TreeConfig {
+    x: number;
+    y: number;
+    z: number;
+    scale: number;
+    type: "pine" | "crystal";
+    hueShift?: number;
+  }
+
+  function initSystemDepth(): () => void {
+    const canvas = document.getElementById(
+      "system-depth-canvas",
+    ) as HTMLCanvasElement | null;
+    if (!canvas) return () => {};
+
+    const container = canvas.parentElement;
+    if (!container) return () => {};
+
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    // --- Scene & Fog Setup ---
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x050b09, 0.024);
+
+    const width = container.clientWidth || window.innerWidth;
+    const height = container.clientHeight || window.innerHeight;
+
+    const camera = new THREE.PerspectiveCamera(48, width / height, 0.1, 140);
+    camera.position.set(0, 2.2, 14);
+
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      alpha: true,
+      powerPreference: "high-performance",
+    });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
+
+    // --- Lighting ---
+    const ambientLight = new THREE.AmbientLight(0x8cb8a3, 0.85);
+    scene.add(ambientLight);
+
+    const keyLight = new THREE.DirectionalLight(0xbde8d5, 1.4);
+    keyLight.position.set(6, 12, 8);
+    scene.add(keyLight);
+
+    const cyanPointLight = new THREE.PointLight(0x3b82f6, 18, 30);
+    cyanPointLight.position.set(-6, 3, 2);
+    scene.add(cyanPointLight);
+
+    const emeraldPointLight = new THREE.PointLight(0x2fb88a, 22, 35);
+    emeraldPointLight.position.set(6, 2, -10);
+    scene.add(emeraldPointLight);
+
+    const movingCoreLight = new THREE.PointLight(0x4ee2b4, 15, 25);
+    movingCoreLight.position.set(0, 0, -20);
+    scene.add(movingCoreLight);
+
+    const worldGroup = new THREE.Group();
+    scene.add(worldGroup);
+
+    // --- Ground Perspective Grid ---
+    const gridGround = new THREE.GridHelper(70, 36, 0x1f5c45, 0x0c251b);
+    gridGround.position.y = -2.2;
+    if (Array.isArray(gridGround.material)) {
+      gridGround.material.forEach((m) => {
+        m.transparent = true;
+        m.opacity = 0.35;
+      });
+    } else {
+      gridGround.material.transparent = true;
+      gridGround.material.opacity = 0.35;
+    }
+    worldGroup.add(gridGround);
+
+    // --- Depth Perspective Frame / Cyber Tunnel Portals ---
+    // Creates a succession of rectangular depth frames guiding the eye into the system core.
+    const portalGroup = new THREE.Group();
+    worldGroup.add(portalGroup);
+
+    const portalZPositions = [6, -2, -10, -18, -26, -34, -42];
+    const frameMaterials: THREE.LineBasicMaterial[] = [];
+
+    portalZPositions.forEach((pz, idx) => {
+      const pWidth = 14 + idx * 0.4;
+      const pHeight = 8.5 + idx * 0.3;
+      const rectGeo = new THREE.BufferGeometry();
+
+      // Outer rectangle frame points
+      const hw = pWidth / 2;
+      const hh = pHeight / 2;
+      const vertices = new Float32Array([
+        -hw, -hh, 0,  hw, -hh, 0,
+         hw, -hh, 0,  hw,  hh, 0,
+         hw,  hh, 0, -hw,  hh, 0,
+        -hw,  hh, 0, -hw, -hh, 0,
+        // Corner HUD accent tick marks
+        -hw + 1.2, hh, 0, -hw, hh, 0,
+        -hw, hh - 1.2, 0, -hw, hh, 0,
+         hw - 1.2, hh, 0,  hw, hh, 0,
+         hw, hh - 1.2, 0,  hw, hh, 0,
+      ]);
+      rectGeo.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
+
+      const isCyan = idx % 2 === 0;
+      const frameMat = new THREE.LineBasicMaterial({
+        color: isCyan ? 0x3b82f6 : 0x2fb88a,
+        transparent: true,
+        opacity: Math.max(0.12, 0.45 - idx * 0.05),
+      });
+      frameMaterials.push(frameMat);
+
+      const frameLine = new THREE.LineSegments(rectGeo, frameMat);
+      frameLine.position.set(0, 1.8, pz);
+      portalGroup.add(frameLine);
+    });
+
+    // Longitudinal perspective corridor rails connecting the portals
+    const railPositions = [
+      [-7, -2.4],
+      [7, -2.4],
+      [-7, 6],
+      [7, 6],
+    ];
+    railPositions.forEach(([rx, ry]) => {
+      const railGeo = new THREE.BufferGeometry();
+      const railPoints = new Float32Array([
+        rx, ry, 12,
+        rx * 1.1, ry * 1.1, -48,
+      ]);
+      railGeo.setAttribute("position", new THREE.BufferAttribute(railPoints, 3));
+      const railMat = new THREE.LineBasicMaterial({
+        color: 0x205542,
+        transparent: true,
+        opacity: 0.35,
+      });
+      const rail = new THREE.Line(railGeo, railMat);
+      portalGroup.add(rail);
+    });
+
+    // --- Low Poly Trees Factory ---
+    const trunkMat = new THREE.MeshStandardMaterial({
+      color: 0x14271e,
+      roughness: 0.85,
+      flatShading: true,
+    });
+
+    /**
+     * Creates a procedural Low Poly tree (Pine or Crystal type)
+     * @param type - Tree geometry variation
+     * @param scale - Scale multiplier
+     * @param hueShift - Color variation offset
+     * @returns Group containing the assembled Low Poly tree mesh
+     */
+    function createLowPolyTree(
+      type: "pine" | "crystal",
+      scale: number,
+      hueShift = 0,
+    ): THREE.Group {
+      const tree = new THREE.Group();
+
+      // Shared low-poly trunk (pentagonal cylinder with 5 facets)
+      const trunkGeo = new THREE.CylinderGeometry(0.16, 0.28, 2.0, 5);
+      const trunkMesh = new THREE.Mesh(trunkGeo, trunkMat);
+      trunkMesh.position.y = 1.0;
+      tree.add(trunkMesh);
+
+      if (type === "pine") {
+        // Multi-tiered faceted cone foliage
+        const foliageTiers = [
+          { radius: 1.35, height: 1.8, y: 2.2, color: 0x164d3a },
+          { radius: 1.05, height: 1.6, y: 3.2, color: 0x1e6149 },
+          { radius: 0.75, height: 1.4, y: 4.1, color: 0x277a5d },
+        ];
+
+        foliageTiers.forEach((tier, tIdx) => {
+          const coneGeo = new THREE.ConeGeometry(tier.radius, tier.height, 5);
+          const leafMat = new THREE.MeshStandardMaterial({
+            color: tier.color + hueShift,
+            roughness: 0.5,
+            metalness: 0.15,
+            flatShading: true,
+          });
+          const coneMesh = new THREE.Mesh(coneGeo, leafMat);
+          coneMesh.position.y = tier.y;
+          // Offset facet angles per tier for low-poly variety
+          coneMesh.rotation.y = tIdx * 0.75;
+          tree.add(coneMesh);
+        });
+      } else {
+        // Crystal / Icosahedron faceted crown foliage
+        const crystalGeo1 = new THREE.IcosahedronGeometry(1.05, 0);
+        const crystalGeo2 = new THREE.IcosahedronGeometry(0.72, 0);
+        const crystalMat = new THREE.MeshStandardMaterial({
+          color: 0x1c674e + hueShift,
+          roughness: 0.35,
+          metalness: 0.25,
+          flatShading: true,
+        });
+
+        const crown1 = new THREE.Mesh(crystalGeo1, crystalMat);
+        crown1.position.y = 2.4;
+        tree.add(crown1);
+
+        const crown2 = new THREE.Mesh(crystalGeo2, crystalMat);
+        crown2.position.set(0.3, 3.2, 0.1);
+        tree.add(crown2);
+      }
+
+      tree.scale.setScalar(scale);
+      return tree;
+    }
+
+    // --- Scatter Trees along Left and Right verges ---
+    const treeGroup = new THREE.Group();
+    worldGroup.add(treeGroup);
+
+    const treeConfigs: TreeConfig[] = [
+      // Left verge (staggered from front to deep back)
+      { x: -5.8, y: -2.2, z: 7, scale: 1.15, type: "pine" },
+      { x: -7.5, y: -2.2, z: 2, scale: 1.45, type: "crystal", hueShift: 0x051508 },
+      { x: -5.2, y: -2.2, z: -4, scale: 0.95, type: "pine" },
+      { x: -8.2, y: -2.2, z: -11, scale: 1.55, type: "pine", hueShift: 0x071b0c },
+      { x: -6.0, y: -2.2, z: -18, scale: 1.1, type: "crystal" },
+      { x: -7.2, y: -2.2, z: -27, scale: 1.35, type: "pine" },
+      { x: -5.6, y: -2.2, z: -37, scale: 1.05, type: "crystal" },
+
+      // Right verge (staggered from front to deep back)
+      { x: 5.6, y: -2.2, z: 8, scale: 1.05, type: "crystal" },
+      { x: 7.6, y: -2.2, z: 3, scale: 1.4, type: "pine", hueShift: 0x06180a },
+      { x: 5.4, y: -2.2, z: -3, scale: 0.9, type: "crystal" },
+      { x: 8.0, y: -2.2, z: -10, scale: 1.6, type: "pine" },
+      { x: 6.2, y: -2.2, z: -19, scale: 1.15, type: "pine", hueShift: 0x051206 },
+      { x: 7.5, y: -2.2, z: -29, scale: 1.4, type: "crystal" },
+      { x: 5.8, y: -2.2, z: -39, scale: 1.0, type: "pine" },
+    ];
+
+    treeConfigs.forEach((cfg) => {
+      const tree = createLowPolyTree(cfg.type, cfg.scale, cfg.hueShift);
+      tree.position.set(cfg.x, cfg.y, cfg.z);
+      // Random subtle Y rotation
+      tree.rotation.y = Math.random() * Math.PI * 2;
+      treeGroup.add(tree);
+    });
+
+    // --- Ambient System Data Particles ---
+    const particleCount = 750;
+    const pPositions = new Float32Array(particleCount * 3);
+    const pColors = new Float32Array(particleCount * 3);
+
+    for (let i = 0; i < particleCount; i++) {
+      pPositions[i * 3] = (Math.random() - 0.5) * 28;
+      pPositions[i * 3 + 1] = -2.0 + Math.random() * 11;
+      pPositions[i * 3 + 2] = 12 - Math.random() * 58;
+
+      const isBlue = Math.random() > 0.72;
+      pColors[i * 3] = isBlue ? 0.23 : 0.18;
+      pColors[i * 3 + 1] = isBlue ? 0.51 : 0.76;
+      pColors[i * 3 + 2] = isBlue ? 0.96 : 0.58;
+    }
+
+    const particleGeo = new THREE.BufferGeometry();
+    particleGeo.setAttribute(
+      "position",
+      new THREE.BufferAttribute(pPositions, 3),
+    );
+    particleGeo.setAttribute("color", new THREE.BufferAttribute(pColors, 3));
+
+    const particleMat = new THREE.PointsMaterial({
+      size: 0.05,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.65,
+      sizeAttenuation: true,
+    });
+    const particleSystem = new THREE.Points(particleGeo, particleMat);
+    scene.add(particleSystem);
+
+    // --- Interactive State & Scroll Dive ---
+    let targetProgress = 0;
+    let currentProgress = 0;
+    let targetMouseX = 0;
+    let currentMouseX = 0;
+    let targetMouseY = 0;
+    let currentMouseY = 0;
+
+    /**
+     * Calculates normalized page scroll depth [0.0 to 1.0]
+     */
+    function onScroll(): void {
+      const maxScroll = Math.max(
+        1,
+        document.documentElement.scrollHeight - window.innerHeight,
+      );
+      targetProgress = Math.min(1, Math.max(0, window.scrollY / maxScroll));
+    }
+
+    /**
+     * Tracks normalized cursor position for subtle 3D parallax
+     */
+    function onPointerMove(e: MouseEvent): void {
+      targetMouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+      targetMouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+    }
+
+    /**
+     * Handles window resize with camera aspect ratio update
+     */
+    function onResize(): void {
+      if (!canvas || !container) return;
+      const w = container.clientWidth || window.innerWidth;
+      const h = container.clientHeight || window.innerHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("mousemove", onPointerMove, { passive: true });
+    window.addEventListener("resize", onResize);
+    onScroll();
+
+    // --- Animation Loop ---
+    let animId = 0;
+    let startTime = performance.now();
+    let isVisible = true;
+
+    function onVisibilityChange(): void {
+      isVisible = !document.hidden;
+      if (isVisible) startTime = performance.now();
+    }
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    function animate(): void {
+      animId = requestAnimationFrame(animate);
+      if (!isVisible) return;
+
+      const elapsed = (performance.now() - startTime) * 0.001;
+
+      // Smooth Lerp damping for scroll dive
+      const lerpFactor = prefersReducedMotion ? 0.03 : 0.055;
+      currentProgress += (targetProgress - currentProgress) * lerpFactor;
+      currentMouseX += (targetMouseX - currentMouseX) * 0.04;
+      currentMouseY += (targetMouseY - currentMouseY) * 0.04;
+
+      // Camera dive trajectory: moves from Z=14 down to Z=-32 as user scrolls down!
+      const startZ = 13.5;
+      const endZ = -32.0;
+      const targetCamZ = startZ + (endZ - startZ) * currentProgress;
+
+      // Gentle vertical elevation change and slight tilt as you go deeper
+      const targetCamY = 1.9 - currentProgress * 0.85 + currentMouseY * 0.25;
+      const targetCamX = currentMouseX * 0.7;
+
+      camera.position.z = targetCamZ;
+      camera.position.y = targetCamY;
+      camera.position.x = targetCamX;
+
+      // Look slightly ahead along the corridor
+      const lookTargetZ = targetCamZ - 10;
+      camera.lookAt(0, 0.4, lookTargetZ);
+
+      // Subtle dynamic breathing lights
+      movingCoreLight.position.z = targetCamZ - 8;
+      movingCoreLight.intensity = 14 + Math.sin(elapsed * 1.5) * 3;
+      cyanPointLight.intensity = 16 + Math.cos(elapsed * 1.2) * 2;
+
+      // Slow particle float
+      particleSystem.rotation.y = elapsed * 0.008;
+
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    // Cleanup hook
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("mousemove", onPointerMove);
+      window.removeEventListener("resize", onResize);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      renderer.dispose();
+    };
+  }
+
+  // Self-initialize on DOM ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => initSystemDepth());
+  } else {
+    initSystemDepth();
+  }
+</script>
+
+<style>
+  .system-depth-container {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  #system-depth-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: none;
+  }
+
+  /* Soft gradient vignette to ensure foreground typography remains razor sharp */
+  .system-depth-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse at 50% 50%,
+      transparent 35%,
+      rgba(5, 11, 9, 0.55) 85%,
+      rgba(5, 11, 9, 0.85) 100%
+    );
+  }
+</style>
