@@ -1,0 +1,12 @@
+; Merge vào [from-internal] trong /etc/asterisk/extensions.conf
+
+exten => 9999,1,NoOp(=== Pipecat voicebot bank === caller ${CALLERID(num)})
+ same => n,Set(BOT_CALLER=${CALLERID(num)})
+ same => n,Set(VOICEBOT_REC_DIR=/var/spool/asterisk/monitor/voicebot)
+ same => n,System(mkdir -p ${VOICEBOT_REC_DIR} && chown asterisk:asterisk ${VOICEBOT_REC_DIR})
+ same => n,Answer()
+ same => n,Set(MIXMON_FILE=${VOICEBOT_REC_DIR}/voicebot-${STRFTIME(${EPOCH},,%Y%m%d-%H%M%S)}-${BOT_CALLER}-${CHANNEL(linkedid)})
+ same => n,MixMonitor(${MIXMON_FILE}.wav,b,/opt/pipecat-voicebot/scripts/mixmonitor_post.sh ^{MIXMONITOR_FILENAME})
+ same => n,Dial(WebSocket/pipecat/c(slin16)v(caller=${URIENCODE(${BOT_CALLER})},linkedid=${URIENCODE(${CHANNEL(linkedid)})}))
+ same => n,NoOp(Voicebot end DIALSTATUS=${DIALSTATUS})
+ same => n,Hangup()

@@ -1,0 +1,12 @@
+; Merge vào /etc/asterisk/websocket_client.conf
+; Port 10003 — khớp PIPECAT_PORT trong .env
+
+[pipecat]
+type = websocket_client
+uri = ws://127.0.0.1:10003/asterisk
+protocols = media
+connection_type = per_call_config
+connection_timeout = 5000
+reconnect_interval = 1000
+reconnect_attempts = 3
+tls_enabled = no

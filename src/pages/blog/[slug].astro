@@ -4,7 +4,7 @@
  * @description Dynamic blog article reader supporting both static showcase MDX and real-time Cloudflare D1 Knowledge Base posts with verified troubleshooting problems.
  */
 import { getCollection, render } from "astro:content";
-import { marked } from "marked";
+import { renderMarkdown } from "../../lib/services/markdown.service";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { KnowledgeService, type ProblemRecord } from "../../lib/services/knowledge.service";
 import "katex/dist/katex.min.css";
@@ -71,8 +71,8 @@ if (staticEntry) {
   kbCategory = dbArticle.kb_category;
   summaryForAgents = dbArticle.summary_for_agents || "";
 
-  // Render raw markdown to HTML using marked
-  dynamicHtmlContent = await marked.parse(dbArticle.raw_markdown);
+  // Render raw markdown to HTML with Prism syntax highlighting
+  dynamicHtmlContent = await renderMarkdown(dbArticle.raw_markdown);
 }
 
 // 3. Load attached troubleshooting problems from D1
@@ -82,7 +82,7 @@ try {
   attachedProblems = await Promise.all(
     rawProblems.map(async (p) => ({
       ...p,
-      renderedSolution: await marked.parse(p.solution_markdown),
+      renderedSolution: await renderMarkdown(p.solution_markdown),
     }))
   );
 } catch (err) {
@@ -619,6 +619,62 @@ const jsonld = {
     padding: 22px;
     border: 0;
     background: transparent;
+    color: #e1e4e8;
+  }
+
+  /* Syntax Highlighting for dynamic Prism code blocks (GitHub Dark matching Shiki) */
+  .article-body :global(.token.keyword),
+  .solution-content :global(.token.keyword) {
+    color: #f97583;
+  }
+
+  .article-body :global(.token.string),
+  .article-body :global(.token.string-interpolation),
+  .solution-content :global(.token.string),
+  .solution-content :global(.token.string-interpolation) {
+    color: #9ecbff;
+  }
+
+  .article-body :global(.token.comment),
+  .solution-content :global(.token.comment) {
+    color: #6a737d;
+    font-style: italic;
+  }
+
+  .article-body :global(.token.function),
+  .solution-content :global(.token.function) {
+    color: #b392f0;
+  }
+
+  .article-body :global(.token.class-name),
+  .solution-content :global(.token.class-name) {
+    color: #b392f0;
+  }
+
+  .article-body :global(.token.number),
+  .article-body :global(.token.boolean),
+  .article-body :global(.token.builtin),
+  .solution-content :global(.token.number),
+  .solution-content :global(.token.boolean),
+  .solution-content :global(.token.builtin) {
+    color: #79b8ff;
+  }
+
+  .article-body :global(.token.operator),
+  .solution-content :global(.token.operator) {
+    color: #f97583;
+  }
+
+  .article-body :global(.token.punctuation),
+  .solution-content :global(.token.punctuation) {
+    color: #e1e4e8;
+  }
+
+  .article-body :global(.token.property),
+  .article-body :global(.token.parameter),
+  .solution-content :global(.token.property),
+  .solution-content :global(.token.parameter) {
+    color: #ffab70;
   }
 
   /* KaTeX Math Styling */
@@ -861,8 +917,22 @@ const jsonld = {
     overflow-x: auto;
   }
 
-  .solution-content :global(code) {
+  .solution-content :global(:not(pre) > code) {
+    padding: 0.18em 0.38em;
+    border: 1px solid var(--border-default);
+    border-radius: 5px;
+    background: rgb(24 199 133 / 7%);
     color: #4eedb0;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+  }
+
+  .solution-content :global(pre code) {
+    display: block;
+    padding: 14px;
+    border: 0;
+    background: transparent;
+    color: #e1e4e8;
     font-family: var(--font-mono);
     font-size: 0.78rem;
   }
