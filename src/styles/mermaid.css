@@ -1,0 +1,293 @@
+/**
+ * @name mermaid.css
+ * @description Enhanced styling for Mermaid Architecture Diagrams with rich controls,
+ * full-resolution pan/zoom viewport, custom scrollbars, and fullscreen lightbox modal.
+ */
+
+/* Container Card */
+.mermaid-diagram-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin: 36px 0;
+  border: 1px solid rgb(117 230 178 / 25%);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 94% 0%, rgb(59 130 246 / 12%), transparent 36%),
+    linear-gradient(180deg, rgb(8 24 17 / 95%), rgb(4 14 10 / 96%));
+  box-shadow:
+    0 14px 36px -8px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgb(255 255 255 / 4%);
+  overflow: hidden;
+  isolation: isolate;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mermaid-diagram-card:hover {
+  border-color: rgb(117 230 178 / 40%);
+  box-shadow:
+    0 16px 40px -8px rgba(0, 0, 0, 0.55),
+    0 0 24px -4px rgb(24 199 133 / 12%),
+    inset 0 1px 0 rgb(255 255 255 / 6%);
+}
+
+/* Toolbar Header */
+.mermaid-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgb(117 230 178 / 15%);
+  background: rgb(5 16 11 / 92%);
+  backdrop-filter: blur(8px);
+  user-select: none;
+  font-family: var(--font-mono, "IBM Plex Mono", monospace);
+  z-index: 2;
+}
+
+.mermaid-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.mermaid-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--brand-green, #18c785);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.mermaid-badge::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--brand-green, #18c785);
+  box-shadow: 0 0 8px var(--brand-green, #18c785);
+}
+
+.mermaid-scroll-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgb(24 199 133 / 12%);
+  border: 1px solid rgb(117 230 178 / 25%);
+  color: var(--brand-soft, #75e6b2);
+  font-size: 0.64rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  animation: mermaidHintPulse 3s infinite ease-in-out;
+}
+
+@keyframes mermaidHintPulse {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.02); }
+}
+
+.mermaid-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.mermaid-zoom-label {
+  display: inline-block;
+  min-width: 42px;
+  text-align: center;
+  color: var(--text-muted, #83938a);
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.mermaid-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 6px;
+  border: 1px solid rgb(117 230 178 / 20%);
+  background: rgb(11 37 26 / 60%);
+  color: var(--brand-soft, #75e6b2);
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mermaid-btn:hover {
+  border-color: rgb(24 199 133 / 60%);
+  background: rgb(24 199 133 / 22%);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.mermaid-btn:active {
+  transform: translateY(0);
+}
+
+.mermaid-btn span {
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+/* Scrollable Viewport (Both X and Y overflow) */
+.mermaid-viewport {
+  position: relative;
+  width: 100%;
+  max-height: 75vh;
+  overflow: auto;
+  padding: 24px 20px;
+  cursor: grab;
+  scrollbar-color: rgb(117 230 178 / 32%) rgb(4 12 8 / 40%);
+  scrollbar-width: thin;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mermaid-viewport.is-dragging {
+  cursor: grabbing !important;
+  user-select: none;
+}
+
+/* Custom WebKit Scrollbars */
+.mermaid-viewport::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.mermaid-viewport::-webkit-scrollbar-track {
+  background: rgb(3 12 8 / 60%);
+  border-radius: 4px;
+}
+.mermaid-viewport::-webkit-scrollbar-thumb {
+  background: rgb(24 199 133 / 35%);
+  border-radius: 4px;
+  border: 1px solid rgb(117 230 178 / 20%);
+}
+.mermaid-viewport::-webkit-scrollbar-thumb:hover {
+  background: rgb(24 199 133 / 65%);
+}
+
+/* Content Container - uses flexbox margin: auto for overflow-safe centering */
+.mermaid-content {
+  display: flex;
+  width: max-content;
+  min-width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+/* Mermaid SVG */
+.mermaid-content svg {
+  margin: auto;
+  display: block;
+  max-width: none !important; /* CRITICAL: Never force downscale on wide diagrams! */
+  height: auto;
+  transition: width 0.15s ease-out;
+}
+
+/* Fullscreen Lightbox Modal */
+.mermaid-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  background: rgb(3 10 7 / 95%);
+  backdrop-filter: blur(16px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease-in-out;
+}
+
+.mermaid-modal-backdrop.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mermaid-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 24px;
+  border-bottom: 1px solid rgb(117 230 178 / 20%);
+  background: rgb(5 16 11 / 95%);
+  user-select: none;
+  font-family: var(--font-mono, "IBM Plex Mono", monospace);
+}
+
+.mermaid-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--brand-green, #18c785);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.mermaid-modal-viewport {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  padding: 40px;
+  cursor: grab;
+  scrollbar-color: rgb(117 230 178 / 35%) transparent;
+  scrollbar-width: thin;
+  display: flex;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mermaid-modal-viewport.is-dragging {
+  cursor: grabbing !important;
+  user-select: none;
+}
+
+.mermaid-modal-content {
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  min-width: 100%;
+  min-height: 100%;
+}
+
+.mermaid-modal-content svg {
+  margin: auto;
+  display: block;
+  max-width: none !important;
+  height: auto;
+  transition: width 0.15s ease-out;
+}
+
+@media (max-width: 640px) {
+  .mermaid-toolbar {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+  .mermaid-scroll-hint span {
+    display: none;
+  }
+  .mermaid-zoom-label {
+    display: none;
+  }
+}

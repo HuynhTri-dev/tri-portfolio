@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./tokens.css";
+@import "./mermaid.css";
 
 * {
   box-sizing: border-box;

@@ -23,6 +23,9 @@ export default defineConfig({
     })
   },
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()],
+    optimizeDeps: {
+      include: ['mermaid', 'katex/dist/contrib/auto-render.mjs'],
+    },
   }
 });
