@@ -3,6 +3,7 @@
  * Name: SystemDepthBackground.astro
  * Description: Interactive 3D WebGL background featuring low-poly tech trees,
  *              perspective depth corridor frames, and scroll-driven descent into the system.
+ *              Optimized with progressive deferred loading so content renders instantly first.
  */
 ---
 
@@ -16,8 +17,9 @@
    * Name: systemDepthEngine
    * Description: Initializes Three.js WebGL scene with procedural low-poly forest,
    *              depth perspective tunnel portals, and camera scroll-dive interpolation.
+   *              Employs dynamic code splitting and idle scheduling so all core page content
+   *              renders first before progressive 3D fade-in.
    */
-  import * as THREE from "three";
 
   interface TreeConfig {
     x: number;
@@ -28,7 +30,11 @@
     hueShift?: number;
   }
 
-  function initSystemDepth(): () => void {
+  /**
+   * Initializes the Three.js WebGL scene asynchronously after dynamic import.
+   * @returns Cleanup callback function to teardown listeners and GPU resources.
+   */
+  async function initSystemDepth(): Promise<() => void> {
     const canvas = document.getElementById(
       "system-depth-canvas",
     ) as HTMLCanvasElement | null;
@@ -41,6 +47,9 @@
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
+    // Dynamically import Three.js to keep critical initial page bundle ultra-light
+    const THREE = await import("three");
+
     // --- Scene & Fog Setup ---
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x050b09, 0.024);
@@ -51,14 +60,19 @@
     const camera = new THREE.PerspectiveCamera(48, width / height, 0.1, 140);
     camera.position.set(0, 2.2, 14);
 
+    const isMobile = window.innerWidth < 768;
+    const maxPixelRatio = isMobile ? 1.0 : 1.35;
+
     const renderer = new THREE.WebGLRenderer({
       canvas,
-      antialias: true,
+      antialias: !isMobile,
       alpha: true,
       powerPreference: "high-performance",
     });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.setPixelRatio(
+      Math.min(window.devicePixelRatio || 1, maxPixelRatio),
+    );
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.15;
 
@@ -100,19 +114,17 @@
     worldGroup.add(gridGround);
 
     // --- Depth Perspective Frame / Cyber Tunnel Portals ---
-    // Creates a succession of rectangular depth frames guiding the eye into the system core.
     const portalGroup = new THREE.Group();
     worldGroup.add(portalGroup);
 
     const portalZPositions = [6, -2, -10, -18, -26, -34, -42];
-    const frameMaterials: THREE.LineBasicMaterial[] = [];
+    const frameMaterials: InstanceType<typeof THREE.LineBasicMaterial>[] = [];
 
     portalZPositions.forEach((pz, idx) => {
       const pWidth = 14 + idx * 0.4;
       const pHeight = 8.5 + idx * 0.3;
       const rectGeo = new THREE.BufferGeometry();
 
-      // Outer rectangle frame points
       const hw = pWidth / 2;
       const hh = pHeight / 2;
       const vertices = new Float32Array([
@@ -120,7 +132,6 @@
          hw, -hh, 0,  hw,  hh, 0,
          hw,  hh, 0, -hw,  hh, 0,
         -hw,  hh, 0, -hw, -hh, 0,
-        // Corner HUD accent tick marks
         -hw + 1.2, hh, 0, -hw, hh, 0,
         -hw, hh - 1.2, 0, -hw, hh, 0,
          hw - 1.2, hh, 0,  hw, hh, 0,
@@ -164,7 +175,17 @@
       portalGroup.add(rail);
     });
 
-    // --- Low Poly Trees Factory ---
+    // --- Shared Geometries & Materials for Low-Poly Trees ---
+    // Reusing geometries across all instances minimizes GPU memory overhead & draw overhead
+    const sharedTrunkGeo = new THREE.CylinderGeometry(0.16, 0.28, 2.0, 5);
+    const sharedPineConeGeos = [
+      new THREE.ConeGeometry(1.35, 1.8, 5),
+      new THREE.ConeGeometry(1.05, 1.6, 5),
+      new THREE.ConeGeometry(0.75, 1.4, 5),
+    ];
+    const sharedCrystalGeo1 = new THREE.IcosahedronGeometry(1.05, 0);
+    const sharedCrystalGeo2 = new THREE.IcosahedronGeometry(0.72, 0);
+
     const trunkMat = new THREE.MeshStandardMaterial({
       color: 0x14271e,
       roughness: 0.85,
@@ -172,51 +193,43 @@
     });
 
     /**
-     * Creates a procedural Low Poly tree (Pine or Crystal type)
-     * @param type - Tree geometry variation
+     * Creates a procedural Low Poly tree using shared geometries for peak performance.
+     * @param type - Tree geometry variation ('pine' or 'crystal')
      * @param scale - Scale multiplier
      * @param hueShift - Color variation offset
-     * @returns Group containing the assembled Low Poly tree mesh
+     * @returns Group containing the assembled tree mesh
      */
     function createLowPolyTree(
       type: "pine" | "crystal",
       scale: number,
       hueShift = 0,
-    ): THREE.Group {
+    ): InstanceType<typeof THREE.Group> {
       const tree = new THREE.Group();
 
-      // Shared low-poly trunk (pentagonal cylinder with 5 facets)
-      const trunkGeo = new THREE.CylinderGeometry(0.16, 0.28, 2.0, 5);
-      const trunkMesh = new THREE.Mesh(trunkGeo, trunkMat);
+      const trunkMesh = new THREE.Mesh(sharedTrunkGeo, trunkMat);
       trunkMesh.position.y = 1.0;
       tree.add(trunkMesh);
 
       if (type === "pine") {
-        // Multi-tiered faceted cone foliage
         const foliageTiers = [
-          { radius: 1.35, height: 1.8, y: 2.2, color: 0x164d3a },
-          { radius: 1.05, height: 1.6, y: 3.2, color: 0x1e6149 },
-          { radius: 0.75, height: 1.4, y: 4.1, color: 0x277a5d },
+          { y: 2.2, color: 0x164d3a },
+          { y: 3.2, color: 0x1e6149 },
+          { y: 4.1, color: 0x277a5d },
         ];
 
         foliageTiers.forEach((tier, tIdx) => {
-          const coneGeo = new THREE.ConeGeometry(tier.radius, tier.height, 5);
           const leafMat = new THREE.MeshStandardMaterial({
             color: tier.color + hueShift,
             roughness: 0.5,
             metalness: 0.15,
             flatShading: true,
           });
-          const coneMesh = new THREE.Mesh(coneGeo, leafMat);
+          const coneMesh = new THREE.Mesh(sharedPineConeGeos[tIdx], leafMat);
           coneMesh.position.y = tier.y;
-          // Offset facet angles per tier for low-poly variety
           coneMesh.rotation.y = tIdx * 0.75;
           tree.add(coneMesh);
         });
       } else {
-        // Crystal / Icosahedron faceted crown foliage
-        const crystalGeo1 = new THREE.IcosahedronGeometry(1.05, 0);
-        const crystalGeo2 = new THREE.IcosahedronGeometry(0.72, 0);
         const crystalMat = new THREE.MeshStandardMaterial({
           color: 0x1c674e + hueShift,
           roughness: 0.35,
@@ -224,11 +237,11 @@
           flatShading: true,
         });
 
-        const crown1 = new THREE.Mesh(crystalGeo1, crystalMat);
+        const crown1 = new THREE.Mesh(sharedCrystalGeo1, crystalMat);
         crown1.position.y = 2.4;
         tree.add(crown1);
 
-        const crown2 = new THREE.Mesh(crystalGeo2, crystalMat);
+        const crown2 = new THREE.Mesh(sharedCrystalGeo2, crystalMat);
         crown2.position.set(0.3, 3.2, 0.1);
         tree.add(crown2);
       }
@@ -242,7 +255,6 @@
     worldGroup.add(treeGroup);
 
     const treeConfigs: TreeConfig[] = [
-      // Left verge (staggered from front to deep back)
       { x: -5.8, y: -2.2, z: 7, scale: 1.15, type: "pine" },
       { x: -7.5, y: -2.2, z: 2, scale: 1.45, type: "crystal", hueShift: 0x051508 },
       { x: -5.2, y: -2.2, z: -4, scale: 0.95, type: "pine" },
@@ -250,8 +262,6 @@
       { x: -6.0, y: -2.2, z: -18, scale: 1.1, type: "crystal" },
       { x: -7.2, y: -2.2, z: -27, scale: 1.35, type: "pine" },
       { x: -5.6, y: -2.2, z: -37, scale: 1.05, type: "crystal" },
-
-      // Right verge (staggered from front to deep back)
       { x: 5.6, y: -2.2, z: 8, scale: 1.05, type: "crystal" },
       { x: 7.6, y: -2.2, z: 3, scale: 1.4, type: "pine", hueShift: 0x06180a },
       { x: 5.4, y: -2.2, z: -3, scale: 0.9, type: "crystal" },
@@ -264,13 +274,12 @@
     treeConfigs.forEach((cfg) => {
       const tree = createLowPolyTree(cfg.type, cfg.scale, cfg.hueShift);
       tree.position.set(cfg.x, cfg.y, cfg.z);
-      // Random subtle Y rotation
       tree.rotation.y = Math.random() * Math.PI * 2;
       treeGroup.add(tree);
     });
 
     // --- Ambient System Data Particles ---
-    const particleCount = 750;
+    const particleCount = isMobile ? 320 : 650;
     const pPositions = new Float32Array(particleCount * 3);
     const pColors = new Float32Array(particleCount * 3);
 
@@ -311,7 +320,7 @@
     let currentMouseY = 0;
 
     /**
-     * Calculates normalized page scroll depth [0.0 to 1.0]
+     * Calculates normalized page scroll depth [0.0 to 1.0].
      */
     function onScroll(): void {
       const maxScroll = Math.max(
@@ -322,29 +331,39 @@
     }
 
     /**
-     * Tracks normalized cursor position for subtle 3D parallax
+     * Tracks normalized cursor position for subtle 3D parallax.
+     * @param e - Mouse event
      */
     function onPointerMove(e: MouseEvent): void {
       targetMouseX = (e.clientX / window.innerWidth - 0.5) * 2;
       targetMouseY = (e.clientY / window.innerHeight - 0.5) * 2;
     }
 
+    let resizeTimer = 0;
     /**
-     * Handles window resize with camera aspect ratio update
+     * Handles window resize with camera aspect ratio update.
      */
     function onResize(): void {
       if (!canvas || !container) return;
-      const w = container.clientWidth || window.innerWidth;
-      const h = container.clientHeight || window.innerHeight;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        const w = container.clientWidth || window.innerWidth;
+        const h = container.clientHeight || window.innerHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+      }, 100);
     }
 
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("mousemove", onPointerMove, { passive: true });
-    window.addEventListener("resize", onResize);
+    // Set initial scroll progress immediately based on current scroll position
     onScroll();
+    currentProgress = targetProgress;
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    if (!isMobile) {
+      window.addEventListener("mousemove", onPointerMove, { passive: true });
+    }
+    window.addEventListener("resize", onResize, { passive: true });
 
     // --- Animation Loop ---
     let animId = 0;
@@ -353,7 +372,17 @@
 
     function onVisibilityChange(): void {
       isVisible = !document.hidden;
-      if (isVisible) startTime = performance.now();
+      if (isVisible) {
+        startTime = performance.now();
+        if (!animId) {
+          animId = requestAnimationFrame(animate);
+        }
+      } else {
+        if (animId) {
+          cancelAnimationFrame(animId);
+          animId = 0;
+        }
+      }
     }
     document.addEventListener("visibilitychange", onVisibilityChange);
 
@@ -369,7 +398,7 @@
       currentMouseX += (targetMouseX - currentMouseX) * 0.04;
       currentMouseY += (targetMouseY - currentMouseY) * 0.04;
 
-      // Camera dive trajectory: moves from Z=14 down to Z=-32 as user scrolls down!
+      // Camera dive trajectory: moves from Z=13.5 down to Z=-32 as user scrolls down
       const startZ = 13.5;
       const endZ = -32.0;
       const targetCamZ = startZ + (endZ - startZ) * currentProgress;
@@ -397,25 +426,121 @@
       renderer.render(scene, camera);
     }
 
+    // Render very first frame
+    renderer.render(scene, camera);
+
+    // Progressive Smooth Fade-in:
+    // Once the first frame is rendered on GPU, smoothly fade the canvas into view
+    // so content is already crisp, clear, and stable with zero jarring pop-in.
+    requestAnimationFrame(() => {
+      canvas.classList.add("is-visible");
+    });
+
     animate();
 
     // Cleanup hook
     return () => {
-      cancelAnimationFrame(animId);
+      if (animId) cancelAnimationFrame(animId);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("mousemove", onPointerMove);
       window.removeEventListener("resize", onResize);
       document.removeEventListener("visibilitychange", onVisibilityChange);
+
+      sharedTrunkGeo.dispose();
+      sharedPineConeGeos.forEach((g) => g.dispose());
+      sharedCrystalGeo1.dispose();
+      sharedCrystalGeo2.dispose();
+      particleGeo.dispose();
+      particleMat.dispose();
+      trunkMat.dispose();
       renderer.dispose();
     };
   }
 
-  // Self-initialize on DOM ready
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => initSystemDepth());
-  } else {
-    initSystemDepth();
+  /**
+   * Schedules initialization of 3D system depth using an idle/interaction strategy.
+   * Ensures 100% of the DOM, typography, layout, and primary images are displayed first.
+   */
+  function scheduleSystemDepth(): void {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
+    // Quick WebGL support check
+    try {
+      const testCanvas = document.createElement("canvas");
+      const gl =
+        testCanvas.getContext("webgl") ||
+        testCanvas.getContext("experimental-webgl");
+      if (!gl) return;
+    } catch {
+      return;
+    }
+
+    let hasStarted = false;
+    let cleanupFn: (() => void) | null = null;
+
+    const start = () => {
+      if (hasStarted) return;
+      hasStarted = true;
+      cleanupListeners();
+      initSystemDepth().then((cleanup) => {
+        cleanupFn = cleanup;
+      });
+    };
+
+    const cleanupListeners = () => {
+      window.removeEventListener("scroll", onFirstInteraction);
+      window.removeEventListener("pointerdown", onFirstInteraction);
+      window.removeEventListener("touchstart", onFirstInteraction);
+      window.removeEventListener("keydown", onFirstInteraction);
+    };
+
+    const onFirstInteraction = () => {
+      start();
+    };
+
+    // Fast-path: If user interacts immediately, start bootstrapping without waiting for full idle
+    window.addEventListener("scroll", onFirstInteraction, {
+      passive: true,
+      once: true,
+    });
+    window.addEventListener("pointerdown", onFirstInteraction, {
+      passive: true,
+      once: true,
+    });
+    window.addEventListener("touchstart", onFirstInteraction, {
+      passive: true,
+      once: true,
+    });
+    window.addEventListener("keydown", onFirstInteraction, {
+      passive: true,
+      once: true,
+    });
+
+    // Progressive deferral: Wait for window load event + browser idle
+    const deferUntilIdle = () => {
+      if ("requestIdleCallback" in window) {
+        (window as any).requestIdleCallback(
+          () => {
+            // Generous breathing room for initial rendering, font layout, and image decodes
+            setTimeout(start, 250);
+          },
+          { timeout: 2500 },
+        );
+      } else {
+        setTimeout(start, 500);
+      }
+    };
+
+    if (document.readyState === "complete") {
+      deferUntilIdle();
+    } else {
+      window.addEventListener("load", deferUntilIdle, { once: true });
+    }
   }
+
+  scheduleSystemDepth();
 </script>
 
 <style>
@@ -432,6 +557,14 @@
     height: 100%;
     display: block;
     pointer-events: none;
+    opacity: 0;
+    /* Silky-smooth progressive fade-in after content has stabilized */
+    transition: opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity;
+  }
+
+  #system-depth-canvas.is-visible {
+    opacity: 1;
   }
 
   /* Soft gradient vignette to ensure foreground typography remains razor sharp */

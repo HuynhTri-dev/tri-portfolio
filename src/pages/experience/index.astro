@@ -1,54 +1,105 @@
 ---
 /**
  * @name index.astro (experience)
- * @description Track record & workplace directory listing all professional engineering roles and organizations.
+ * @description Track record & workplace directory listing all professional engineering roles, client engagements, and organizations.
  */
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { experiences } from "../../data/portfolio";
+
+const experienceListSchema = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "itemListElement": experiences.map((exp, idx) => ({
+    "@type": "ListItem",
+    "position": idx + 1,
+    "name": `${exp.roleEn} at ${exp.orgName}`,
+    "url": `https://trihuynh.omnimer.io.vn/experience/${exp.id}`,
+  })),
+};
+
+const getModelPill = (item: (typeof experiences)[0]) => {
+  if (item.model === "outsource") {
+    return {
+      en: `${item.projects.length} Client Projects`,
+      vi: `${item.projects.length} Dự án Khách hàng`,
+      icon: "fa-solid fa-layer-group",
+    };
+  }
+  if (item.model === "product") {
+    return {
+      en: "Flagship Enterprise Product",
+      vi: "Sản phẩm Doanh nghiệp Cốt lõi",
+      icon: "fa-solid fa-boxes-stacked",
+    };
+  }
+  if (item.model === "rd_team") {
+    return {
+      en: `${item.projects.length} AI Applications`,
+      vi: `${item.projects.length} Ứng dụng AI`,
+      icon: "fa-solid fa-brain",
+    };
+  }
+  return {
+    en: "Core Platform",
+    vi: "Nền tảng Kỹ thuật Lõi",
+    icon: "fa-solid fa-cloud",
+  };
+};
 ---
 
 <BaseLayout
   title="Experience & Track Record — Huynh Minh Tri"
   description="Professional workplaces, engineering roles, and core architectural responsibilities connecting code to real-world operational impact."
 >
+  <script type="application/ld+json" set:html={JSON.stringify(experienceListSchema)} />
+
   <section class="experience-index shell">
     <header class="index-hero">
       <span class="section-index">TRACK RECORD / 04 ORGANIZATIONS</span>
       <h1 data-en="Work & Affiliations" data-vi="Nơi làm việc & Tổ chức">
         Work & Affiliations
       </h1>
-      <p data-en="Engineering environments, core system responsibilities, and operational track record." data-vi="Môi trường kỹ thuật, trọng trách hệ thống cốt lõi và hành trình thực tế.">
-        Engineering environments, core system responsibilities, and operational track record.
+      <p data-en="Engineering environments, client engagements, and operational track record." data-vi="Môi trường kỹ thuật, dự án khách hàng và hành trình thực tế.">
+        Engineering environments, client engagements, and operational track record.
       </p>
     </header>
 
     <div class="exp-card-grid">
-      {experiences.map((item) => (
-        <article class="exp-overview-card panel">
-          <div class="exp-card-top">
-            <div class="logo-box">
-              <img src={item.logo} alt={item.orgName} />
+      {experiences.map((item) => {
+        const modelInfo = getModelPill(item);
+        return (
+          <article class="exp-overview-card panel">
+            <div class="exp-card-top">
+              <div class="logo-box">
+                <img src={item.logo} alt={item.orgName} width="54" height="54" loading="lazy" />
+              </div>
+              <div class="tag-cluster">
+                <span class="model-tag">
+                  <i class={modelInfo.icon} aria-hidden="true"></i>
+                  <span data-en={modelInfo.en} data-vi={modelInfo.vi}>{modelInfo.en}</span>
+                </span>
+                <span class:list={["badge-tag", `badge-tag--${item.badgeType}`]}>
+                  <span data-en={item.badgeEn} data-vi={item.badgeVi}>{item.badgeEn}</span>
+                </span>
+              </div>
             </div>
-            <span class:list={["badge-tag", `badge-tag--${item.badgeType}`]}>
-              <span data-en={item.badgeEn} data-vi={item.badgeVi}>{item.badgeEn}</span>
-            </span>
-          </div>
 
-          <div class="exp-card-body">
-            <span class="exp-period" data-en={item.periodEn} data-vi={item.periodVi}>{item.periodEn}</span>
-            <h2 class="org-name">{item.orgName}</h2>
-            <strong class="role-name" data-en={item.roleEn} data-vi={item.roleVi}>{item.roleEn}</strong>
-            <p class="role-desc" data-en={item.overviewEn} data-vi={item.overviewVi}>{item.overviewEn}</p>
-          </div>
+            <div class="exp-card-body">
+              <span class="exp-period" data-en={item.periodEn} data-vi={item.periodVi}>{item.periodEn}</span>
+              <h2 class="org-name">{item.orgName}</h2>
+              <strong class="role-name" data-en={item.roleEn} data-vi={item.roleVi}>{item.roleEn}</strong>
+              <p class="role-desc" data-en={item.overviewEn} data-vi={item.overviewVi}>{item.overviewEn}</p>
+            </div>
 
-          <div class="exp-card-footer">
-            <a href={`/experience/${item.id}`} class="btn-detail">
-              <span data-en="View role & tasks" data-vi="Xem chi tiết công việc">View role & tasks</span>
-              <i class="fa-solid fa-arrow-right"></i>
-            </a>
-          </div>
-        </article>
-      ))}
+            <div class="exp-card-footer">
+              <a href={`/experience/${item.id}`} class="btn-detail">
+                <span data-en="View role & projects" data-vi="Xem chi tiết vai trò & dự án">View role & projects</span>
+                <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+              </a>
+            </div>
+          </article>
+        );
+      })}
     </div>
   </section>
 </BaseLayout>
@@ -130,6 +181,33 @@ import { experiences } from "../../data/portfolio";
     width: 100%;
     height: 100%;
     object-fit: contain;
+  }
+
+  .tag-cluster {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .model-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    border-radius: var(--radius-pill);
+    background: rgb(255 255 255 / 4%);
+    border: 1px solid rgb(255 255 255 / 8%);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    font-weight: 600;
+  }
+
+  .model-tag i {
+    color: var(--brand-soft);
+    font-size: 0.52rem;
   }
 
   .badge-tag {

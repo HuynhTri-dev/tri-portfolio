@@ -5,6 +5,39 @@
  */
 import SectionHeading from "../ui/SectionHeading.astro";
 import { experiences } from "../../data/portfolio";
+
+const getScopeLabel = (item: (typeof experiences)[0]) => {
+  if (item.model === "outsource") {
+    return {
+      labelEn: "CLIENT ENGAGEMENTS & SYSTEMS",
+      labelVi: "DỰ ÁN KHÁCH HÀNG & PHÂN HỆ",
+      valueEn: `${item.projects.length} Projects: Sacombank Voicebot · Vietmap · ZaloPay`,
+      valueVi: `${item.projects.length} Dự án: Voicebot Sacombank · Vietmap · ZaloPay`,
+    };
+  }
+  if (item.model === "product") {
+    return {
+      labelEn: "FLAGSHIP ENTERPRISE SYSTEM",
+      labelVi: "SẢN PHẨM DOANH NGHIỆP CỐT LÕI",
+      valueEn: item.project.titleEn,
+      valueVi: item.project.titleVi,
+    };
+  }
+  if (item.model === "rd_team") {
+    return {
+      labelEn: "CONNECTED AI ECOSYSTEM",
+      labelVi: "HỆ SINH THÁI AI KẾT NỐI",
+      valueEn: `${item.projects.length} Applications: Health & Food AI`,
+      valueVi: `${item.projects.length} Ứng dụng: AI Sức khỏe & Dinh dưỡng`,
+    };
+  }
+  return {
+    labelEn: "CORE PLATFORM & ARCHITECTURE",
+    labelVi: "NỀN TẢNG KỸ THUẬT LÕI",
+    valueEn: item.project.titleEn,
+    valueVi: item.project.titleVi,
+  };
+};
 ---
 
 <section class="section shell" id="experience">
@@ -12,79 +45,82 @@ import { experiences } from "../../data/portfolio";
     index="02 / TRACK RECORD"
     titleEn="Work & Affiliations"
     titleVi="Nơi làm việc & Tổ chức"
-    descriptionEn="Engineering workplaces and core product responsibilities connecting code to real-world operational impact."
-    descriptionVi="Môi trường làm việc chuyên nghiệp và trọng trách sản phẩm cốt lõi gắn liền với thực tiễn."
+    descriptionEn="Engineering workplaces, client engagements, and core product responsibilities connecting code to real-world operational impact."
+    descriptionVi="Môi trường làm việc chuyên nghiệp, dự án khách hàng và trọng trách sản phẩm cốt lõi gắn liền với thực tiễn."
   />
 
   <div class="experience-grid">
     {
-      experiences.map((item) => (
-        <article class:list={["experience-card", "panel", `type-${item.badgeType}`]}>
-          <div class="card-inner-top">
-            <!-- Header: Company Logo, Org Info & Status Badge -->
-            <div class="card-top">
-              <div class="org-brand-wrap">
-                <div class="company-logo-frame">
-                  <img src={item.logo} alt={item.orgName} class="company-logo-img" width="36" height="36" />
+      experiences.map((item) => {
+        const scope = getScopeLabel(item);
+        return (
+          <article class:list={["experience-card", "panel", `type-${item.badgeType}`]}>
+            <div class="card-inner-top">
+              <!-- Header: Company Logo, Org Info & Status Badge -->
+              <div class="card-top">
+                <div class="org-brand-wrap">
+                  <div class="company-logo-frame">
+                    <img src={item.logo} alt={item.orgName} class="company-logo-img" width="36" height="36" loading="lazy" />
+                  </div>
+                  <div class="org-info">
+                    <h3 class="org-title">{item.orgName}</h3>
+                    <span class="period-pill" data-en={item.periodEn} data-vi={item.periodVi}>
+                      <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                      {item.periodEn}
+                    </span>
+                  </div>
                 </div>
-                <div class="org-info">
-                  <h3 class="org-title">{item.orgName}</h3>
-                  <span class="period-pill" data-en={item.periodEn} data-vi={item.periodVi}>
-                    <i class="fa-regular fa-clock" aria-hidden="true"></i>
-                    {item.periodEn}
-                  </span>
-                </div>
+
+                <span class:list={["badge-pill", `badge-${item.badgeType}`]}>
+                  {item.badgeType === "current" && <span class="pulse-indicator" aria-hidden="true"></span>}
+                  <span data-en={item.badgeEn} data-vi={item.badgeVi}>{item.badgeEn}</span>
+                </span>
               </div>
 
-              <span class:list={["badge-pill", `badge-${item.badgeType}`]}>
-                {item.badgeType === "current" && <span class="pulse-indicator" aria-hidden="true"></span>}
-                <span data-en={item.badgeEn} data-vi={item.badgeVi}>{item.badgeEn}</span>
-              </span>
+              <!-- Role Title & Location -->
+              <div class="role-row">
+                <h4 class="role-name" data-en={item.roleEn} data-vi={item.roleVi}>
+                  {item.roleEn}
+                </h4>
+                <span class="location-text" data-en={item.locationEn} data-vi={item.locationVi}>
+                  <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                  {item.locationEn}
+                </span>
+              </div>
+
+              <!-- Connected System / Engagements Box (Uniform Min-Height) -->
+              <div class="connected-product-box">
+                <span class="product-label" data-en={scope.labelEn} data-vi={scope.labelVi}>{scope.labelEn}</span>
+                <strong class="product-name" data-en={scope.valueEn} data-vi={scope.valueVi}>
+                  {scope.valueEn}
+                </strong>
+              </div>
+
+              <!-- Tech Stack Row -->
+              <div class="tech-row">
+                {item.technologies.slice(0, 4).map((tech) => (
+                  <span class="tech-badge">{tech}</span>
+                ))}
+              </div>
             </div>
 
-            <!-- Role Title & Location -->
-            <div class="role-row">
-              <h4 class="role-name" data-en={item.roleEn} data-vi={item.roleVi}>
-                {item.roleEn}
-              </h4>
-              <span class="location-text" data-en={item.locationEn} data-vi={item.locationVi}>
-                <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
-                {item.locationEn}
-              </span>
-            </div>
-
-            <!-- Connected System Box (Uniform Min-Height) -->
-            <div class="connected-product-box">
-              <span class="product-label" data-en="CONNECTED SYSTEM" data-vi="SẢN PHẨM GẮN LIỀN">CONNECTED SYSTEM</span>
-              <strong class="product-name" data-en={item.project.titleEn} data-vi={item.project.titleVi}>
-                {item.project.titleEn}
-              </strong>
-            </div>
-
-            <!-- Tech Stack Row -->
-            <div class="tech-row">
-              {item.technologies.slice(0, 4).map((tech) => (
-                <span class="tech-badge">{tech}</span>
-              ))}
-            </div>
-          </div>
-
-          <!-- Bottom Action Buttons (Always Aligned to Bottom) -->
-          <div class="card-action-footer">
-            <a href={`/experience/${item.id}`} class="btn-role-detail">
-              <span data-en="View role & tasks" data-vi="Chi tiết công việc & nhiệm vụ">View role & tasks</span>
-              <i class="fa-solid fa-arrow-right"></i>
-            </a>
-
-            {item.orgHref && (
-              <a href={item.orgHref} target="_blank" rel="noreferrer" class="btn-org-link" aria-label={`Visit ${item.orgName}`}>
-                <span data-en="Website" data-vi="Trang web">Website</span>
-                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            <!-- Bottom Action Buttons (Always Aligned to Bottom) -->
+            <div class="card-action-footer">
+              <a href={`/experience/${item.id}`} class="btn-role-detail">
+                <span data-en="View role & projects" data-vi="Chi tiết vai trò & dự án">View role & projects</span>
+                <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
               </a>
-            )}
-          </div>
-        </article>
-      ))
+
+              {item.orgHref && (
+                <a href={item.orgHref} target="_blank" rel="noreferrer" class="btn-org-link" aria-label={`Visit official portal of ${item.orgName}`}>
+                  <span data-en="Website" data-vi="Trang web">Website</span>
+                  <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                </a>
+              )}
+            </div>
+          </article>
+        );
+      })
     }
   </div>
 </section>

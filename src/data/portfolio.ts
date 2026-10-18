@@ -408,8 +408,31 @@ export type ExperienceTask = {
   icon?: string;
 };
 
+export type WorkplaceModel = "product" | "outsource" | "rd_team" | "core_tech";
+
+export type ProjectEngagement = {
+  id: string;
+  titleEn: string;
+  titleVi: string;
+  roleEn?: string;
+  roleVi?: string;
+  clientDomainEn?: string;
+  clientDomainVi?: string;
+  periodEn?: string;
+  periodVi?: string;
+  isConfidential?: boolean;
+  statusEn: string;
+  statusVi: string;
+  descriptionEn: string;
+  descriptionVi: string;
+  tasks?: ExperienceTask[];
+  technologies: string[];
+  links?: ExperienceLink[];
+};
+
 export type ExperienceItem = {
   id: string;
+  model: WorkplaceModel;
   badgeEn: string;
   badgeVi: string;
   badgeType: "current" | "enterprise" | "core" | "team";
@@ -425,22 +448,16 @@ export type ExperienceItem = {
   overviewEn: string;
   overviewVi: string;
   detailHref: string;
+  projects: ProjectEngagement[];
   tasks: ExperienceTask[];
-  project: {
-    titleEn: string;
-    titleVi: string;
-    statusEn: string;
-    statusVi: string;
-    descriptionEn: string;
-    descriptionVi: string;
-    links: ExperienceLink[];
-  };
+  project: ProjectEngagement;
   technologies: string[];
 };
 
 export const experiences: ExperienceItem[] = [
   {
     id: "idb",
+    model: "outsource",
     badgeEn: "CURRENT WORKPLACE",
     badgeVi: "VỊ TRÍ HIỆN TẠI",
     badgeType: "current",
@@ -453,60 +470,240 @@ export const experiences: ExperienceItem[] = [
     periodVi: "2026 — HIỆN TẠI",
     locationEn: "Ho Chi Minh City, Vietnam",
     locationVi: "TP. Hồ Chí Minh, Việt Nam",
-    overviewEn: "Enterprise software engineering, core backend services, and internal platform architecture.",
-    overviewVi: "Kỹ thuật phần mềm doanh nghiệp, phát triển dịch vụ backend cốt lõi và kiến trúc nền tảng nội bộ.",
+    overviewEn: "Enterprise client solutions, telecom & 3CX PBX integration, voicebot AI development for commercial banks (Sacombank, Nam A Bank, TNEX), loan clearance document automation, and realtime Redis/RabbitMQ event pipelines.",
+    overviewVi: "Phát triển giải pháp kỹ thuật khách hàng doanh nghiệp, tích hợp tổng đài 3CX, phát triển Voicebot AI cho hệ thống ngân hàng (Sacombank, Nam Á Bank, TNEX), tự động hóa văn bản pháp lý tín dụng và đường ống dữ liệu thời gian thực Redis/RabbitMQ.",
     detailHref: "/experience/idb",
+    projects: [
+      {
+        id: "idb-sacombank-voicebot",
+        titleEn: "Sacombank Enterprise Voicebot AI System",
+        titleVi: "Hệ thống Voicebot AI Ngân hàng Sacombank",
+        roleEn: "Core Voicebot Developer",
+        roleVi: "Lập trình viên Lõi Voicebot AI",
+        clientDomainEn: "Tier-1 Commercial Banking & Financial Services (Sacombank)",
+        clientDomainVi: "Ngân hàng Thương mại & Dịch vụ Tài chính (Sacombank)",
+        periodEn: "OCT 2026 — PRESENT",
+        periodVi: "T10/2026 — HIỆN TẠI",
+        isConfidential: true,
+        statusEn: "Production Core Dev · Active Deployment",
+        statusVi: "Phát triển Lõi · Đang triển khai thực tế",
+        descriptionEn: "Main developer engineering the intelligent conversational voicebot system for Sacombank. Architecting low-latency audio streaming pipelines, dialogue state machines, banking customer service workflows, and backend API integrations.",
+        descriptionVi: "Lập trình viên chính phát triển hệ thống Voicebot AI thông minh cho Ngân hàng Sacombank. Xây dựng đường ống âm thanh độ trễ thấp, máy trạng thái hội thoại tự động, kịch bản nghiệp vụ ngân hàng và tích hợp API backend.",
+        tasks: [
+          {
+            titleEn: "Voicebot Core Engine & Dialogue Flow",
+            titleVi: "Phát triển Lõi Voicebot & Luồng Hội thoại",
+            descriptionEn: "Implemented core conversation orchestrations, intent recognition, and dynamic fallback handling for banking queries.",
+            descriptionVi: "Phát triển bộ điều phối hội thoại lõi, nhận diện ý định và cơ chế xử lý fallback linh hoạt cho các truy vấn ngân hàng.",
+            icon: "fa-solid fa-robot",
+          },
+          {
+            titleEn: "Sub-Second Latency Audio Optimization",
+            titleVi: "Tối ưu hóa Độ trễ Luồng Âm thanh",
+            descriptionEn: "Fine-tuned streaming audio pipelines with STT and TTS integrations ensuring natural customer response latency (<800ms).",
+            descriptionVi: "Tinh chỉnh luồng âm thanh streaming kết hợp STT/TTS đảm bảo phản hồi tức thì và tự nhiên với khách hàng (<800ms).",
+            icon: "fa-solid fa-headset",
+          },
+        ],
+        technologies: ["Python", "FastAPI", "Voicebot AI", "STT/TTS", "Banking Integration", "Redis"],
+      },
+      {
+        id: "idb-vietmap-telephony",
+        titleEn: "Vietmap 3CX Multi-Leg Telephony & RabbitMQ Pipeline",
+        titleVi: "Xử lý Vòng đời Cuộc gọi 3CX Multi-Leg & RabbitMQ (Vietmap)",
+        roleEn: "Telephony & Integration Engineer",
+        roleVi: "Kỹ sư Tích hợp & Xử lý Viễn thông",
+        clientDomainEn: "Logistics & Digital Map Telephony (Vietmap)",
+        clientDomainVi: "Viễn thông Vận tải & Bản đồ Số (Vietmap)",
+        periodEn: "OCT 2026",
+        periodVi: "T10/2026",
+        isConfidential: true,
+        statusEn: "Resolved & Verified in Production",
+        statusVi: "Đã xử lý dứt điểm & Vận hành thực tế",
+        descriptionEn: "Resolved a critical data loss defect occurring when 3CX agents answered and transferred calls across multiple legs, causing missing action logs in PBX services. Engineered an algorithm to track and map call legs via CallID, ensuring full and accurate event delivery to RabbitMQ queues.",
+        descriptionVi: "Xử lý dứt điểm lỗi mất dữ liệu action khi điện thoại viên trên 3CX bắt máy và chuyển leg khiến PBX Service gửi thiếu dữ liệu cho RabbitMQ. Viết thuật toán theo dõi Leg qua CallID để ánh xạ chuẩn xác toàn bộ vòng đời cuộc gọi, đảm bảo gửi đủ và đúng 100% action sự kiện vào RabbitMQ.",
+        tasks: [
+          {
+            titleEn: "Call Leg Tracking & CallID Mapping Algorithm",
+            titleVi: "Thuật toán Theo dõi Leg & Ánh xạ CallID",
+            descriptionEn: "Engineered stateful tracking to correlate disparate 3CX call legs into unified call action sequences.",
+            descriptionVi: "Thiết kế cơ chế theo dõi trạng thái đồng bộ các leg cuộc gọi rời rạc trên 3CX thành chuỗi sự kiện hoàn chỉnh.",
+            icon: "fa-solid fa-diagram-project",
+          },
+          {
+            titleEn: "RabbitMQ Event Pipeline Delivery",
+            titleVi: "Đường ống Luồng Sự kiện RabbitMQ",
+            descriptionEn: "Guaranteed reliable message queue publishing with zero dropped events for downstream analytics.",
+            descriptionVi: "Đảm bảo xuất bản message vào RabbitMQ tin cậy, không thất thoát sự kiện phục vụ các dịch vụ phân tích phía sau.",
+            icon: "fa-solid fa-arrows-split-up-and-left",
+          },
+        ],
+        technologies: ["C#", ".NET", "RabbitMQ", "3CX Phone System", "Event-Driven"],
+      },
+      {
+        id: "idb-welcome-report",
+        titleEn: "Loan Settlement Clearance Automation & Legal Document Engine",
+        titleVi: "Hệ thống Xuất Giấy tờ Tất toán Khoản vay & Tự động hóa Pháp lý",
+        roleEn: "Backend Engineer & Solution Developer",
+        roleVi: "Kỹ sư Backend & Phát triển Giải pháp",
+        clientDomainEn: "Banking & Consumer Lending Operations",
+        clientDomainVi: "Tài chính Tiêu dùng & Cho vay Ngân hàng",
+        periodEn: "OCT 2026",
+        periodVi: "T10/2026",
+        isConfidential: true,
+        statusEn: "Production Operational · Handover Complete",
+        statusVi: "Vận hành Thực tế · Đã bàn giao tài liệu",
+        descriptionEn: "Engineered an automated clearance document engine (Notice of Loan - NOL) exporting settlement verification files to PDF and Word with digital signatures and corporate seals. Built contract override mechanisms, signatory delegation (Director / Authorized Rep), document numbering, revision tracking, download metrics, optimized queries, and comprehensive audit logs.",
+        descriptionVi: "Xây dựng hệ thống tự động xuất giấy tờ hoàn tất thanh toán khoản vay (NOL) ra PDF và Word có gán chữ ký điện tử và con dấu (mộc). Cho phép override thông tin hợp đồng, chọn người ký (Giám đốc / Người được ủy quyền), quản lý số văn bản, phiên bản, số lần tải; tối ưu truy vấn CSDL, thiết kế log vận hành và soạn thảo tài liệu bàn giao.",
+        tasks: [
+          {
+            titleEn: "Legal Document Generation & Digital Stamps",
+            titleVi: "Tự động Xuất Giấy tờ PDF/Word & Gán Con dấu",
+            descriptionEn: "Automated generation of loan clearance certificates with digital signature and corporate stamp placement.",
+            descriptionVi: "Tự động hóa xuất chứng nhận tất toán kèm chèn chữ ký số và con dấu pháp lý của người đại diện có thẩm quyền.",
+            icon: "fa-solid fa-file-signature",
+          },
+          {
+            titleEn: "Contract Override & Operational Audit Logs",
+            titleVi: "Cơ chế Override Hợp đồng & Nhật ký Vận hành",
+            descriptionEn: "Implemented versioning, document numbering, download counts, and strict database audit tracking in MySQL.",
+            descriptionVi: "Xây dựng quản lý phiên bản, cấp số công văn, đếm lượt tải và ghi nhận nhật ký kiểm toán vận hành trên MySQL.",
+            icon: "fa-solid fa-clock-rotate-left",
+          },
+        ],
+        technologies: ["Python", "FastAPI", "MySQL", "Joget Workflow", "PDF/Word Automation", "Digital Signature"],
+      },
+      {
+        id: "idb-zalo-call-monitor",
+        titleEn: "Zalo Call Monitor · Realtime Telephony Dashboard (ZaloPay)",
+        titleVi: "Hệ thống Giám sát Cuộc gọi Realtime ZaloPay (3CX to Redis)",
+        roleEn: "Backend Engineer (Realtime Telephony Data)",
+        roleVi: "Kỹ sư Backend (Dữ liệu Viễn thông Thời gian thực)",
+        clientDomainEn: "Fintech & Payment Gateway (ZaloPay)",
+        clientDomainVi: "Fintech & Cổng Thanh toán Điện tử (ZaloPay)",
+        periodEn: "SEP 2026",
+        periodVi: "T09/2026",
+        isConfidential: true,
+        statusEn: "Production Operational · Handover Complete",
+        statusVi: "Đã Bàn giao & Đang vận hành",
+        descriptionEn: "Engineered high-throughput backend services collecting realtime telephony statistics from 3CX Phone System and caching live metrics into Redis to power the supervisor dashboard portal for ZaloPay support teams. Authored complete operational handover documentation.",
+        descriptionVi: "Phát triển dịch vụ backend thu thập dữ liệu cuộc gọi thời gian thực từ tổng đài 3CX và lưu trữ vào Redis để frontend đẩy lên Dashboard giám sát cho đội ngũ vận hành ZaloPay. Biên soạn toàn bộ tài liệu kỹ thuật bàn giao.",
+        tasks: [
+          {
+            titleEn: "3CX Realtime Data Ingestion to Redis",
+            titleVi: "Thu thập Dữ liệu Cuộc gọi 3CX sang Redis",
+            descriptionEn: "Extracted call metrics from 3CX APIs and streamed active queues into low-latency Redis cache.",
+            descriptionVi: "Trích xuất dữ liệu cuộc gọi từ 3CX và đồng bộ luồng hàng đợi cuộc gọi vào Redis với độ trễ tối thiểu.",
+            icon: "fa-solid fa-database",
+          },
+          {
+            titleEn: "Technical Handover Documentation",
+            titleVi: "Soạn thảo Tài liệu Bàn giao Kỹ thuật",
+            descriptionEn: "Documented architecture specs, failover procedures, and data models for maintenance teams.",
+            descriptionVi: "Viết tài liệu kiến trúc, quy trình xử lý sự cố và mô hình dữ liệu bàn giao cho đội ngũ vận hành.",
+            icon: "fa-solid fa-book",
+          },
+        ],
+        technologies: ["C#", ".NET", "Redis", "3CX Phone System", "REST APIs", "Documentation"],
+      },
+      {
+        id: "idb-aqua-call-monitor",
+        titleEn: "Aqua CRM · Realtime Call Monitor & Redis Cache Optimization",
+        titleVi: "Tối ưu Dữ liệu Call Monitor Redis cho CRM Aqua",
+        roleEn: "Telephony Support & Data Engineer",
+        roleVi: "Kỹ sư Hỗ trợ Viễn thông & Dữ liệu",
+        clientDomainEn: "Enterprise CRM & Consumer Electronics (Aqua)",
+        clientDomainVi: "Hệ thống CRM & Điện máy Doanh nghiệp (Aqua)",
+        periodEn: "SEP 2026 — OCT 2026",
+        periodVi: "T09/2026 — T10/2026",
+        isConfidential: true,
+        statusEn: "Production Stabilized",
+        statusVi: "Đã ổn định Vận hành",
+        descriptionEn: "Investigated, debugged, and resolved call data processing anomalies between the PBX monitor and Redis cache, ensuring accurate live call volume metrics on the supervisor CRM dashboard for Aqua customer care.",
+        descriptionVi: "Hỗ trợ điều tra, gỡ lỗi và khắc phục sai lệch dữ liệu cuộc gọi giữa tổng đài và Redis cache, đảm bảo số liệu cuộc gọi thời gian thực hiển thị chuẩn xác trên Dashboard quản trị CRM của Aqua.",
+        tasks: [
+          {
+            titleEn: "Redis Cache Synchronization & Anomaly Debugging",
+            titleVi: "Khắc phục Sai lệch Dữ liệu & Đồng bộ Redis",
+            descriptionEn: "Identified race conditions in call event updates and implemented atomic Redis data updates.",
+            descriptionVi: "Phát hiện race condition khi cập nhật sự kiện cuộc gọi và áp dụng cơ chế cập nhật nguyên tử trên Redis.",
+            icon: "fa-solid fa-bug",
+          },
+        ],
+        technologies: ["Redis", "C#", "CRM Integration", "3CX Telephony", "Data Debugging"],
+      },
+      {
+        id: "idb-voicebot-poc",
+        titleEn: "Commercial Banking Voicebot QA-QC & Multi-Bank PoC Demos",
+        titleVi: "QA-QC & Triển khai PoC Voicebot Ngân hàng (Sacombank, Nam Á Bank, TNEX)",
+        roleEn: "Voice AI QA & PoC Specialist",
+        roleVi: "Chuyên viên QA & Triển khai PoC Voice AI",
+        clientDomainEn: "Commercial Banking & Digital Finance (Sacombank, Nam Á Bank, TNEX)",
+        clientDomainVi: "Ngân hàng Thương mại & Ngân hàng Số (Sacombank, Nam Á Bank, TNEX)",
+        periodEn: "SEP 2026 — OCT 2026",
+        periodVi: "T09/2026 — T10/2026",
+        isConfidential: true,
+        statusEn: "PoC Complete · Converted to Main Development",
+        statusVi: "Hoàn tất PoC · Chuyển sang Phát triển Chính thức",
+        descriptionEn: "Executed rigorous quality assurance, scenario validation, test cases, and live proof-of-concept (PoC) client demonstrations for intelligent banking voicebots deployed across Sacombank, Nam Á Bank, and TNEX Digital Bank.",
+        descriptionVi: "Thực hiện kiểm thử chất lượng QA-QC kịch bản hội thoại AI, xây dựng bộ test case và tham gia demo trực tiếp giải pháp Proof of Concept (PoC) Voicebot cho các ngân hàng lớn: Sacombank, Nam Á Bank và TNEX.",
+        tasks: [
+          {
+            titleEn: "Banking Scenario Testing & QA-QC",
+            titleVi: "Kiểm thử Nghiệp vụ & Kịch bản Ngân hàng",
+            descriptionEn: "Simulated complex banking intent trees, edge cases, background noise, and dialect speech patterns.",
+            descriptionVi: "Mô phỏng cây ý định nghiệp vụ phức tạp, các tình huống biên và nhận dạng giọng vùng miền của khách hàng.",
+            icon: "fa-solid fa-vial-circle-check",
+          },
+          {
+            titleEn: "Client Demonstration & PoC Readiness",
+            titleVi: "Chuẩn bị PoC & Demo Trực tiếp Khách hàng",
+            descriptionEn: "Configured sandbox environments and demonstrated conversational AI capabilities to bank stakeholders.",
+            descriptionVi: "Thiết lập môi trường sandbox và trình diễn năng lực AI đàm thoại trực quan trước hội đồng kỹ thuật ngân hàng.",
+            icon: "fa-solid fa-display",
+          },
+        ],
+        technologies: ["Voice AI", "QA/QC Testing", "PoC & Demo", "Conversational AI", "Banking Scenarios"],
+      },
+    ],
     tasks: [
       {
-        titleEn: "Enterprise Backend Architecture",
-        titleVi: "Kiến trúc Backend Doanh nghiệp",
-        descriptionEn: "Researching and building foundational backend workflows, API integrations, and internal systems with Python and TypeScript.",
-        descriptionVi: "Nghiên cứu và xây dựng workflow backend nền tảng, tích hợp API và hệ thống nội bộ bằng Python và TypeScript.",
-        icon: "fa-solid fa-server",
+        titleEn: "Enterprise Voicebot & PBX Integration",
+        titleVi: "Tích hợp Tổng đài PBX & Voicebot Doanh nghiệp",
+        descriptionEn: "Developing core voicebot pipelines, dialogue orchestration, and telephony connectors with 3CX and Asterisk for banking clients.",
+        descriptionVi: "Phát triển đường ống Voicebot cốt lõi, điều phối hội thoại và bộ kết nối viễn thông 3CX/Asterisk cho các ngân hàng.",
+        icon: "fa-solid fa-headset",
       },
       {
-        titleEn: "Telecommunications & Platform Integration",
-        titleVi: "Tích hợp Hệ thống Viễn thông",
-        descriptionEn: "Integrating enterprise communication pipelines and automated VoIP service management with internal operational portals.",
-        descriptionVi: "Tích hợp đường ống viễn thông doanh nghiệp và quản lý tự động dịch vụ VoIP vào cổng vận hành nội bộ.",
-        icon: "fa-solid fa-network-wired",
+        titleEn: "Realtime Telemetry & Event Streaming",
+        titleVi: "Giám sát Thời gian thực & Xử lý Luồng Sự kiện",
+        descriptionEn: "Building high-throughput message streaming with Redis and RabbitMQ to process live call events without data loss.",
+        descriptionVi: "Xây dựng luồng xử lý thông điệp thông lượng cao với Redis và RabbitMQ xử lý dữ liệu cuộc gọi không thất thoát.",
+        icon: "fa-solid fa-arrows-split-up-and-left",
       },
       {
-        titleEn: "Database Schema & Query Optimization",
-        titleVi: "Tối ưu Cơ sở Dữ liệu & Truy vấn",
-        descriptionEn: "Designing relational PostgreSQL schemas, implementing strict data validation, indexing, and automated backup strategies.",
-        descriptionVi: "Thiết kế lược đồ quan hệ PostgreSQL, thiết lập kiểm tra ràng buộc dữ liệu, đánh chỉ mục và sao lưu định kỳ.",
-        icon: "fa-solid fa-database",
+        titleEn: "Legal Document Engine & API Workflows",
+        titleVi: "Hệ thống Tự động hóa Văn bản Pháp lý & API",
+        descriptionEn: "Architecting document generation with digital signatures, contract override controls, and audit trails on FastAPI & MySQL.",
+        descriptionVi: "Xây dựng hệ thống xuất văn bản kèm chữ ký số, kiểm soát override hợp đồng và ghi log kiểm toán với FastAPI & MySQL.",
+        icon: "fa-solid fa-file-signature",
       },
       {
-        titleEn: "Security & Role-Based Access Control",
-        titleVi: "Bảo mật & Phân quyền Truy cập",
-        descriptionEn: "Enforcing authentication security protocols, confidential workflow boundaries, and system activity audit trails.",
-        descriptionVi: "Triển khai giao thức bảo mật xác thực, phân vùng quyền hạn bảo mật nội bộ và ghi log lịch sử hệ thống.",
+        titleEn: "Quality Assurance & Production Handover",
+        titleVi: "Đảm bảo Chất lượng QA & Bàn giao Kỹ thuật",
+        descriptionEn: "Executing rigorous PoC testing, debugging complex multi-leg call lifecycles, and preparing technical handover specs.",
+        descriptionVi: "Kiểm thử PoC thực tế, xử lý dứt điểm các lỗi vòng đời cuộc gọi multi-leg và hoàn thiện tài liệu bàn giao kỹ thuật.",
         icon: "fa-solid fa-shield-halved",
       },
     ],
-    project: {
-      titleEn: "Internal Enterprise Architecture & Systems",
-      titleVi: "Kiến trúc & Hệ thống Doanh nghiệp Nội bộ",
-      statusEn: "In Development · Confidential",
-      statusVi: "Đang phát triển · Bảo mật nội bộ",
-      descriptionEn: "Researching and building foundational backend workflows, API integrations, and internal systems (Confidential / currently in active development without public product release).",
-      descriptionVi: "Nghiên cứu và xây dựng workflow backend nền tảng, tích hợp API và hệ thống nội bộ (Bảo mật / hiện đang trong quá trình phát triển tích cực, chưa phát hành sản phẩm công khai).",
-      links: [
-        {
-          labelEn: "IDB Support Portal",
-          labelVi: "Cổng thông tin IDB",
-          href: "https://idb.com.vn/All/Support",
-          isExternal: true,
-          icon: "fa-arrow-up-right-from-square",
-        },
-      ],
+    get project() {
+      return this.projects[0];
     },
-    technologies: ["Python", "TypeScript", "Software Architecture", "Backend APIs", "PostgreSQL"],
+    technologies: ["Python", "FastAPI", "C#", ".NET", "Voicebot AI", "3CX Phone System", "RabbitMQ", "Redis", "MySQL", "Joget"],
   },
   {
     id: "ritavo",
+    model: "product",
     badgeEn: "ENTERPRISE ERP",
     badgeVi: "HỆ THỐNG ERP",
     badgeType: "enterprise",
@@ -519,9 +716,74 @@ export const experiences: ExperienceItem[] = [
     periodVi: "T03/2026 — T06/2026",
     locationEn: "Ho Chi Minh City, Vietnam",
     locationVi: "TP. Hồ Chí Minh, Việt Nam",
-    overviewEn: "Engineered customized ERP business logic, data rules, and delivery automation on Odoo 18.",
-    overviewVi: "Phát triển nghiệp vụ ERP tùy biến, kiểm soát ràng buộc dữ liệu và tự động hóa triển khai trên nền tảng Odoo 18.",
+    overviewEn: "Engineered customized ERP business logic, data rules, and delivery automation on Odoo 18 for enterprise manufacturing & retail.",
+    overviewVi: "Phát triển nghiệp vụ ERP tùy biến, kiểm soát ràng buộc dữ liệu và tự động hóa triển khai trên nền tảng Odoo 18 cho tập đoàn sản xuất & bán lẻ.",
     detailHref: "/experience/ritavo",
+    projects: [
+      {
+        id: "ritavo-prodid",
+        titleEn: "ProdID · Odoo 18 PLM Enterprise Platform",
+        titleVi: "ProdID · Nền tảng Quản lý Vòng đời Sản phẩm Odoo 18",
+        roleEn: "Odoo Developer Intern",
+        roleVi: "Thực tập sinh Lập trình viên Odoo",
+        clientDomainEn: "Enterprise Manufacturing & Retail PLM",
+        clientDomainVi: "Sản xuất & Bán lẻ Doanh nghiệp (PLM)",
+        periodEn: "MAR 2026 — JUN 2026",
+        periodVi: "T03/2026 — T06/2026",
+        isConfidential: false,
+        statusEn: "Live Enterprise Portal",
+        statusVi: "Cổng vận hành thực tế",
+        descriptionEn: "An internal product-lifecycle workflow bridging R&D, Marketing, Sales and Purchasing across roughly 10,000 product records with automated multi-stage approvals.",
+        descriptionVi: "Quy trình vòng đời sản phẩm nội bộ kết nối R&D, Marketing, Sales và Mua hàng trên quy mô xấp xỉ 10.000 bản ghi với luồng phê duyệt tự động đa cấp.",
+        tasks: [
+          {
+            titleEn: "ProdID Module Development",
+            titleVi: "Phát triển Phân hệ ProdID",
+            descriptionEn: "Engineered an internal product lifecycle management (PLM) module connecting R&D, Marketing, Sales, and Purchasing across ~10,000 product records.",
+            descriptionVi: "Phát triển module quản lý vòng đời sản phẩm (PLM) kết nối R&D, Marketing, Sales và Mua hàng trên quy mô ~10.000 bản ghi.",
+            icon: "fa-solid fa-boxes-stacked",
+          },
+          {
+            titleEn: "BOM & DFS Cycle Detection",
+            titleVi: "Thuật toán Phát hiện Chu trình BOM",
+            descriptionEn: "Implemented Depth-First Search algorithm to prevent recursive bill-of-materials cycles and circular product dependencies.",
+            descriptionVi: "Ứng dụng thuật toán tìm kiếm theo chiều sâu (DFS) nhằm phát hiện và ngăn chặn phụ thuộc vòng lặp trong định mức vật liệu.",
+            icon: "fa-solid fa-diagram-project",
+          },
+          {
+            titleEn: "Dynamic Approval Workflows",
+            titleVi: "Tự động hóa Quy trình Phê duyệt",
+            descriptionEn: "Designed multi-stage approval matrix (Draft -> R&D Review -> Commercial Ready) with automated state transitions and access rights.",
+            descriptionVi: "Xây dựng ma trận phê duyệt nhiều bước với quyền hạn theo phòng ban và chuyển trạng thái tự động.",
+            icon: "fa-solid fa-list-check",
+          },
+          {
+            titleEn: "PostgreSQL Migration & Pipeline CI/CD",
+            titleVi: "Migration Cơ sở Dữ liệu & CI/CD",
+            descriptionEn: "Managed schema migrations, Docker Compose environments, and automated GitHub Actions testing for seamless release cycles.",
+            descriptionVi: "Quản lý migration lược đồ cơ sở dữ liệu, môi trường Docker Compose và kiểm thử tự động với GitHub Actions.",
+            icon: "fa-solid fa-gears",
+          },
+        ],
+        technologies: ["Odoo 18", "Python", "PostgreSQL", "Docker", "GitHub Actions", "DFS Cycle Detection"],
+        links: [
+          {
+            labelEn: "ProdID Live Portal",
+            labelVi: "Cổng đăng nhập ProdID",
+            href: "https://prodid.ritavo.com/web/login",
+            isExternal: true,
+            icon: "fa-arrow-up-right-from-square",
+          },
+          {
+            labelEn: "Case study dossier",
+            labelVi: "Hồ sơ dự án",
+            href: "/projects/ritavo-prodid",
+            isExternal: false,
+            icon: "fa-folder-open",
+          },
+        ],
+      },
+    ],
     tasks: [
       {
         titleEn: "ProdID Module Development",
@@ -552,34 +814,14 @@ export const experiences: ExperienceItem[] = [
         icon: "fa-solid fa-gears",
       },
     ],
-    project: {
-      titleEn: "ProdID · Odoo 18",
-      titleVi: "ProdID · Odoo 18",
-      statusEn: "Live Enterprise Portal",
-      statusVi: "Cổng vận hành thực tế",
-      descriptionEn: "An internal product-lifecycle workflow bridging R&D, Marketing, Sales and Purchasing across roughly 10,000 product records.",
-      descriptionVi: "Quy trình vòng đời sản phẩm nội bộ kết nối R&D, Marketing, Sales và Mua hàng trên quy mô xấp xỉ 10.000 bản ghi.",
-      links: [
-        {
-          labelEn: "ProdID Live Portal",
-          labelVi: "Cổng đăng nhập ProdID",
-          href: "https://prodid.ritavo.com/web/login",
-          isExternal: true,
-          icon: "fa-arrow-up-right-from-square",
-        },
-        {
-          labelEn: "Case study dossier",
-          labelVi: "Hồ sơ dự án",
-          href: "/projects/ritavo-prodid",
-          isExternal: false,
-          icon: "fa-folder-open",
-        },
-      ],
+    get project() {
+      return this.projects[0];
     },
     technologies: ["Odoo 18", "Python", "PostgreSQL", "Docker", "GitHub Actions", "DFS Cycle Detection"],
   },
   {
     id: "vinagreen",
+    model: "core_tech",
     badgeEn: "CORE ARCHITECTURE",
     badgeVi: "CÔNG NGHỆ LÕI",
     badgeType: "core",
@@ -595,6 +837,71 @@ export const experiences: ExperienceItem[] = [
     overviewEn: "System specifications, service contracts, and edge cloud infrastructure for sustainable digital platforms.",
     overviewVi: "Định hình chuẩn kiến trúc hệ thống, giao ước dịch vụ và hạ tầng đám mây phân tán cho giải pháp số xanh.",
     detailHref: "/experience/vinagreen",
+    projects: [
+      {
+        id: "vinagreen-edge",
+        titleEn: "VinaGreen Digital Platform & Edge Telemetry",
+        titleVi: "Nền tảng số VinaGreen & Điện toán Biên",
+        roleEn: "Core Technology (System & Architecture)",
+        roleVi: "Công nghệ lõi (Hệ thống & Kiến trúc)",
+        clientDomainEn: "Agritech & Edge Computing",
+        clientDomainVi: "Nông nghiệp Số & Điện toán Biên",
+        periodEn: "2025 — PRESENT",
+        periodVi: "2025 — HIỆN TẠI",
+        isConfidential: false,
+        statusEn: "Live Edge Deployment",
+        statusVi: "Đang vận hành trên Edge",
+        descriptionEn: "High-performance edge platform designed for resilient operational tracking, data transparency, and scalable service delivery across rural regions.",
+        descriptionVi: "Nền tảng vận hành phân tán trên mạng lưới Edge, tối ưu hóa khả năng giám sát dữ liệu minh bạch và mở rộng dịch vụ cho vùng thực địa.",
+        tasks: [
+          {
+            titleEn: "Edge Infrastructure & Low-Latency Delivery",
+            titleVi: "Hạ tầng Edge & Truy xuất Tốc độ cao",
+            descriptionEn: "Deployed Cloudflare Workers edge functions ensuring fast response times for agricultural telemetry across rural regions.",
+            descriptionVi: "Triển khai hàm Edge trên Cloudflare Workers đảm bảo tốc độ phản hồi nhanh cho bà con nông dân và dữ liệu thực địa.",
+            icon: "fa-solid fa-cloud",
+          },
+          {
+            titleEn: "AI Farmer Copilot Engine",
+            titleVi: "Trợ lý AI Nông vụ Thông minh",
+            descriptionEn: "Integrated FastAPI backend with LLM agents to deliver tailored crop drought and salinity mitigation advice based on localized soil conditions.",
+            descriptionVi: "Tích hợp backend FastAPI với LLM Agent cung cấp khuyến nghị tưới tiêu và chống nhiễm mặn theo từng loại cây trồng.",
+            icon: "fa-solid fa-robot",
+          },
+          {
+            titleEn: "Dynamic Soil Dosage Calculator",
+            titleVi: "Công cụ Định lượng Dinh dưỡng Đất",
+            descriptionEn: "Engineered real-time calculation models for AgriGel™ and BioBandage™ dosage according to soil salinity (>3‰) and drought indexes.",
+            descriptionVi: "Xây dựng thuật toán tính toán chính xác liều lượng AgriGel™ và BioBandage™ theo độ mặn và chu kỳ khô hạn.",
+            icon: "fa-solid fa-calculator",
+          },
+          {
+            titleEn: "Circular BioTech System Integration",
+            titleVi: "Tích hợp Hệ thống Nông nghiệp Tuần hoàn",
+            descriptionEn: "Structured automated product traceability pipelines connecting lab trial data with live digital demonstrations.",
+            descriptionVi: "Kết nối dữ liệu thực nghiệm phòng lab với mô hình tương tác trực quan trên trang web công khai.",
+            icon: "fa-solid fa-leaf",
+          },
+        ],
+        technologies: ["System Architecture", "Edge Computing", "Cloudflare Workers", "FastAPI", "TypeScript"],
+        links: [
+          {
+            labelEn: "ViNar (VinaGreen) Dossier",
+            labelVi: "Xem Case Study ViNar",
+            href: "/projects/vinagreen",
+            isExternal: false,
+            icon: "fa-folder-open",
+          },
+          {
+            labelEn: "Live Platform",
+            labelVi: "Trang trực tuyến",
+            href: "https://vinagreen.omnimer.io.vn/",
+            isExternal: true,
+            icon: "fa-arrow-up-right-from-square",
+          },
+        ],
+      },
+    ],
     tasks: [
       {
         titleEn: "Edge Infrastructure & Low-Latency Delivery",
@@ -625,34 +932,14 @@ export const experiences: ExperienceItem[] = [
         icon: "fa-solid fa-leaf",
       },
     ],
-    project: {
-      titleEn: "VinaGreen Digital Platform",
-      titleVi: "Nền tảng số VinaGreen",
-      statusEn: "Live Edge Deployment",
-      statusVi: "Đang vận hành trên Edge",
-      descriptionEn: "High-performance edge platform designed for resilient operational tracking, data transparency, and scalable service delivery.",
-      descriptionVi: "Nền tảng vận hành phân tán trên mạng lưới Edge, tối ưu hóa khả năng giám sát dữ liệu minh bạch và mở rộng dịch vụ.",
-      links: [
-        {
-          labelEn: "ViNar (VinaGreen) Dossier",
-          labelVi: "Xem Case Study ViNar",
-          href: "/projects/vinagreen",
-          isExternal: false,
-          icon: "fa-folder-open",
-        },
-        {
-          labelEn: "Live Platform",
-          labelVi: "Trang trực tuyến",
-          href: "https://vinagreen.omnimer.io.vn/",
-          isExternal: true,
-          icon: "fa-arrow-up-right-from-square",
-        },
-      ],
+    get project() {
+      return this.projects[0];
     },
     technologies: ["System Architecture", "Edge Computing", "Cloudflare Workers", "Scalable APIs", "TypeScript"],
   },
   {
     id: "omnimer",
+    model: "rd_team",
     badgeEn: "AI & PRODUCT R&D",
     badgeVi: "NHÓM R&D & SẢN PHẨM",
     badgeType: "team",
@@ -668,6 +955,60 @@ export const experiences: ExperienceItem[] = [
     overviewEn: "Steering product architecture and engineering AI agents, GraphRAG retrieval, and real-time health intelligence.",
     overviewVi: "Định hướng kiến trúc sản phẩm, xây dựng AI Agent, truy xuất tri thức GraphRAG và hệ thống sức khỏe thời gian thực.",
     detailHref: "/experience/omnimer",
+    projects: [
+      {
+        id: "omnimer-health",
+        titleEn: "OmniMer Health · Wearable AI & GraphRAG",
+        titleVi: "OmniMer Health · Trí tuệ Sức khỏe Đeo tay & GraphRAG",
+        roleEn: "System Architect & AI Engineer",
+        roleVi: "Kiến trúc sư Hệ thống & Kỹ sư AI",
+        clientDomainEn: "Healthcare & Realtime Biometrics",
+        clientDomainVi: "Y tế Số & Sinh hiệu Thời gian thực",
+        periodEn: "2025 — PRESENT",
+        periodVi: "2025 — HIỆN TẠI",
+        isConfidential: false,
+        statusEn: "Open Source & Research",
+        statusVi: "Mã nguồn mở & Nghiên cứu",
+        descriptionEn: "Architected high-throughput Kafka & Redis pub/sub pipelines for wearable anomaly detection with <500ms latency, combined with safety-aware GraphRAG retrieval.",
+        descriptionVi: "Thiết kế đường ống luồng dữ liệu Kafka & Redis phân tích bất thường nhịp tim thời gian thực với độ trễ <500ms, kết hợp truy xuất GraphRAG bảo đảm an toàn y tế.",
+        technologies: ["LangGraph", "FastAPI", "Kafka", "GraphRAG", "Qdrant", "Redis"],
+        links: [
+          {
+            labelEn: "OmniMer Health Dossier",
+            labelVi: "Dự án OmniMer Health",
+            href: "/projects/omnimer-health",
+            isExternal: false,
+            icon: "fa-folder-open",
+          },
+        ],
+      },
+      {
+        id: "omnimer-food",
+        titleEn: "OmniMer Food · Vision & Voice Nutrition Assistant",
+        titleVi: "OmniMer Food · Trợ lý Dinh dưỡng Thị giác & Giọng nói",
+        roleEn: "Mobile & Multimodal AI Engineer",
+        roleVi: "Kỹ sư Mobile & AI Đa phương thức",
+        clientDomainEn: "Nutrition & Multimodal AI",
+        clientDomainVi: "Dinh dưỡng & AI Đa phương thức",
+        periodEn: "2025 — PRESENT",
+        periodVi: "2025 — HIỆN TẠI",
+        isConfidential: false,
+        statusEn: "Mobile App & Open Source",
+        statusVi: "Ứng dụng Di động & Mã nguồn mở",
+        descriptionEn: "Developed cross-platform Flutter application integrating food computer vision recognition and voice-guided interactive cooking assistance.",
+        descriptionVi: "Lập trình ứng dụng di động Flutter tích hợp nhận diện ảnh món ăn và hướng dẫn nấu ăn từng bước bằng giọng nói tương tác.",
+        technologies: ["Flutter", "Dart", "FastAPI", "Computer Vision", "Voice AI"],
+        links: [
+          {
+            labelEn: "OmniMer Food Dossier",
+            labelVi: "Dự án OmniMer Food",
+            href: "/projects/omnimer-food",
+            isExternal: false,
+            icon: "fa-folder-open",
+          },
+        ],
+      },
+    ],
     tasks: [
       {
         titleEn: "LangGraph Multi-Agent Orchestration",
@@ -698,36 +1039,8 @@ export const experiences: ExperienceItem[] = [
         icon: "fa-solid fa-mobile-screen",
       },
     ],
-    project: {
-      titleEn: "Multimodal AI Health & Nutrition Suite",
-      titleVi: "Hệ sinh thái AI Đa phương thức (Sức khỏe & Dinh dưỡng)",
-      statusEn: "Open Source & Research",
-      statusVi: "Mã nguồn mở & Nghiên cứu",
-      descriptionEn: "A connected suite of intelligent applications including OmniMer Health (anomaly detection & safety-aware RAG), OmniMer Food (vision & voice cooking assistant), and ViNar (deep-tech circular agritech & AI farmer assistant).",
-      descriptionVi: "Bộ ứng dụng AI thông minh gồm OmniMer Health (phát hiện bất thường & RAG an toàn), OmniMer Food (trợ lý dinh dưỡng nhận diện món ăn & giọng nói) và ViNar (nông nghiệp tuần hoàn sinh học & trợ lý AI nông vụ).",
-      links: [
-        {
-          labelEn: "Omnimer GitHub",
-          labelVi: "GitHub Omnimer",
-          href: "https://github.com/omnimerteam",
-          isExternal: true,
-          icon: "fa-github",
-        },
-        {
-          labelEn: "OmniMer Health Dossier",
-          labelVi: "Dự án OmniMer Health",
-          href: "/projects/omnimer-health",
-          isExternal: false,
-          icon: "fa-folder-open",
-        },
-        {
-          labelEn: "OmniMer Food Dossier",
-          labelVi: "Dự án OmniMer Food",
-          href: "/projects/omnimer-food",
-          isExternal: false,
-          icon: "fa-folder-open",
-        },
-      ],
+    get project() {
+      return this.projects[0];
     },
     technologies: ["LangGraph", "FastAPI", "Kafka", "GraphRAG", "Qdrant", "Flutter"],
   },
