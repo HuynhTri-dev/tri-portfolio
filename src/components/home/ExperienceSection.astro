@@ -90,7 +90,21 @@ const getScopeLabel = (item: (typeof experiences)[0]) => {
 
               <!-- Connected System / Engagements Box (Uniform Min-Height) -->
               <div class="connected-product-box">
-                <span class="product-label" data-en={scope.labelEn} data-vi={scope.labelVi}>{scope.labelEn}</span>
+                <div class="connected-product-header">
+                  <span class="product-label" data-en={scope.labelEn} data-vi={scope.labelVi}>{scope.labelEn}</span>
+                  {item.clientPartners && item.clientPartners.length > 0 && (
+                    <div class="client-mini-avatars" title="Sacombank · Vietmap · ZaloPay · Aqua · Nam A Bank · TNEX">
+                      {item.clientPartners.slice(0, 4).map((c) => (
+                        <div class="client-mini-icon" title={c.name}>
+                          <img src={c.logo} alt={c.name} loading="lazy" />
+                        </div>
+                      ))}
+                      {item.clientPartners.length > 4 && (
+                        <span class="client-mini-plus">+{item.clientPartners.length - 4}</span>
+                      )}
+                    </div>
+                  )}
+                </div>
                 <strong class="product-name" data-en={scope.valueEn} data-vi={scope.valueVi}>
                   {scope.valueEn}
                 </strong>
@@ -336,6 +350,58 @@ const getScopeLabel = (item: (typeof experiences)[0]) => {
     justify-content: center;
     gap: 3px;
     margin-bottom: 14px;
+  }
+
+  .connected-product-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    line-height: 1;
+  }
+
+  .client-mini-avatars {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .client-mini-icon {
+    width: 28px;
+    height: 16px;
+    padding: 1px 3px;
+    border-radius: 4px;
+    background: #ffffff;
+    box-shadow: 0 1px 4px rgb(0 0 0 / 30%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: transform var(--duration-fast) ease;
+  }
+
+  .client-mini-icon:hover {
+    transform: scale(1.15);
+  }
+
+  .client-mini-icon img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .client-mini-plus {
+    font-family: var(--font-mono);
+    font-size: 0.52rem;
+    color: var(--brand-soft);
+    font-weight: 700;
+    line-height: 1;
+    padding: 1px 3px;
+    border-radius: 3px;
+    background: rgb(24 199 133 / 12%);
+    border: 1px solid rgb(24 199 133 / 30%);
   }
 
   .product-label {

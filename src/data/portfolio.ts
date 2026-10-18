@@ -410,12 +410,22 @@ export type ExperienceTask = {
 
 export type WorkplaceModel = "product" | "outsource" | "rd_team" | "core_tech";
 
+export type ClientPartner = {
+  name: string;
+  logo: string;
+  domainEn?: string;
+  domainVi?: string;
+};
+
 export type ProjectEngagement = {
   id: string;
   titleEn: string;
   titleVi: string;
   roleEn?: string;
   roleVi?: string;
+  clientName?: string;
+  clientLogo?: string;
+  clientLogos?: string[];
   clientDomainEn?: string;
   clientDomainVi?: string;
   periodEn?: string;
@@ -448,6 +458,7 @@ export type ExperienceItem = {
   overviewEn: string;
   overviewVi: string;
   detailHref: string;
+  clientPartners?: ClientPartner[];
   projects: ProjectEngagement[];
   tasks: ExperienceTask[];
   project: ProjectEngagement;
@@ -473,6 +484,14 @@ export const experiences: ExperienceItem[] = [
     overviewEn: "Enterprise client solutions, telecom & 3CX PBX integration, voicebot AI development for commercial banks (Sacombank, Nam A Bank, TNEX), loan clearance document automation, and realtime Redis/RabbitMQ event pipelines.",
     overviewVi: "Phát triển giải pháp kỹ thuật khách hàng doanh nghiệp, tích hợp tổng đài 3CX, phát triển Voicebot AI cho hệ thống ngân hàng (Sacombank, Nam Á Bank, TNEX), tự động hóa văn bản pháp lý tín dụng và đường ống dữ liệu thời gian thực Redis/RabbitMQ.",
     detailHref: "/experience/idb",
+    clientPartners: [
+      { name: "Sacombank", logo: "/images/clients/sacombank.svg", domainEn: "Tier-1 Commercial Banking", domainVi: "Ngân hàng Thương mại Cổ phần" },
+      { name: "Vietmap", logo: "/images/clients/vietmap.png", domainEn: "Navigation & Telematics", domainVi: "Bản đồ số & Giải pháp Viễn thông" },
+      { name: "ZaloPay", logo: "/images/clients/zalopay.svg", domainEn: "Fintech & Payment Gateway", domainVi: "Cổng thanh toán & Ví điện tử" },
+      { name: "Aqua", logo: "/images/clients/aqua.png", domainEn: "Consumer Electronics CRM", domainVi: "Điện máy & Quản trị Khách hàng" },
+      { name: "Nam A Bank", logo: "/images/clients/namabank.png", domainEn: "Commercial Banking", domainVi: "Ngân hàng Thương mại" },
+      { name: "TNEX", logo: "/images/clients/tnex.png", domainEn: "Digital Banking Platform", domainVi: "Ngân hàng Thuần số" },
+    ],
     projects: [
       {
         id: "idb-sacombank-voicebot",
@@ -480,6 +499,8 @@ export const experiences: ExperienceItem[] = [
         titleVi: "Hệ thống Voicebot AI Ngân hàng Sacombank",
         roleEn: "Core Voicebot Developer",
         roleVi: "Lập trình viên Lõi Voicebot AI",
+        clientName: "Sacombank",
+        clientLogo: "/images/clients/sacombank.svg",
         clientDomainEn: "Tier-1 Commercial Banking & Financial Services (Sacombank)",
         clientDomainVi: "Ngân hàng Thương mại & Dịch vụ Tài chính (Sacombank)",
         periodEn: "OCT 2026 — PRESENT",
@@ -513,6 +534,8 @@ export const experiences: ExperienceItem[] = [
         titleVi: "Xử lý Vòng đời Cuộc gọi 3CX Multi-Leg & RabbitMQ (Vietmap)",
         roleEn: "Telephony & Integration Engineer",
         roleVi: "Kỹ sư Tích hợp & Xử lý Viễn thông",
+        clientName: "Vietmap",
+        clientLogo: "/images/clients/vietmap.png",
         clientDomainEn: "Logistics & Digital Map Telephony (Vietmap)",
         clientDomainVi: "Viễn thông Vận tải & Bản đồ Số (Vietmap)",
         periodEn: "OCT 2026",
@@ -546,6 +569,8 @@ export const experiences: ExperienceItem[] = [
         titleVi: "Hệ thống Xuất Giấy tờ Tất toán Khoản vay & Tự động hóa Pháp lý",
         roleEn: "Backend Engineer & Solution Developer",
         roleVi: "Kỹ sư Backend & Phát triển Giải pháp",
+        clientName: "Banking & Consumer Lending",
+        clientLogo: "/images/clients/sacombank.svg",
         clientDomainEn: "Banking & Consumer Lending Operations",
         clientDomainVi: "Tài chính Tiêu dùng & Cho vay Ngân hàng",
         periodEn: "OCT 2026",
@@ -579,6 +604,8 @@ export const experiences: ExperienceItem[] = [
         titleVi: "Hệ thống Giám sát Cuộc gọi Realtime ZaloPay (3CX to Redis)",
         roleEn: "Backend Engineer (Realtime Telephony Data)",
         roleVi: "Kỹ sư Backend (Dữ liệu Viễn thông Thời gian thực)",
+        clientName: "ZaloPay",
+        clientLogo: "/images/clients/zalopay.svg",
         clientDomainEn: "Fintech & Payment Gateway (ZaloPay)",
         clientDomainVi: "Fintech & Cổng Thanh toán Điện tử (ZaloPay)",
         periodEn: "SEP 2026",
@@ -612,6 +639,8 @@ export const experiences: ExperienceItem[] = [
         titleVi: "Tối ưu Dữ liệu Call Monitor Redis cho CRM Aqua",
         roleEn: "Telephony Support & Data Engineer",
         roleVi: "Kỹ sư Hỗ trợ Viễn thông & Dữ liệu",
+        clientName: "Aqua",
+        clientLogo: "/images/clients/aqua.png",
         clientDomainEn: "Enterprise CRM & Consumer Electronics (Aqua)",
         clientDomainVi: "Hệ thống CRM & Điện máy Doanh nghiệp (Aqua)",
         periodEn: "SEP 2026 — OCT 2026",
@@ -638,6 +667,12 @@ export const experiences: ExperienceItem[] = [
         titleVi: "QA-QC & Triển khai PoC Voicebot Ngân hàng (Sacombank, Nam Á Bank, TNEX)",
         roleEn: "Voice AI QA & PoC Specialist",
         roleVi: "Chuyên viên QA & Triển khai PoC Voice AI",
+        clientName: "Sacombank · Nam Á Bank · TNEX",
+        clientLogos: [
+          "/images/clients/sacombank.svg",
+          "/images/clients/namabank.png",
+          "/images/clients/tnex.png",
+        ],
         clientDomainEn: "Commercial Banking & Digital Finance (Sacombank, Nam Á Bank, TNEX)",
         clientDomainVi: "Ngân hàng Thương mại & Ngân hàng Số (Sacombank, Nam Á Bank, TNEX)",
         periodEn: "SEP 2026 — OCT 2026",
