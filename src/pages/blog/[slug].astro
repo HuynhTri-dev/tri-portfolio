@@ -562,6 +562,50 @@ if (attachedProblems.length > 0) {
   .article-body :global(ul),
   .article-body :global(ol) { margin: 0 0 1.35em; }
 
+  .article-body :global(.table-scroll) {
+    margin: 1.5em 0 2em;
+    overflow-x: auto;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-standard);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .article-body :global(table) {
+    width: 100%;
+    min-width: 320px;
+    border-collapse: collapse;
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  .article-body :global(.table-scroll table) {
+    border: 0;
+  }
+
+  .article-body :global(th),
+  .article-body :global(td) {
+    padding: 0.65em 0.9em;
+    border: 1px solid var(--border-default);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .article-body :global(thead th) {
+    background: rgb(24 199 133 / 10%);
+    color: var(--text-main);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .article-body :global(tbody tr:nth-child(even) td) {
+    background: rgb(255 255 255 / 2.5%);
+  }
+
+  .article-body :global(tbody tr:hover td) {
+    background: rgb(24 199 133 / 5%);
+  }
+
   .article-body :global(a) {
     color: var(--brand-soft);
     text-decoration: underline;
@@ -848,6 +892,36 @@ if (attachedProblems.length > 0) {
     color: var(--text-main);
     font-size: 0.9rem;
     line-height: 1.6;
+  }
+
+  .solution-content :global(.table-scroll) {
+    margin: 1em 0 1.25em;
+    overflow-x: auto;
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .solution-content :global(table) {
+    width: 100%;
+    min-width: 280px;
+    border-collapse: collapse;
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+
+  .solution-content :global(th),
+  .solution-content :global(td) {
+    padding: 0.55em 0.75em;
+    border: 1px solid var(--border-default);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .solution-content :global(thead th) {
+    background: rgb(24 199 133 / 10%);
+    font-weight: 600;
   }
 
   .solution-content :global(pre) {

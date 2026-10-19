@@ -103,6 +103,16 @@ const markedInstance = new Marked({
 });
 
 /**
+ * Wraps rendered HTML tables for bordered layout and horizontal scroll on small screens.
+ */
+function wrapMarkdownTables(html: string): string {
+  return html.replace(
+    /<table\b[^>]*>[\s\S]*?<\/table>/gi,
+    (table) => `<div class="table-scroll">${table}</div>`
+  );
+}
+
+/**
  * Parses markdown into HTML with Prism syntax highlighting for code blocks.
  *
  * @param markdown - Raw markdown string to be rendered
@@ -110,5 +120,6 @@ const markedInstance = new Marked({
  */
 export async function renderMarkdown(markdown: string): Promise<string> {
   if (!markdown) return "";
-  return await markedInstance.parse(markdown);
+  const html = await markedInstance.parse(markdown);
+  return wrapMarkdownTables(html);
 }
