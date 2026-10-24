@@ -56,6 +56,40 @@ export const projects: ProjectListItem[] = [
   // SECTION 1: PROJECT ĐANG CHẠY (ACTIVE & RUNNING SYSTEMS)
   // ==========================================
   {
+    id: "between-us",
+    title: "Between Us · Spatial Memory Canvas",
+    description: "Infinite spatial memory canvas and intimate digital sanctuary for couples with sub-millisecond edge proxying and real-time co-presence.",
+    descriptionVi: "Thánh địa kỹ thuật số và bảng ghim ký ức không gian vô cực cho cặp đôi với edge proxy dưới 1ms và đồng hiện diện thời gian thực.",
+    period: "2025 — 2026",
+    type: "Startup / Social & Media",
+    typeVi: "Startup / Mạng xã hội riêng tư",
+    category: "web",
+    group: "active",
+    image: "/projects/between-us/preview.png",
+    organization: {
+      en: "OmniMer Team",
+      vi: "OmniMer Team",
+    },
+    statusBadge: {
+      en: "Live in Production",
+      vi: "Đang vận hành thực tế",
+      type: "live",
+    },
+    technologies: ["Next.js 15", "Cloudflare Workers", "Neon Postgres", "Cloudflare R2", "WebSockets"],
+    metrics: [
+      { value: "< 1ms", label: "Edge static latency", labelVi: "Độ trễ CDN tại Edge" },
+      { value: "50ms", label: "Realtime batching", labelVi: "Batching tọa độ realtime" },
+      { value: "0đ", label: "R2 egress fees", labelVi: "Chi phí băng thông tải ảnh" },
+    ],
+    href: "/projects/between-us",
+    hrefLabel: "Case study",
+    hrefLabelVi: "Xem case study",
+    liveUrl: "https://between.omnimer.io.vn/",
+    liveLabel: "Live app",
+    liveLabelVi: "Trực tuyến",
+    featured: true,
+  },
+  {
     id: "vinagreen",
     title: "ViNar (VinaGreen)",
     description: "Deep-tech circular agritech turning agro-waste into AgriGel™ and BioBandage™ with an AI farmer copilot.",

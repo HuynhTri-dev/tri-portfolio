@@ -38,15 +38,15 @@ const filters = [
     <!-- Quick Stats Bar -->
     <div class="hero-stats">
       <div class="stat-box panel">
-        <strong>03</strong>
+        <strong>{String(activeProjects.length).padStart(2, "0")}</strong>
         <span data-en="Live Systems" data-vi="Đang vận hành">Live Systems</span>
       </div>
       <div class="stat-box panel">
-        <strong>03</strong>
+        <strong>{String(caseStudyProjects.length).padStart(2, "0")}</strong>
         <span data-en="Case Studies" data-vi="Case Studies">Case Studies</span>
       </div>
       <div class="stat-box panel">
-        <strong>06</strong>
+        <strong>{String(githubProjects.length).padStart(2, "0")}</strong>
         <span data-en="Open Repos" data-vi="Mã nguồn">Open Repos</span>
       </div>
     </div>
