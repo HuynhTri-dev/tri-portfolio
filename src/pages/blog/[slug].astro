@@ -10,7 +10,22 @@ import ArticleConsultingCta from "../../components/blog/ArticleConsultingCta.ast
 import { KnowledgeService, type ProblemRecord } from "../../lib/services/knowledge.service";
 import "katex/dist/katex.min.css";
 
-export const prerender = false;
+export async function getStaticPaths() {
+  const allStaticPosts = await getCollection("blog", ({ data }) => !data.draft);
+  const service = new KnowledgeService();
+  let kbSlugs: string[] = [];
+  try {
+    const kbArticles = await service.listArticles({ limit: 100 });
+    kbSlugs = kbArticles.map((a) => a.slug);
+  } catch {
+    // Non-blocking
+  }
+
+  const allSlugs = new Set([...allStaticPosts.map((p) => p.id), ...kbSlugs]);
+  return Array.from(allSlugs).map((slug) => ({
+    params: { slug },
+  }));
+}
 
 const { slug } = Astro.params;
 if (!slug) {

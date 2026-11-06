@@ -9,8 +9,6 @@ import ContactSection from "../../components/home/ContactSection.astro";
 import SkillTreeMatrix, { type KbIndexSummaryItem } from "../../components/islands/SkillTreeMatrix";
 import { KnowledgeService } from "../../lib/services/knowledge.service";
 
-export const prerender = false;
-
 // 1. Top Tier: Showcase & Product Articles from Git source (.mdx)
 const allStaticPosts = await getCollection("blog", ({ data }) => !data.draft);
 const showcasePosts = allStaticPosts

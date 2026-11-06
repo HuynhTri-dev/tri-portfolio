@@ -17,11 +17,12 @@ export default defineConfig({
     '/cv': '/Huynh-Minh-Tri-Software-Engineer-CV.pdf',
     '/resume': '/Huynh-Minh-Tri-Software-Engineer-CV.pdf',
     '/project': '/projects',
+    '/projects/idb': '/experience/idb',
+    '/sacombank': '/experience/idb',
+    '/blogs': '/blog',
     '/skills': '/blog',
     '/skill': '/blog',
     '/matrix': '/blog',
-    '/projects/idb': '/experience/idb',
-    '/sacombank': '/experience/idb',
   },
   markdown: {
     processor: unified({
