@@ -427,8 +427,8 @@ if (attachedProblems.length > 0) {
     border: 1px solid rgb(24 199 133 / 30%);
     color: #4eedb0;
     font-family: var(--font-mono);
-    font-size: 0.58rem;
-    letter-spacing: 0.08em;
+    font-size: var(--text-micro, 0.7rem);
+    letter-spacing: 0.06em;
   }
 
   h1 {
@@ -458,7 +458,7 @@ if (attachedProblems.length > 0) {
     border-radius: var(--radius-pill);
     color: var(--brand-soft);
     font-family: var(--font-mono);
-    font-size: 0.54rem;
+    font-size: var(--text-micro, 0.7rem);
   }
 
   .article-cover {
@@ -489,7 +489,7 @@ if (attachedProblems.length > 0) {
     gap: 22px;
     color: var(--text-muted);
     font-family: var(--font-mono);
-    font-size: 0.54rem;
+    font-size: var(--text-micro, 0.7rem);
   }
 
   .article-aside > div {
@@ -716,7 +716,7 @@ if (attachedProblems.length > 0) {
   .solution-content :global(.katex-display) {
     position: relative;
     margin: 24px 0 28px;
-    padding: 24px 22px;
+    padding: 32px 22px 24px;
     overflow-x: auto;
     overflow-y: hidden;
     border: 1px solid rgb(117 230 178 / 22%);
@@ -747,9 +747,9 @@ if (attachedProblems.length > 0) {
     color: var(--brand-green);
     content: "FORMULA / MATH";
     font-family: var(--font-mono);
-    font-size: 0.44rem;
+    font-size: var(--text-micro, 0.7rem);
     font-weight: 700;
-    letter-spacing: 0.13em;
+    letter-spacing: 0.1em;
   }
 
   .article-body :global(.katex-display .base),

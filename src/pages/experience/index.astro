@@ -201,20 +201,20 @@ const getModelPill = (item: (typeof experiences)[0]) => {
     border: 1px solid rgb(255 255 255 / 8%);
     color: var(--text-muted);
     font-family: var(--font-mono);
-    font-size: 0.55rem;
+    font-size: var(--text-micro, 0.7rem);
     font-weight: 600;
   }
 
   .model-tag i {
     color: var(--brand-soft);
-    font-size: 0.52rem;
+    font-size: var(--text-micro, 0.7rem);
   }
 
   .badge-tag {
     padding: 3px 8px;
     border-radius: var(--radius-pill);
     font-family: var(--font-mono);
-    font-size: 0.55rem;
+    font-size: var(--text-micro, 0.7rem);
     font-weight: 700;
     text-transform: uppercase;
   }
@@ -253,7 +253,7 @@ const getModelPill = (item: (typeof experiences)[0]) => {
   .exp-period {
     color: var(--text-muted);
     font-family: var(--font-mono);
-    font-size: 0.58rem;
+    font-size: var(--text-xs, 0.75rem);
   }
 
   .org-name {

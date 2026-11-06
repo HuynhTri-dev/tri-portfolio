@@ -1,4 +1,9 @@
 ---
+/**
+ * @name Hero.astro
+ * @description "The Awakening" hero section featuring metallic emerald shimmer typography,
+ *              overhead canopy spotlight, tilted 3D spatial orbits, and biome index links.
+ */
 import { profileLinks } from "../../data/portfolio";
 ---
 
@@ -46,6 +51,7 @@ import { profileLinks } from "../../data/portfolio";
   </div>
 
   <div class="portrait-stage">
+    <div class="canopy-spotlight" aria-hidden="true"></div>
     <div class="orbit orbit-one" aria-hidden="true"></div>
     <div class="orbit orbit-two" aria-hidden="true"></div>
     <div class="portrait-frame" aria-label="Portrait of Huynh Minh Tri">
@@ -129,8 +135,8 @@ import { profileLinks } from "../../data/portfolio";
     margin-bottom: 24px;
     color: var(--brand-soft);
     font-family: var(--font-mono);
-    font-size: 0.66rem;
-    letter-spacing: 0.1em;
+    font-size: var(--text-xs, 0.75rem);
+    letter-spacing: 0.09em;
     text-transform: uppercase;
   }
 
@@ -140,7 +146,7 @@ import { profileLinks } from "../../data/portfolio";
     border-radius: 50%;
     background: var(--brand-green);
     box-shadow:
-      0 0 0 5px rgb(24 199 133 / 10%),
+      0 0 0 5px rgb(24 199 133 / 12%),
       0 0 18px var(--brand-green);
   }
 
@@ -150,6 +156,28 @@ import { profileLinks } from "../../data/portfolio";
     font-weight: 800;
     letter-spacing: -0.065em;
     line-height: 0.94;
+    background: linear-gradient(
+      110deg,
+      #f2f7f4 32%,
+      #75e6b2 46%,
+      #38bdf8 51%,
+      #f2f7f4 66%
+    );
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: heroNameShimmer 7.5s ease-in-out infinite;
+  }
+
+  @keyframes heroNameShimmer {
+    0%,
+    100% {
+      background-position: 100% 50%;
+    }
+    50% {
+      background-position: 0% 50%;
+    }
   }
 
   .hero-summary {
@@ -205,6 +233,36 @@ import { profileLinks } from "../../data/portfolio";
     display: grid;
     min-height: 485px;
     place-items: center;
+    perspective: 900px;
+  }
+
+  .canopy-spotlight {
+    position: absolute;
+    top: -90px;
+    width: 310px;
+    height: 420px;
+    z-index: 1;
+    background: conic-gradient(
+      from 168deg at 50% 0%,
+      transparent 0deg,
+      rgba(24, 199, 133, 0.14) 18deg,
+      rgba(56, 189, 248, 0.1) 30deg,
+      transparent 48deg
+    );
+    filter: blur(26px);
+    pointer-events: none;
+    animation: canopyAwaken 2.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes canopyAwaken {
+    from {
+      opacity: 0;
+      transform: translateY(-30px) scaleY(0.75);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scaleY(1);
+    }
   }
 
   .portrait-frame {
@@ -213,7 +271,7 @@ import { profileLinks } from "../../data/portfolio";
     width: min(100%, 340px);
     aspect-ratio: 0.83;
     padding: 12px;
-    border: 8px solid var(--wood-dark);
+    border: 6px solid var(--wood-dark);
     border-radius: 47% 47% 42% 42% / 40% 40% 52% 52%;
     background: linear-gradient(
       145deg,
@@ -222,9 +280,9 @@ import { profileLinks } from "../../data/portfolio";
       #261910
     );
     box-shadow:
-      0 0 0 1px rgb(168 122 82 / 75%),
-      0 0 0 4px rgb(24 199 133 / 15%),
-      0 0 45px rgb(24 199 133 / 14%),
+      0 0 0 1px rgb(184 136 96 / 75%),
+      0 0 0 4px rgb(24 199 133 / 22%),
+      0 0 50px rgb(24 199 133 / 18%),
       0 30px 80px rgb(0 0 0 / 48%);
     overflow: hidden;
   }
@@ -235,26 +293,48 @@ import { profileLinks } from "../../data/portfolio";
     height: 100%;
     object-fit: cover;
     object-position: center 20%;
-    border: 1px solid rgb(117 230 178 / 35%);
+    border: 1px solid rgb(117 230 178 / 38%);
     border-radius: 43% 43% 38% 38% / 36% 36% 48% 48%;
   }
 
   .orbit {
     position: absolute;
-    border: 1px solid rgb(117 230 178 / 10%);
+    border: 1px solid rgb(117 230 178 / 18%);
     border-radius: 50%;
+    transform-style: preserve-3d;
   }
 
   .orbit-one {
     width: 420px;
     height: 420px;
-    transform: rotate(22deg);
+    border-top-color: rgb(24 199 133 / 48%);
+    animation: orbitSpinOne 22s linear infinite;
   }
+
   .orbit-two {
-    width: 360px;
-    height: 450px;
-    transform: rotate(-18deg);
-    border-color: rgb(124 183 255 / 9%);
+    width: 370px;
+    height: 446px;
+    border-color: rgb(124 183 255 / 14%);
+    border-bottom-color: rgb(56 189 248 / 45%);
+    animation: orbitSpinTwo 28s linear infinite reverse;
+  }
+
+  @keyframes orbitSpinOne {
+    from {
+      transform: rotateX(56deg) rotateY(16deg) rotateZ(0deg);
+    }
+    to {
+      transform: rotateX(56deg) rotateY(16deg) rotateZ(360deg);
+    }
+  }
+
+  @keyframes orbitSpinTwo {
+    from {
+      transform: rotateX(48deg) rotateY(-22deg) rotateZ(0deg);
+    }
+    to {
+      transform: rotateX(48deg) rotateY(-22deg) rotateZ(360deg);
+    }
   }
 
   .identity-card {
@@ -265,40 +345,41 @@ import { profileLinks } from "../../data/portfolio";
     border: 1px solid var(--border-default);
     border-radius: 14px;
     background:
-      linear-gradient(145deg, rgb(24 199 133 / 9%), transparent 55%),
+      linear-gradient(145deg, rgb(24 199 133 / 11%), transparent 55%),
       rgb(5 14 11 / 94%);
     box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 3%),
+      inset 0 1px 0 rgb(255 255 255 / 4%),
       0 16px 42px rgb(0 0 0 / 42%);
     backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
   }
 
   .identity-card strong {
     display: flex;
     flex-direction: column;
-    margin: 0 0 10px;
+    margin: 0 0 8px;
     color: var(--brand-soft);
     font-size: 1.28rem;
     letter-spacing: -0.055em;
-    line-height: 0.9;
+    line-height: 0.92;
   }
 
   .identity-card small {
-    color: var(--text-muted);
-    font-size: 0.54rem;
-    line-height: 1.45;
+    color: var(--text-secondary);
+    font-size: var(--text-micro, 0.7rem);
+    line-height: 1.4;
   }
 
   .card-product {
     bottom: 18px;
     left: -48px;
-    width: 202px;
-    padding: 17px 18px 18px;
-    border-color: rgb(24 199 133 / 38%);
+    width: 206px;
+    padding: 16px 18px 17px;
+    border-color: rgb(24 199 133 / 42%);
   }
 
   .card-product strong {
-    font-size: 1.55rem;
+    font-size: 1.52rem;
   }
 
   .card-systems {
@@ -315,6 +396,7 @@ import { profileLinks } from "../../data/portfolio";
   .card-systems strong {
     font-size: 1.08rem;
   }
+
   .hero-index {
     padding-left: 10px;
   }
@@ -322,8 +404,8 @@ import { profileLinks } from "../../data/portfolio";
   .index-kicker {
     color: var(--text-muted);
     font-family: var(--font-mono);
-    font-size: 0.64rem;
-    letter-spacing: 0.12em;
+    font-size: var(--text-xs, 0.75rem);
+    letter-spacing: 0.11em;
     text-transform: uppercase;
   }
 
@@ -331,13 +413,16 @@ import { profileLinks } from "../../data/portfolio";
     margin: 14px 0 30px;
     font-size: clamp(2rem, 3.1vw, 3rem);
     letter-spacing: -0.055em;
-    line-height: 1.04;
+    line-height: 1.06;
   }
 
   .hero-index h2 em {
-    color: transparent;
+    display: inline-block;
     font-style: normal;
-    -webkit-text-stroke: 1px rgb(117 230 178 / 62%);
+    background: linear-gradient(135deg, #75e6b2 0%, #18c785 52%, #38bdf8 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 
   .index-list {
@@ -347,11 +432,11 @@ import { profileLinks } from "../../data/portfolio";
   .index-list a {
     display: grid;
     min-height: 52px;
-    grid-template-columns: 38px 1fr 20px;
+    grid-template-columns: 42px 1fr 24px;
     align-items: center;
     border-bottom: 1px solid var(--border-default);
     color: var(--text-secondary);
-    font-size: 0.82rem;
+    font-size: 0.84rem;
     font-weight: 600;
     transition:
       padding var(--duration-fast) ease,
@@ -361,20 +446,21 @@ import { profileLinks } from "../../data/portfolio";
 
   .index-list a:hover {
     padding-inline: 8px;
-    background: rgb(24 199 133 / 4.5%);
+    background: rgb(24 199 133 / 5.5%);
     color: var(--text-main);
   }
 
   .index-number {
     color: var(--text-muted);
     font-family: var(--font-mono);
-    font-size: 0.58rem;
+    font-size: var(--text-xs, 0.75rem);
   }
 
   .index-arrow {
     color: var(--brand-green);
     transition: transform var(--duration-fast) ease;
   }
+
   .index-list a:hover .index-arrow {
     transform: translate(4px, 4px);
   }
@@ -383,30 +469,39 @@ import { profileLinks } from "../../data/portfolio";
     position: absolute;
     bottom: 10px;
     left: 50%;
-    display: flex;
+    display: inline-flex;
+    min-height: 44px;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 9px;
+    padding: 6px 14px;
     transform: translateX(-50%);
-    color: rgb(182 195 188 / 48%);
+    color: var(--text-muted);
     font-family: var(--font-mono);
-    font-size: 0.5rem;
-    letter-spacing: 0.14em;
+    font-size: var(--text-micro, 0.7rem);
+    letter-spacing: 0.11em;
     text-transform: uppercase;
     transition: color var(--duration-fast) ease;
   }
 
   .hero-scroll span:last-child {
     color: var(--brand-green);
-    font-size: 0.62rem;
-    transition: transform var(--duration-fast) ease;
+    font-size: var(--text-xs, 0.75rem);
+    animation: rootDiveBounce 2.2s ease-in-out infinite;
+  }
+
+  @keyframes rootDiveBounce {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(4px);
+    }
   }
 
   .hero-scroll:hover {
-    color: var(--text-secondary);
-  }
-  .hero-scroll:hover span:last-child {
-    transform: translateY(3px);
+    color: var(--brand-soft);
   }
 
   :global(#education) {
@@ -553,7 +648,7 @@ import { profileLinks } from "../../data/portfolio";
       font-size: 0.94rem;
     }
     .identity-card small {
-      font-size: 0.48rem;
+      font-size: var(--text-micro, 0.7rem);
     }
     h1 {
       font-size: 2.9rem;
@@ -568,7 +663,7 @@ import { profileLinks } from "../../data/portfolio";
     .button {
       gap: 10px;
       padding-inline: 12px;
-      font-size: 0.74rem;
+      font-size: 0.76rem;
     }
     .hero-index h2 {
       font-size: 2rem;
@@ -577,11 +672,11 @@ import { profileLinks } from "../../data/portfolio";
       gap: 0 12px;
     }
     .index-list a {
-      grid-template-columns: 28px 1fr 14px;
-      font-size: 0.7rem;
+      grid-template-columns: 32px 1fr 16px;
+      font-size: var(--text-xs, 0.75rem);
     }
     .hero-scroll {
-      font-size: 0.45rem;
+      font-size: var(--text-micro, 0.7rem);
     }
   }
 </style>

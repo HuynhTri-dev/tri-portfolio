@@ -1,4 +1,8 @@
 ---
+/**
+ * @name ProjectDossier.astro
+ * @description Case study dossier layout with hero identity, sticky document index, MDX code styling, KaTeX formula blocks, and Mermaid diagrams.
+ */
 import type { CollectionEntry } from "astro:content";
 import "katex/dist/katex.min.css";
 
@@ -214,7 +218,7 @@ const baseHeadingDepth = documentHeadings.length
     gap: 22px;
   }
 
-  .project-id { color: var(--text-muted); font-family: var(--font-mono); font-size: 0.55rem; letter-spacing: 0.1em; }
+  .project-id { color: var(--text-muted); font-family: var(--font-mono); font-size: var(--text-xs, 0.75rem); letter-spacing: 0.08em; }
 
   .project-emblem {
     display: grid;
@@ -266,7 +270,7 @@ const baseHeadingDepth = documentHeadings.length
     border-radius: 7px;
     color: var(--text-secondary);
     font-family: var(--font-mono);
-    font-size: 0.56rem;
+    font-size: var(--text-micro, 0.7rem);
   }
 
   .project-meta { border-top: 1px solid var(--border-default); }
@@ -278,7 +282,7 @@ const baseHeadingDepth = documentHeadings.length
     border-bottom: 1px solid var(--border-default);
   }
 
-  .project-meta small { color: var(--text-muted); font-family: var(--font-mono); font-size: 0.48rem; letter-spacing: 0.1em; }
+  .project-meta small { color: var(--text-muted); font-family: var(--font-mono); font-size: var(--text-micro, 0.7rem); letter-spacing: 0.08em; }
   .project-meta strong { margin-top: 4px; font-size: 0.74rem; }
   .project-meta a:hover strong { color: var(--brand-soft); }
 
@@ -352,7 +356,7 @@ const baseHeadingDepth = documentHeadings.length
   .index-item > a {
     position: relative;
     display: grid;
-    grid-template-columns: 24px minmax(0, 1fr);
+    grid-template-columns: 26px minmax(0, 1fr);
     gap: 8px;
     align-items: start;
     padding: 8px 8px 8px 10px;
@@ -377,11 +381,11 @@ const baseHeadingDepth = documentHeadings.length
   }
 
   .index-item > a > span {
-    padding-top: 2px;
+    padding-top: 1px;
     color: var(--brand-green);
     font-family: var(--font-mono);
-    font-size: 0.48rem;
-    letter-spacing: 0.05em;
+    font-size: var(--text-micro, 0.7rem);
+    letter-spacing: 0.04em;
   }
 
   .index-item > a > strong {
@@ -473,9 +477,9 @@ const baseHeadingDepth = documentHeadings.length
     color: var(--brand-green);
     content: attr(data-language);
     font-family: var(--font-mono);
-    font-size: 0.46rem;
+    font-size: var(--text-micro, 0.7rem);
     font-weight: 700;
-    letter-spacing: 0.13em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
   }
 
@@ -521,7 +525,7 @@ const baseHeadingDepth = documentHeadings.length
   .mdx-content :global(.katex-display) {
     position: relative;
     margin: 22px 0 26px;
-    padding: 24px 22px;
+    padding: 32px 22px 24px;
     overflow-x: auto;
     overflow-y: hidden;
     border: 1px solid rgb(117 230 178 / 22%);
@@ -550,9 +554,9 @@ const baseHeadingDepth = documentHeadings.length
     color: var(--brand-green);
     content: "FORMULA";
     font-family: var(--font-mono);
-    font-size: 0.42rem;
+    font-size: var(--text-micro, 0.7rem);
     font-weight: 700;
-    letter-spacing: 0.13em;
+    letter-spacing: 0.1em;
   }
 
   .mdx-content :global(.katex-display .base) {

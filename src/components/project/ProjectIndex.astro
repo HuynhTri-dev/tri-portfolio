@@ -537,10 +537,10 @@ const filters = [
 
   .stat-box span {
     margin-top: 4px;
-    font-size: 0.58rem;
+    font-size: var(--text-micro, 0.7rem);
     color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
     white-space: nowrap;
   }
 
@@ -660,9 +660,9 @@ const filters = [
     padding: 4px 10px;
     border-radius: var(--radius-pill);
     font-family: var(--font-mono);
-    font-size: 0.58rem;
+    font-size: var(--text-micro, 0.7rem);
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     margin-bottom: 8px;
   }
@@ -784,11 +784,12 @@ const filters = [
     border: 1px solid rgb(24 199 133 / 40%);
     color: var(--brand-soft);
     font-family: var(--font-mono);
-    font-size: 0.58rem;
+    font-size: var(--text-micro, 0.7rem);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 
   .badge-tag {
@@ -800,8 +801,9 @@ const filters = [
     border: 1px solid rgb(255 255 255 / 15%);
     color: var(--text-secondary);
     font-family: var(--font-mono);
-    font-size: 0.58rem;
+    font-size: var(--text-micro, 0.7rem);
     backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 
   .badge-status {
@@ -812,8 +814,9 @@ const filters = [
     border-radius: var(--radius-pill);
     background: rgb(7 16 12 / 85%);
     font-family: var(--font-mono);
-    font-size: 0.55rem;
+    font-size: var(--text-micro, 0.7rem);
     backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 
   .badge-status--live {
@@ -853,7 +856,7 @@ const filters = [
     justify-content: space-between;
     margin-bottom: 8px;
     font-family: var(--font-mono);
-    font-size: 0.58rem;
+    font-size: var(--text-xs, 0.75rem);
     color: var(--text-muted);
   }
 
@@ -912,7 +915,7 @@ const filters = [
 
   .metric-chip span {
     color: var(--text-muted);
-    font-size: 0.55rem;
+    font-size: var(--text-micro, 0.7rem);
     text-transform: uppercase;
   }
 
@@ -932,7 +935,7 @@ const filters = [
     border: 1px solid rgb(255 255 255 / 5%);
     color: var(--text-secondary);
     font-family: var(--font-mono);
-    font-size: 0.56rem;
+    font-size: var(--text-micro, 0.7rem);
   }
 
   /* Footer Actions */
@@ -1079,13 +1082,13 @@ const filters = [
     border: 1px solid rgb(255 255 255 / 6%);
     color: var(--text-secondary);
     font-family: var(--font-mono);
-    font-size: 0.55rem;
+    font-size: var(--text-micro, 0.7rem);
   }
 
   .repo-period {
     color: var(--text-muted);
     font-family: var(--font-mono);
-    font-size: 0.58rem;
+    font-size: var(--text-xs, 0.75rem);
   }
 
   .repo-desc {
@@ -1105,7 +1108,7 @@ const filters = [
   .repo-techs span {
     color: var(--text-secondary);
     font-family: var(--font-mono);
-    font-size: 0.54rem;
+    font-size: var(--text-micro, 0.7rem);
   }
 
   .repo-techs span:not(:last-child)::after {

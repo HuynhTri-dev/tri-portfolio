@@ -1,3 +1,10 @@
+---
+/**
+ * @name ContactSection.astro
+ * @description Bioluminescent Glade contact section with availability status card and direct links.
+ */
+---
+
 <section class="contact shell" id="contact">
   <div class="contact-copy">
     <span class="section-index">08 / CONTACT</span>
@@ -89,14 +96,14 @@
   .contact-links a {
     display: grid;
     min-height: 78px;
-    grid-template-columns: 78px 1fr 20px;
+    grid-template-columns: 84px 1fr 20px;
     align-items: center;
     border-bottom: 1px solid var(--border-default);
     transition: padding var(--duration-fast) ease, color var(--duration-fast) ease;
   }
 
   .contact-links a:hover { padding-inline: 8px; color: var(--brand-soft); }
-  .contact-links small { color: var(--text-muted); font-family: var(--font-mono); font-size: 0.5rem; }
+  .contact-links small { color: var(--text-muted); font-family: var(--font-mono); font-size: var(--text-xs, 0.75rem); }
   .contact-links span { font-size: 0.82rem; overflow-wrap: anywhere; }
   .contact-links i { color: var(--brand-green); font-style: normal; }
 
@@ -108,6 +115,7 @@
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 20px;
     backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   }
 
@@ -187,6 +195,6 @@
 
   @media (max-width: 540px) {
     h2 { font-size: 2.8rem; }
-    .contact-links a { grid-template-columns: 62px 1fr 16px; }
+    .contact-links a { grid-template-columns: 72px 1fr 16px; }
   }
 </style>

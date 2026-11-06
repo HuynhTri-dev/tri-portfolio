@@ -1,4 +1,8 @@
 ---
+/**
+ * @name AchievementsSection.astro
+ * @description Engineering milestones, open-source olympiad honors, and AI innovation awards.
+ */
 import SectionHeading from "../ui/SectionHeading.astro";
 import { achievements } from "../../data/portfolio";
 
@@ -134,12 +138,13 @@ const achievementImages = [
     background: rgb(5 11 9 / 78%);
     box-shadow: 0 8px 24px rgb(0 0 0 / 28%);
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     color: var(--brand-soft);
-    font-size: 0.58rem;
-    letter-spacing: 0.08em;
+    font-size: var(--text-micro, 0.7rem);
+    letter-spacing: 0.06em;
   }
   .achievement-copy { display: flex; flex-direction: column; justify-content: center; padding: 34px; }
-  .achievement-tag { color: var(--text-muted); font-family: var(--font-mono); font-size: 0.56rem; letter-spacing: 0.1em; }
+  .achievement-tag { color: var(--text-muted); font-family: var(--font-mono); font-size: var(--text-xs, 0.75rem); letter-spacing: 0.08em; }
   h3 { margin: 12px 0 7px; font-size: 1.3rem; letter-spacing: -0.025em; }
   .achievement-copy > small { color: var(--technical-soft); font-size: 0.66rem; }
   p { margin: 18px 0 0; color: var(--text-muted); font-size: 0.82rem; }

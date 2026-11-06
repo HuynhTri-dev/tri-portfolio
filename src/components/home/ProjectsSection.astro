@@ -180,9 +180,10 @@ const projects = (await getCollection("projects")).sort(
     border: 1px solid rgb(24 199 133 / 35%);
     color: #4eedb0;
     font-family: var(--font-mono);
-    font-size: 0.58rem;
+    font-size: var(--text-micro, 0.7rem);
     font-weight: 600;
     backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     z-index: 2;
   }
 
@@ -213,14 +214,14 @@ const projects = (await getCollection("projects")).sort(
   .project-id {
     color: var(--brand-green);
     font-family: var(--font-mono);
-    font-size: 0.58rem;
-    letter-spacing: 0.1em;
+    font-size: var(--text-xs, 0.75rem);
+    letter-spacing: 0.08em;
   }
 
   .project-date {
     color: var(--text-muted);
     font-family: var(--font-mono);
-    font-size: 0.58rem;
+    font-size: var(--text-xs, 0.75rem);
   }
 
   .project-text-wrap {
@@ -263,10 +264,11 @@ const projects = (await getCollection("projects")).sort(
     overflow: hidden;
   }
 
-  /* Tag Row (Fixed Single Row Height) */
+  /* Tag Row (Uniform Single Row Min-Height) */
   .tag-row {
-    height: 28px;
+    min-height: 30px;
     display: flex;
+    align-items: center;
     flex-wrap: nowrap;
     gap: 6px;
     margin-bottom: 14px;
@@ -280,14 +282,14 @@ const projects = (await getCollection("projects")).sort(
     background: rgb(255 255 255 / 2%);
     color: var(--text-secondary);
     font-family: var(--font-mono);
-    font-size: 0.56rem;
+    font-size: var(--text-micro, 0.7rem);
     white-space: nowrap;
     flex-shrink: 0;
   }
 
   /* Metrics Grid (Uniform 3-Column Box) */
   .project-metrics {
-    height: 58px;
+    min-height: 64px;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
@@ -318,10 +320,10 @@ const projects = (await getCollection("projects")).sort(
 
   .metric-item span {
     color: var(--text-muted);
-    font-size: 0.52rem;
+    font-size: var(--text-micro, 0.7rem);
     margin-top: 3px;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

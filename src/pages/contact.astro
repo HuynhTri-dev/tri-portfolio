@@ -209,6 +209,7 @@ const expertisePills = [
     border: 1px solid var(--border-default);
     margin-bottom: 32px;
     backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
   }
 
   .profile-avatar-wrap {
@@ -301,12 +302,12 @@ const expertisePills = [
     border: 1px solid rgb(255 255 255 / 6%);
     color: var(--text-secondary);
     font-family: var(--font-mono);
-    font-size: 0.58rem;
+    font-size: var(--text-micro, 0.7rem);
   }
 
   .pill-chip i {
     color: var(--brand-soft);
-    font-size: 0.6rem;
+    font-size: var(--text-micro, 0.7rem);
   }
 
   .profile-cta {

@@ -1,4 +1,10 @@
 ---
+/**
+ * @name EducationSection.astro
+ * @description "The Deep Academic Roots" education section featuring accurate university
+ *              branding and an interactive Bioluminescent SVG Progress Arc (91.25% GPA gauge)
+ *              with scroll-triggered count-up animation.
+ */
 import SectionHeading from "../ui/SectionHeading.astro";
 ---
 
@@ -30,10 +36,10 @@ import SectionHeading from "../ui/SectionHeading.astro";
       <div class="education-content">
         <span class="date">SEP 2022 — JAN 2026</span>
         <h3
-          data-en="Ho Chi Minh City University of Technology"
-          data-vi="Trường Đại học Bách khoa — ĐHQG TP.HCM"
+          data-en="Ho Chi Minh City University of Technology (HUTECH)"
+          data-vi="Trường Đại học Công nghệ TP.HCM (HUTECH)"
         >
-          Ho Chi Minh City University of Technology
+          Ho Chi Minh City University of Technology (HUTECH)
         </h3>
         <p
           class="degree"
@@ -65,8 +71,56 @@ import SectionHeading from "../ui/SectionHeading.astro";
         </a>
       </div>
     </div>
+
     <div class="education-score">
-      <div class="score-ring"><span>3.65</span><small>/ 4.00 GPA</small></div>
+      <div
+        class="score-ring"
+        data-gpa-gauge
+        role="img"
+        aria-label="GPA 3.65 out of 4.00 (91.25%)"
+      >
+        <svg class="gpa-svg" viewBox="0 0 170 170" aria-hidden="true">
+          <defs>
+            <linearGradient id="gpaBioGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#38bdf8" />
+              <stop offset="55%" stop-color="#18c785" />
+              <stop offset="100%" stop-color="#75e6b2" />
+            </linearGradient>
+          </defs>
+          <circle
+            class="gpa-track"
+            cx="85"
+            cy="85"
+            r="72"
+            fill="none"
+            stroke-width="4"
+          />
+          <circle
+            class="gpa-ticks"
+            cx="85"
+            cy="85"
+            r="63"
+            fill="none"
+            stroke-width="1"
+            stroke-dasharray="3 6"
+          />
+          <circle
+            class="gpa-progress"
+            cx="85"
+            cy="85"
+            r="72"
+            fill="none"
+            stroke="url(#gpaBioGradient)"
+            stroke-width="5"
+            stroke-linecap="round"
+          />
+        </svg>
+        <div class="score-readout">
+          <span data-gpa-value>3.65</span>
+          <small>/ 4.00 GPA</small>
+        </div>
+      </div>
+
       <div class="education-milestone">
         <span></span>
         <p>
@@ -79,7 +133,9 @@ import SectionHeading from "../ui/SectionHeading.astro";
             target="_blank"
             rel="noreferrer"
           >
-            <strong data-en="Working at IDB Group" data-vi="Đang làm việc tại Tập đoàn IDB"
+            <strong
+              data-en="Working at IDB Group"
+              data-vi="Đang làm việc tại Tập đoàn IDB"
               >Working at IDB Group</strong
             >
             <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
@@ -89,6 +145,57 @@ import SectionHeading from "../ui/SectionHeading.astro";
     </div>
   </article>
 </section>
+
+<script>
+  /**
+   * Animates the Bioluminescent GPA Gauge arc (91.25%) and numeric count-up
+   * once the Education card enters the viewport.
+   */
+  const gaugeEl = document.querySelector<HTMLElement>("[data-gpa-gauge]");
+  const valEl = document.querySelector<HTMLElement>("[data-gpa-value]");
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (gaugeEl && valEl) {
+    if (reduceMotion || !("IntersectionObserver" in window)) {
+      gaugeEl.classList.add("is-active");
+      valEl.textContent = "3.65";
+    } else {
+      const targetGpa = 3.65;
+      const durationMs = 1350;
+
+      const animateGpa = () => {
+        gaugeEl.classList.add("is-active");
+        const start = performance.now();
+
+        const step = (now: number) => {
+          const elapsed = Math.min(1, (now - start) / durationMs);
+          const eased = 1 - Math.pow(1 - elapsed, 3);
+          valEl.textContent = (targetGpa * eased).toFixed(2);
+          if (elapsed < 1) {
+            window.requestAnimationFrame(step);
+          } else {
+            valEl.textContent = "3.65";
+          }
+        };
+
+        window.requestAnimationFrame(step);
+      };
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            animateGpa();
+            observer.disconnect();
+          });
+        },
+        { threshold: 0.35 },
+      );
+
+      observer.observe(gaugeEl);
+    }
+  }
+</script>
 
 <style>
   .education-card {
@@ -125,21 +232,25 @@ import SectionHeading from "../ui/SectionHeading.astro";
     transform: translateY(-3px);
     border-color: rgb(124 183 255 / 62%);
   }
+
   .school-mark img {
     width: 62px;
     height: 63px;
     object-fit: contain;
   }
+
   .school-mark span {
     display: flex;
     align-items: baseline;
     gap: 7px;
   }
+
   .school-mark small {
     color: var(--technical-soft);
     font-family: var(--font-mono);
-    font-size: 0.47rem;
+    font-size: var(--text-micro, 0.7rem);
   }
+
   .school-mark strong {
     font-size: 1.15rem;
     letter-spacing: 0.04em;
@@ -157,6 +268,7 @@ import SectionHeading from "../ui/SectionHeading.astro";
     max-width: 660px;
     color: var(--text-muted);
   }
+
   .education-content .degree {
     margin: 0 0 20px;
     color: var(--brand-soft);
@@ -181,41 +293,72 @@ import SectionHeading from "../ui/SectionHeading.astro";
   .score-ring {
     position: relative;
     display: grid;
-    width: 170px;
-    height: 170px;
-    place-content: center;
-    border: 1px solid rgb(124 183 255 / 22%);
+    width: 174px;
+    height: 174px;
+    place-items: center;
     border-radius: 50%;
     text-align: center;
-    box-shadow: inset 0 0 38px rgb(59 130 246 / 6%);
+    box-shadow: inset 0 0 38px rgb(24 199 133 / 8%);
   }
 
-  .score-ring::before {
+  .gpa-svg {
     position: absolute;
-    inset: 11px;
-    transform: rotate(32deg);
-    border: 3px solid transparent;
-    border-top-color: var(--technical-blue);
-    border-right-color: var(--brand-green);
-    border-radius: 50%;
-    content: "";
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+    overflow: visible;
   }
 
-  .score-ring span {
+  .gpa-track {
+    stroke: rgba(124, 183, 255, 0.14);
+  }
+
+  .gpa-ticks {
+    stroke: rgba(117, 230, 178, 0.22);
+  }
+
+  .gpa-progress {
+    /* Circumference = 2 * PI * 72 = 452.39; 91.25% fill => dashoffset 39.58 */
+    stroke-dasharray: 452.39;
+    stroke-dashoffset: 452.39;
+    filter: drop-shadow(0 0 8px rgba(24, 199, 133, 0.55));
+    transition: stroke-dashoffset 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .score-ring.is-active .gpa-progress {
+    stroke-dashoffset: 39.58;
+  }
+
+  .score-readout {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .score-readout span {
     font-family: var(--font-mono);
     font-size: 2.2rem;
     font-weight: 600;
+    line-height: 1.05;
+    color: var(--text-main);
   }
-  .score-ring small {
+
+  .score-readout small {
     color: var(--text-muted);
     font-family: var(--font-mono);
-    font-size: 0.55rem;
+    font-size: var(--text-xs, 0.75rem);
   }
+
   .education-milestone {
     display: flex;
     align-items: center;
     gap: 12px;
   }
+
   .education-milestone > span {
     width: 8px;
     height: 8px;
@@ -223,20 +366,24 @@ import SectionHeading from "../ui/SectionHeading.astro";
     background: var(--brand-green);
     box-shadow: 0 0 16px var(--brand-green);
   }
+
   .education-milestone p {
     display: flex;
     flex-direction: column;
     margin: 0;
   }
+
   .education-milestone small {
     color: var(--text-muted);
     font-family: var(--font-mono);
-    font-size: 0.48rem;
-    letter-spacing: 0.1em;
+    font-size: var(--text-micro, 0.7rem);
+    letter-spacing: 0.08em;
   }
+
   .education-milestone strong {
-    font-size: 0.82rem;
+    font-size: 0.84rem;
   }
+
   .milestone-link {
     display: inline-flex;
     align-items: center;
@@ -245,11 +392,13 @@ import SectionHeading from "../ui/SectionHeading.astro";
     text-decoration: none;
     transition: color var(--duration-fast) ease;
   }
+
   .milestone-link:hover {
     color: var(--brand-green);
   }
+
   .milestone-link i {
-    font-size: 0.65rem;
+    font-size: var(--text-micro, 0.7rem);
     color: var(--brand-soft);
   }
 
@@ -276,8 +425,8 @@ import SectionHeading from "../ui/SectionHeading.astro";
       border-left: 0;
     }
     .score-ring {
-      width: 140px;
-      height: 140px;
+      width: 142px;
+      height: 142px;
     }
   }
 
@@ -299,12 +448,12 @@ import SectionHeading from "../ui/SectionHeading.astro";
       padding: 28px 20px;
     }
     .score-ring {
-      width: 116px;
-      height: 116px;
+      width: 120px;
+      height: 120px;
       flex: 0 0 auto;
     }
-    .score-ring span {
-      font-size: 1.7rem;
+    .score-readout span {
+      font-size: 1.68rem;
     }
   }
 </style>

@@ -289,10 +289,10 @@ const formatDate = (date: Date | string) => {
 
   .blog-badge span {
     margin-top: 4px;
-    font-size: 0.58rem;
+    font-size: var(--text-micro, 0.7rem);
     color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
     white-space: nowrap;
   }
 
@@ -432,8 +432,9 @@ const formatDate = (date: Date | string) => {
     border: 1px solid rgb(24 199 133 / 30%);
     color: #4eedb0;
     font-family: var(--font-mono);
-    font-size: 0.58rem;
+    font-size: var(--text-micro, 0.7rem);
     backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 
   .post-card-body {
@@ -489,7 +490,7 @@ const formatDate = (date: Date | string) => {
   .hashtag-list span {
     color: var(--text-secondary);
     font-family: var(--font-mono);
-    font-size: 0.55rem;
+    font-size: var(--text-micro, 0.7rem);
     padding: 2px 6px;
     border-radius: 4px;
     background: rgb(255 255 255 / 2%);

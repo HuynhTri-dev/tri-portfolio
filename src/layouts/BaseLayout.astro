@@ -5,6 +5,7 @@
  */
 import Header from "../components/layout/Header.astro";
 import Footer from "../components/layout/Footer.astro";
+import CyberForestHud from "../components/layout/CyberForestHud.astro";
 import SystemDepthBackground from "../components/home/SystemDepthBackground.astro";
 import "../styles/global.css";
 import "katex/dist/katex.min.css";
@@ -97,28 +98,13 @@ const socialImageURL = new URL(image, Astro.site);
 
       <div class="forest-tech-layer">
         <span class="scan-ring scan-ring-left"></span>
-        <span class="forest-branch branch-left"></span>
-        <span class="leaf-cluster leaf-left-one"></span>
-        <span class="leaf-cluster leaf-left-two"></span>
-        <span class="leaf-cluster leaf-left-three"></span>
-        <span class="leaf-cluster leaf-left-four"></span>
-        <span class="leaf-cluster leaf-left-five"></span>
         <span class="signal-path signal-path-left"></span>
-
-        <span class="forest-branch branch-right"></span>
-        <span class="leaf-cluster leaf-right-one"></span>
-        <span class="leaf-cluster leaf-right-two"></span>
-        <span class="leaf-cluster leaf-right-three"></span>
         <span class="signal-path signal-path-right"></span>
-      </div>
-
-      <div class="foreground-layer">
-        <span class="foreground-foliage foreground-left"></span>
-        <span class="foreground-foliage foreground-right"></span>
       </div>
     </div>
 
-    {isHome && <SystemDepthBackground />}
+    <SystemDepthBackground isHome={isHome} />
+    <CyberForestHud isHome={isHome} />
 
     <Header isHome={isHome} />
     <main id="main-content">

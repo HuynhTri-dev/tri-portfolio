@@ -1,9 +1,18 @@
 ---
+/**
+ * @name Header.astro
+ * @description Sticky Cyber-Arboretum navigation header with central medallion seal,
+ *              pathname-aware active states, accessible language toggle, and mobile drawer.
+ */
 interface Props {
   isHome?: boolean;
 }
 
 const { isHome = false } = Astro.props;
+const pathname = Astro.url.pathname;
+const isProjects = pathname.startsWith("/projects");
+const isBlog = pathname.startsWith("/blog");
+const isContact = pathname.startsWith("/contact");
 const anchor = (id: string) => (isHome ? `#${id}` : `/#${id}`);
 ---
 
@@ -47,7 +56,7 @@ const anchor = (id: string) => (isHome ? `#${id}` : `/#${id}`);
   <nav class="desktop-nav shell" aria-label="Primary navigation">
     <div class="nav-frame">
       <a href="/Huynh-Minh-Tri-Software-Engineer-CV.pdf" target="_blank">CV</a>
-      <a href="/projects"
+      <a href="/projects" aria-current={isProjects ? "page" : undefined}
         ><span data-en="Projects" data-vi="Dự án">Projects</span></a
       >
       <a
@@ -64,10 +73,10 @@ const anchor = (id: string) => (isHome ? `#${id}` : `/#${id}`);
         />
         <small data-en="Home" data-vi="Trang chủ">Home</small>
       </a>
-      <a href="/blog"
+      <a href="/blog" aria-current={isBlog ? "page" : undefined}
         ><span data-en="Blog" data-vi="Blog">Blog</span></a
       >
-      <a href="/contact"
+      <a href="/contact" aria-current={isContact ? "page" : undefined}
         ><span data-en="Contact" data-vi="Liên hệ">Contact</span></a
       >
     </div>
@@ -179,6 +188,7 @@ const anchor = (id: string) => (isHome ? `#${id}` : `/#${id}`);
       transparent
     );
     backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
   }
 
   .desktop-nav {
@@ -192,7 +202,7 @@ const anchor = (id: string) => (isHome ? `#${id}` : `/#${id}`);
   .nav-frame {
     position: relative;
     display: grid;
-    width: min(810px, calc(100% - 130px));
+    width: min(810px, calc(100% - 210px));
     height: 64px;
     grid-template-columns: 1fr 1.25fr 116px 1.25fr 1fr;
     grid-template-rows: 64px;
@@ -233,11 +243,16 @@ const anchor = (id: string) => (isHome ? `#${id}` : `/#${id}`);
     transition: width var(--duration-fast) ease;
   }
 
-  .nav-frame > a:not(.home-medallion):hover {
-    color: var(--text-main);
+  .nav-frame > a:not(.home-medallion):hover,
+  .nav-frame > a:not(.home-medallion)[aria-current="page"] {
+    color: var(--brand-soft);
   }
   .nav-frame > a:not(.home-medallion):hover::after {
     width: 20px;
+  }
+  .nav-frame > a:not(.home-medallion)[aria-current="page"]::after {
+    width: 22px;
+    box-shadow: 0 0 10px var(--brand-green);
   }
 
   .home-medallion {
@@ -252,7 +267,7 @@ const anchor = (id: string) => (isHome ? `#${id}` : `/#${id}`);
     height: 102px;
     justify-self: center;
     align-self: center;
-    border: 7px solid #3e291d;
+    border: 6px solid var(--wood-dark);
     border-radius: 50%;
     background:
       radial-gradient(
@@ -262,7 +277,7 @@ const anchor = (id: string) => (isHome ? `#${id}` : `/#${id}`);
       ),
       #081610;
     box-shadow:
-      inset 0 0 0 1px rgb(168 122 82 / 60%),
+      inset 0 0 0 1px rgb(184 136 96 / 65%),
       inset 0 0 0 5px rgb(24 199 133 / 10%),
       0 0 0 1px rgb(24 199 133 / 45%),
       0 14px 40px rgb(0 0 0 / 45%);
@@ -286,8 +301,8 @@ const anchor = (id: string) => (isHome ? `#${id}` : `/#${id}`);
     margin: 0;
     color: var(--text-muted);
     font-family: var(--font-mono);
-    font-size: 0.52rem;
-    letter-spacing: 0.16em;
+    font-size: var(--text-micro, 0.7rem);
+    letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
@@ -299,15 +314,18 @@ const anchor = (id: string) => (isHome ? `#${id}` : `/#${id}`);
     display: flex;
     height: 44px;
     align-items: center;
-    gap: 6px;
+    gap: 2px;
     color: var(--text-muted);
     font-family: var(--font-mono);
-    font-size: 0.7rem;
+    font-size: var(--text-micro, 0.7rem);
   }
 
   .language-switcher button {
-    min-width: 32px;
-    padding: 8px 4px;
+    display: inline-grid;
+    min-width: 44px;
+    min-height: 44px;
+    place-items: center;
+    padding: 4px;
     border: 0;
     background: none;
     color: var(--text-muted);

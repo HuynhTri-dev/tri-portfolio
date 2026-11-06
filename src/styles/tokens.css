@@ -1,3 +1,9 @@
+/**
+ * @name tokens.css
+ * @description Design tokens for the Cyber-Arboretum (Knowledge Forest) theme,
+ *              defining semantic colors, contrast-verified borders, radii, and type scales.
+ */
+
 :root {
   color-scheme: dark;
 
@@ -9,23 +15,26 @@
   --brand-soft: #75e6b2;
   --technical-blue: #3b82f6;
   --technical-soft: #7cb7ff;
-  --wood-dark: #4a3022;
-  --wood-natural: #765139;
-  --wood-soft: #a87a52;
+  --wood-dark: #7d553d;
+  --wood-natural: #94684c;
+  --wood-soft: #b88860;
 
   --text-main: #f2f7f4;
   --text-secondary: #b6c3bc;
-  --text-muted: #83938a;
+  --text-muted: #8b9c93;
 
-  --border-default: rgb(142 190 166 / 18%);
-  --border-active: rgb(24 199 133 / 62%);
+  --border-default: rgb(142 190 166 / 20%);
+  --border-active: rgb(24 199 133 / 65%);
   --border-blue: rgb(59 130 246 / 55%);
-  --border-wood: rgb(168 122 82 / 42%);
+  --border-wood: rgb(184 136 96 / 48%);
 
   --radius-small: 12px;
   --radius-standard: 18px;
   --radius-feature: 24px;
   --radius-pill: 999px;
+
+  --text-xs: 0.75rem;
+  --text-micro: 0.7rem;
 
   --duration-fast: 180ms;
   --duration-normal: 220ms;

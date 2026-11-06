@@ -1,3 +1,9 @@
+/**
+ * @name TechTrail.tsx
+ * @description Interactive "Crystal Grove" capability matrix island that synchronizes
+ *              active technical domains with the 3D WebGL Cyber-Arboretum palette.
+ */
+
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
 import type { TechGroup, TechnologyDepth } from "../../data/portfolio";
@@ -15,6 +21,10 @@ const depthLabels: Record<TechnologyDepth, Record<Language, string>> = {
   applied: { en: "Applied", vi: "Đã dùng" },
 };
 
+/**
+ * Renders the accessible capability tabs and animated detail panel, broadcasting
+ * `portfolio:capability-change` events to shift 3D biome lighting in real time.
+ */
 export default function TechTrail({ groups }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [language, setLanguage] = useState<Language>("en");
@@ -33,9 +43,27 @@ export default function TechTrail({ groups }: Props) {
     return () => window.removeEventListener("portfolio:language", handleLanguage);
   }, []);
 
+  /**
+   * Switches the active capability domain, focuses the tab, and broadcasts
+   * the capability short-code to synchronize the 3D WebGL background.
+   */
   const selectTab = (index: number) => {
     const nextIndex = (index + groups.length) % groups.length;
     setActiveIndex(nextIndex);
+
+    const nextGroup = groups[nextIndex];
+    if (nextGroup) {
+      window.dispatchEvent(
+        new CustomEvent("portfolio:capability-change", {
+          detail: {
+            short: nextGroup.short,
+            step: nextGroup.step,
+            index: nextIndex,
+          },
+        }),
+      );
+    }
+
     const nextTab = document.getElementById(`technology-tab-${nextIndex}`);
     nextTab?.focus();
     nextTab?.scrollIntoView({
@@ -68,7 +96,7 @@ export default function TechTrail({ groups }: Props) {
   };
 
   return (
-    <div className="tech-island">
+    <div className="tech-island" data-capability={active.short}>
       <div
         className="trail-tabs"
         role="tablist"
@@ -178,7 +206,12 @@ export default function TechTrail({ groups }: Props) {
                     <>
                       <strong>{proof.value}</strong>
                       {proof.label && <span>{proof.label[language]}</span>}
-                      {proof.href && <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true" />}
+                      {proof.href && (
+                        <i
+                          className="fa-solid fa-arrow-up-right-from-square"
+                          aria-hidden="true"
+                        />
+                      )}
                     </>
                   );
 
