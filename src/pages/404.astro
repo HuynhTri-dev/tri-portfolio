@@ -53,6 +53,22 @@ import BaseLayout from "../layouts/BaseLayout.astro";
           <small>GPS COORDS</small>
           <strong>10.76°N, 106.66°E</strong>
         </div>
+        <div class="telemetry-item telemetry-item--full">
+          <small data-en="DETECTED UNRESOLVED PATH" data-vi="TỌA ĐỘ ĐƯỜNG DẪN KHÔNG TỒN TẠI">DETECTED UNRESOLVED PATH</small>
+          <code class="missing-path-display" data-missing-path>Detecting...</code>
+        </div>
+      </div>
+
+      <!-- Smart Route Recommendation Banner -->
+      <div class="smart-suggestion" data-smart-suggestion hidden>
+        <div class="suggestion-message">
+          <i class="fa-solid fa-compass-drafting" aria-hidden="true"></i>
+          <span data-suggestion-text>Suggested waypoint found</span>
+        </div>
+        <a href="/" class="btn-suggestion" data-suggestion-link>
+          <span data-en="Redirect to Synapse" data-vi="Đi tới nhánh phù hợp">Redirect to Synapse</span>
+          <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        </a>
       </div>
 
       <!-- Recovery Navigation CTAs -->
@@ -69,10 +85,88 @@ import BaseLayout from "../layouts/BaseLayout.astro";
           <i class="fa-solid fa-book-bookmark" aria-hidden="true"></i>
           <span data-en="Knowledge Base" data-vi="Cơ Sở Tri Thức">Knowledge Base</span>
         </a>
+        <button type="button" class="btn-recovery btn-recovery--ghost" data-copy-diagnostic>
+          <i class="fa-regular fa-copy" aria-hidden="true"></i>
+          <span data-en="Copy Diagnostic" data-vi="Sao chép lỗi">Copy Diagnostic</span>
+        </button>
       </div>
     </div>
   </main>
 </BaseLayout>
+
+<script>
+  const missingPathEl = document.querySelector<HTMLElement>("[data-missing-path]");
+  const copyBtn = document.querySelector<HTMLButtonElement>("[data-copy-diagnostic]");
+  const suggestionBox = document.querySelector<HTMLElement>("[data-smart-suggestion]");
+  const suggestionText = document.querySelector<HTMLElement>("[data-suggestion-text]");
+  const suggestionLink = document.querySelector<HTMLAnchorElement>("[data-suggestion-link]");
+
+  const currentPath = window.location.pathname;
+  if (missingPathEl) {
+    missingPathEl.textContent = currentPath || "/unknown";
+  }
+
+  // Smart suggestion map
+  const lowerPath = currentPath.toLowerCase();
+  let suggestedUrl: string | null = null;
+  let suggestedLabelEn = "";
+  let suggestedLabelVi = "";
+
+  if (lowerPath.includes("cv") || lowerPath.includes("resume")) {
+    suggestedUrl = "/Huynh-Minh-Tri-Software-Engineer-CV.pdf";
+    suggestedLabelEn = "Curriculum Vitae (PDF)";
+    suggestedLabelVi = "Hồ sơ năng lực CV (PDF)";
+  } else if (lowerPath.includes("skill") || lowerPath.includes("matrix")) {
+    suggestedUrl = "/blog";
+    suggestedLabelEn = "Skill Tree Matrix in Blog (TIER 02)";
+    suggestedLabelVi = "Ma trận Kỹ năng tại Blog (TIER 02)";
+  } else if (lowerPath.includes("idb") || lowerPath.includes("sacombank") || lowerPath.includes("namabank") || lowerPath.includes("tnex")) {
+    suggestedUrl = "/experience/idb";
+    suggestedLabelEn = "IDB Group Banking Engagements";
+    suggestedLabelVi = "Dự án Ngân hàng tại IDB Group";
+  } else if (lowerPath.includes("prodid") || lowerPath.includes("ritavo")) {
+    suggestedUrl = "/projects/ritavo-prodid";
+    suggestedLabelEn = "RitaVõ ProdID PLM Platform";
+    suggestedLabelVi = "Hồ sơ dự án RitaVõ ProdID PLM";
+  } else if (lowerPath.startsWith("/project/") && lowerPath !== "/project/") {
+    suggestedUrl = currentPath.replace("/project/", "/projects/");
+    suggestedLabelEn = "Project Dossier: " + suggestedUrl;
+    suggestedLabelVi = "Hồ sơ dự án: " + suggestedUrl;
+  }
+
+  if (suggestedUrl && suggestionBox && suggestionText && suggestionLink) {
+    const isVi = document.documentElement.lang === "vi" || localStorage.getItem("portfolio-language") === "vi";
+    suggestionText.textContent = isVi ? `Gợi ý: ${suggestedLabelVi}` : `Suggested: ${suggestedLabelEn}`;
+    suggestionLink.href = suggestedUrl;
+    suggestionBox.hidden = false;
+  }
+
+  copyBtn?.addEventListener("click", async () => {
+    const payload = [
+      `BIO-TELEMETRY // 404_NODE_NOT_FOUND`,
+      `MISSING_PATH: ${window.location.pathname}${window.location.search}`,
+      `REFERRER: ${document.referrer || "direct"}`,
+      `BEACON: SG_CORE_1109`,
+      `GPS: 10.76°N, 106.66°E`,
+      `TIME: ${new Date().toISOString()}`,
+    ].join("\n");
+
+    try {
+      await navigator.clipboard.writeText(payload);
+      const isVi = document.documentElement.lang === "vi" || localStorage.getItem("portfolio-language") === "vi";
+      const span = copyBtn.querySelector("span");
+      if (span) {
+        const originalText = span.textContent;
+        span.textContent = isVi ? "Đã sao chép!" : "Copied!";
+        setTimeout(() => {
+          span.textContent = originalText;
+        }, 2200);
+      }
+    } catch {
+      // Fallback
+    }
+  });
+</script>
 
 <style>
   .not-found-main {
@@ -203,6 +297,85 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     font-family: var(--font-mono);
     font-size: var(--text-xs, 0.75rem);
     font-weight: 600;
+  }
+
+  .telemetry-item--full {
+    grid-column: 1 / -1;
+    padding-top: 8px;
+    border-top: 1px dashed rgb(255 255 255 / 8%);
+  }
+
+  .missing-path-display {
+    color: #4eedb0;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    word-break: break-all;
+    background: rgb(24 199 133 / 10%);
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid rgb(24 199 133 / 25%);
+    display: inline-block;
+    max-width: 100%;
+  }
+
+  .smart-suggestion {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 18px;
+    margin-bottom: 24px;
+    border-radius: var(--radius-standard, 14px);
+    background: linear-gradient(135deg, rgb(24 199 133 / 16%), rgb(56 189 248 / 8%));
+    border: 1px solid rgb(24 199 133 / 38%);
+  }
+
+  .suggestion-message {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.82rem;
+    color: #e6faf2;
+    text-align: left;
+  }
+
+  .suggestion-message i {
+    color: var(--brand-green);
+    font-size: 0.95rem;
+  }
+
+  .btn-suggestion {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    background: var(--brand-green);
+    color: #030806;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all var(--duration-fast) ease;
+  }
+
+  .btn-suggestion:hover {
+    background: var(--brand-soft);
+    transform: translateX(2px);
+  }
+
+  .btn-recovery--ghost {
+    background: rgb(255 255 255 / 3%);
+    border: 1px solid rgb(255 255 255 / 10%);
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+
+  .btn-recovery--ghost:hover {
+    background: rgb(255 255 255 / 8%);
+    color: var(--text-main);
   }
 
   .telemetry-item .text-green {

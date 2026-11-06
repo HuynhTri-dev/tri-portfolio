@@ -13,6 +13,16 @@ export default defineConfig({
   site: 'https://trihuynh.omnimer.io.vn',
   adapter: cloudflare(),
   integrations: [mdx(), react(), sitemap()],
+  redirects: {
+    '/cv': '/Huynh-Minh-Tri-Software-Engineer-CV.pdf',
+    '/resume': '/Huynh-Minh-Tri-Software-Engineer-CV.pdf',
+    '/project': '/projects',
+    '/skills': '/blog',
+    '/skill': '/blog',
+    '/matrix': '/blog',
+    '/projects/idb': '/experience/idb',
+    '/sacombank': '/experience/idb',
+  },
   markdown: {
     processor: unified({
       remarkPlugins: [remarkMath],
