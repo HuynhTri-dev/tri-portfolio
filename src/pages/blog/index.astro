@@ -6,6 +6,7 @@
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import ContactSection from "../../components/home/ContactSection.astro";
+import SkillTreeMatrix, { type KbIndexSummaryItem } from "../../components/islands/SkillTreeMatrix";
 import { KnowledgeService } from "../../lib/services/knowledge.service";
 
 export const prerender = false;
@@ -38,6 +39,14 @@ try {
 } catch (err) {
   console.warn("[blog/index.astro] Error loading D1 KB articles:", err);
 }
+
+const kbSummaryItems: KbIndexSummaryItem[] = kbArticlesWithProblems.map((art) => ({
+  slug: art.slug,
+  title: art.title,
+  category: art.kb_category ?? "",
+  hashtags: Array.isArray(art.hashtags) ? art.hashtags : [],
+  description: `${art.summary_for_agents ?? ""} ${art.description ?? ""}`.trim(),
+}));
 
 const formatDate = (date: Date | string) => {
   const d = typeof date === "string" ? new Date(date) : date;
@@ -161,9 +170,32 @@ const formatDate = (date: Date | string) => {
         </div>
       </div>
 
-      <div class="kb-grid">
+      <!-- Interactive F -> S Skill Tree Matrix Island -->
+      <SkillTreeMatrix client:load kbItems={kbSummaryItems} />
+
+      <!-- Active Skill Cross-Filter Bar -->
+      <div class="kb-filter-anchor" data-kb-results-anchor>
+        <div class="kb-filter-banner panel" data-kb-filter-bar hidden>
+          <div class="kb-filter-banner__info">
+            <span class="kb-filter-rank" data-kb-filter-rank>RANK S</span>
+            <span class="kb-filter-text">
+              <span data-en="Filtering D1 Repository by skill:" data-vi="Đang lọc Kho D1 theo kỹ năng:">
+                Filtering D1 Repository by skill:
+              </span>
+              <strong data-kb-filter-name>—</strong>
+              <em data-kb-filter-count></em>
+            </span>
+          </div>
+          <button type="button" class="kb-filter-reset-btn" data-kb-filter-reset>
+            <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+            <span data-en="Show All D1 Studies" data-vi="Hiện tất cả bài D1">Show All D1 Studies</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="kb-grid" data-kb-grid>
         {kbArticlesWithProblems.map((article) => (
-          <article class="kb-card panel">
+          <article class="kb-card panel" data-kb-card data-kb-slug={article.slug}>
             <div class="kb-card-top">
               <span class="kb-category-badge">{article.kb_category.toUpperCase()}</span>
               <time datetime={article.pub_date} class="kb-date">
@@ -209,6 +241,23 @@ const formatDate = (date: Date | string) => {
         ))}
       </div>
 
+      <div class="kb-skill-empty panel" data-kb-skill-empty hidden>
+        <i class="fa-solid fa-diagram-project kb-skill-empty__icon" aria-hidden="true"></i>
+        <h3
+          data-en="Verified via Enterprise Project Dossiers"
+          data-vi="Được chứng minh qua Hồ sơ Dự án Thực chiến"
+        >
+          Verified via Enterprise Project Dossiers
+        </h3>
+        <p
+          data-en="No standalone D1 bug/troubleshooting article is tagged with this node yet — inspect its direct production dossiers below or reset the filter."
+          data-vi="Chưa có bài viết xử lý lỗi D1 riêng cho nút kỹ năng này — bạn có thể mở trực tiếp hồ sơ dự án thực chiến bên dưới hoặc đặt lại bộ lọc."
+        >
+          No standalone D1 bug/troubleshooting article is tagged with this node yet — inspect its direct production dossiers below or reset the filter.
+        </p>
+        <div class="kb-skill-empty__proofs" data-kb-empty-proofs></div>
+      </div>
+
       {kbArticlesWithProblems.length === 0 && (
         <div class="empty panel">
           <p>No knowledge base items found in database yet.</p>
@@ -220,6 +269,99 @@ const formatDate = (date: Date | string) => {
 
   <ContactSection />
 </BaseLayout>
+
+<script>
+  import type { KbSkillFilterDetail } from "../../components/islands/SkillTreeMatrix";
+
+  const kbCards = Array.from(document.querySelectorAll<HTMLElement>("[data-kb-card]"));
+  const filterBar = document.querySelector<HTMLElement>("[data-kb-filter-bar]");
+  const filterRankEl = document.querySelector<HTMLElement>("[data-kb-filter-rank]");
+  const filterNameEl = document.querySelector<HTMLElement>("[data-kb-filter-name]");
+  const filterCountEl = document.querySelector<HTMLElement>("[data-kb-filter-count]");
+  const resetBtn = document.querySelector<HTMLButtonElement>("[data-kb-filter-reset]");
+  const skillEmptyBox = document.querySelector<HTMLElement>("[data-kb-skill-empty]");
+  const emptyProofsWrap = document.querySelector<HTMLElement>("[data-kb-empty-proofs]");
+
+  let lastDetail: KbSkillFilterDetail | null = null;
+
+  const getCurrentLang = (): "en" | "vi" => {
+    try {
+      const stored = localStorage.getItem("portfolio-language");
+      if (stored === "vi" || stored === "en") return stored;
+    } catch {
+      // Non-blocking
+    }
+    return document.documentElement.lang === "vi" ? "vi" : "en";
+  };
+
+  function renderKbFilterState(detail: KbSkillFilterDetail | null) {
+    lastDetail = detail;
+    const lang = getCurrentLang();
+
+    if (!detail || !detail.skillId) {
+      kbCards.forEach((card) => {
+        card.hidden = false;
+      });
+      if (filterBar) filterBar.hidden = true;
+      if (skillEmptyBox) skillEmptyBox.hidden = true;
+      return;
+    }
+
+    const matchedSet = new Set(detail.matchedSlugs);
+    let visibleCount = 0;
+
+    kbCards.forEach((card) => {
+      const slug = card.dataset.kbSlug ?? "";
+      const isMatch = matchedSet.has(slug);
+      card.hidden = !isMatch;
+      if (isMatch) visibleCount += 1;
+    });
+
+    if (filterBar) filterBar.hidden = false;
+    if (filterRankEl) {
+      filterRankEl.textContent = `RANK ${detail.rank ?? "S"}`;
+    }
+    if (filterNameEl) {
+      filterNameEl.textContent = lang === "vi" ? detail.skillNameVi : detail.skillNameEn;
+    }
+    if (filterCountEl) {
+      filterCountEl.textContent =
+        lang === "vi"
+          ? `(${visibleCount}/${kbCards.length} bài D1)`
+          : `(${visibleCount}/${kbCards.length} D1 studies)`;
+    }
+
+    if (skillEmptyBox) {
+      skillEmptyBox.hidden = visibleCount > 0 || kbCards.length === 0;
+    }
+
+    if (emptyProofsWrap) {
+      emptyProofsWrap.replaceChildren();
+      detail.proofs.forEach((proof) => {
+        const link = document.createElement("a");
+        link.href = proof.href;
+        link.className = "kb-empty-proof-btn";
+        link.textContent = lang === "vi" ? proof.labelVi : proof.labelEn;
+        emptyProofsWrap.appendChild(link);
+      });
+    }
+  }
+
+  window.addEventListener("portfolio:filter-kb", (event) => {
+    const detail = (event as CustomEvent<KbSkillFilterDetail>).detail;
+    renderKbFilterState(detail);
+  });
+
+  window.addEventListener("portfolio:language", () => {
+    if (lastDetail) {
+      renderKbFilterState(lastDetail);
+    }
+  });
+
+  resetBtn?.addEventListener("click", () => {
+    window.dispatchEvent(new CustomEvent("portfolio:reset-kb-filter"));
+  });
+</script>
 
 <style>
   .blog-index {
@@ -511,7 +653,138 @@ const formatDate = (date: Date | string) => {
     transform: translateX(3px);
   }
 
-  /* TIER 2: KB GRID */
+  /* TIER 2: KB FILTER BANNER & GRID */
+  .kb-filter-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 14px 18px;
+    margin-bottom: 22px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgb(24 199 133 / 14%), rgb(7 16 12 / 90%));
+    border: 1px solid rgb(24 199 133 / 42%);
+  }
+
+  .kb-filter-banner__info {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 0.84rem;
+  }
+
+  .kb-filter-rank {
+    padding: 3px 9px;
+    border-radius: 6px;
+    background: rgb(24 199 133 / 22%);
+    border: 1px solid rgb(78 237 176 / 50%);
+    color: #fef08a;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+
+  .kb-filter-text {
+    color: var(--text-muted);
+  }
+
+  .kb-filter-text strong {
+    color: var(--text-main);
+    margin: 0 6px;
+  }
+
+  .kb-filter-text em {
+    font-style: normal;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: #4eedb0;
+  }
+
+  .kb-filter-reset-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 38px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 6%);
+    border: 1px solid rgb(255 255 255 / 16%);
+    color: var(--text-main);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--duration-fast) ease;
+  }
+
+  .kb-filter-reset-btn:hover {
+    background: rgb(24 199 133 / 20%);
+    border-color: rgb(24 199 133 / 50%);
+    color: #4eedb0;
+  }
+
+  .kb-skill-empty {
+    margin-top: 8px;
+    padding: 36px 24px;
+    border-radius: 18px;
+    text-align: center;
+    background: rgb(8 19 14 / 82%);
+    border: 1px dashed rgb(24 199 133 / 35%);
+  }
+
+  .kb-skill-empty__icon {
+    font-size: 1.6rem;
+    color: #4eedb0;
+    margin-bottom: 10px;
+  }
+
+  .kb-skill-empty h3 {
+    margin: 0 0 8px;
+    font-size: 1.15rem;
+  }
+
+  .kb-skill-empty p {
+    margin: 0 auto 18px;
+    max-width: 560px;
+    color: var(--text-muted);
+    font-size: 0.84rem;
+    line-height: 1.55;
+  }
+
+  .kb-skill-empty__proofs {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  :global(.kb-empty-proof-btn) {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    background: rgb(24 199 133 / 15%);
+    border: 1px solid rgb(24 199 133 / 42%);
+    color: #6ee7b7;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 150ms ease;
+  }
+
+  :global(.kb-empty-proof-btn:hover) {
+    background: #18c785;
+    color: #030806;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
   .kb-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -547,14 +820,14 @@ const formatDate = (date: Date | string) => {
     background: rgb(24 199 133 / 15%);
     color: #4eedb0;
     font-family: var(--font-mono);
-    font-size: 0.6rem;
+    font-size: var(--text-micro, 0.7rem);
     font-weight: 700;
     letter-spacing: 0.08em;
   }
 
   .kb-date {
     font-family: var(--font-mono);
-    font-size: 0.62rem;
+    font-size: var(--text-micro, 0.7rem);
     color: var(--text-muted);
   }
 

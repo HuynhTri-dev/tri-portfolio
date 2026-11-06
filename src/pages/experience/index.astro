@@ -67,6 +67,7 @@ const getModelPill = (item: (typeof experiences)[0]) => {
     <div class="exp-card-grid">
       {experiences.map((item) => {
         const modelInfo = getModelPill(item);
+        const sRankCount = item.projects.filter((p) => (p.difficultyRank ?? "A") === "S").length;
         return (
           <article class="exp-overview-card panel">
             <div class="exp-card-top">
@@ -89,11 +90,24 @@ const getModelPill = (item: (typeof experiences)[0]) => {
               <h2 class="org-name">{item.orgName}</h2>
               <strong class="role-name" data-en={item.roleEn} data-vi={item.roleVi}>{item.roleEn}</strong>
               <p class="role-desc" data-en={item.overviewEn} data-vi={item.overviewVi}>{item.overviewEn}</p>
+
+              <div class="exp-branch-preview">
+                <span class="branch-preview-pill">
+                  <i class="fa-solid fa-diagram-project" aria-hidden="true"></i>
+                  <strong>{item.projects.length}</strong>
+                  <span data-en="Milestones" data-vi="Cột mốc thành tựu">Milestones</span>
+                </span>
+                {sRankCount > 0 && (
+                  <span class="branch-preview-pill branch-preview-pill--s">
+                    <strong>{sRankCount}× RANK S</strong>
+                  </span>
+                )}
+              </div>
             </div>
 
             <div class="exp-card-footer">
               <a href={`/experience/${item.id}`} class="btn-detail">
-                <span data-en="View role & projects" data-vi="Xem chi tiết vai trò & dự án">View role & projects</span>
+                <span data-en="Open Achievement Branch" data-vi="Mở Nhánh Thành Tựu & Dự Án">Open Achievement Branch</span>
                 <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
               </a>
             </div>
@@ -269,10 +283,49 @@ const getModelPill = (item: (typeof experiences)[0]) => {
   }
 
   .role-desc {
-    margin: 6px 0 16px;
+    margin: 6px 0 14px;
     color: var(--text-muted);
     font-size: 0.8rem;
     line-height: 1.5;
+  }
+
+  .exp-branch-preview {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: auto;
+    margin-bottom: 16px;
+  }
+
+  .branch-preview-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: rgb(255 255 255 / 4%);
+    border: 1px solid rgb(255 255 255 / 8%);
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro, 0.7rem);
+  }
+
+  .branch-preview-pill i {
+    color: var(--brand-soft);
+  }
+
+  .branch-preview-pill strong {
+    color: var(--text-main);
+  }
+
+  .branch-preview-pill--s {
+    background: linear-gradient(135deg, rgb(24 199 133 / 18%), rgb(250 204 21 / 12%));
+    border-color: rgb(78 237 176 / 42%);
+  }
+
+  .branch-preview-pill--s strong {
+    color: #fef08a;
   }
 
   .exp-card-footer {

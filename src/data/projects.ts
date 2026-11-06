@@ -33,6 +33,11 @@ export type ProjectListItem = {
     vi: string;
     type?: "live" | "enterprise" | "personal";
   };
+  rank?: "S" | "A" | "B";
+  unlocked?: {
+    en: string;
+    vi: string;
+  };
   technologies: string[];
   metrics?: ProjectMetric[];
   href: string;
@@ -75,6 +80,11 @@ export const projects: ProjectListItem[] = [
       vi: "Đang vận hành thực tế",
       type: "live",
     },
+    rank: "S",
+    unlocked: {
+      en: "Sub-1ms Edge Proxy · 50ms Co-Presence Sync · Zero R2 Egress",
+      vi: "Edge Proxy <1ms · Đồng bộ tọa độ 50ms · 0đ phí băng thông R2",
+    },
     technologies: ["Next.js 15", "Cloudflare Workers", "Neon Postgres", "Cloudflare R2", "WebSockets"],
     metrics: [
       { value: "< 1ms", label: "Edge static latency", labelVi: "Độ trễ CDN tại Edge" },
@@ -108,6 +118,11 @@ export const projects: ProjectListItem[] = [
       en: "Live in Production",
       vi: "Đang vận hành thực tế",
       type: "live",
+    },
+    rank: "S",
+    unlocked: {
+      en: "AI Farmer Copilot + 88.4% Salinity Barrier (>3‰) Dosage Engine",
+      vi: "Trợ lý AI Nông vụ + Công cụ định lượng khóa mặn 88.4% (>3‰)",
     },
     technologies: ["Next.js", "TypeScript", "FastAPI", "AI Farmer Agent"],
     metrics: [
@@ -143,6 +158,11 @@ export const projects: ProjectListItem[] = [
       vi: "Đang dùng hàng ngày",
       type: "personal",
     },
+    rank: "A",
+    unlocked: {
+      en: "Compressed Stock Research 45m -> 2m via Privacy-First Local LLM",
+      vi: "Rút ngắn phân tích cổ phiếu từ 45 phút xuống 2 phút với AI cục bộ",
+    },
     technologies: ["Next.js", "FastAPI", "Ollama LLM", "Docling", "PostgreSQL"],
     metrics: [
       { value: "45m ➔ 2m", label: "Research time saved", labelVi: "Tiết kiệm thời gian" },
@@ -173,6 +193,11 @@ export const projects: ProjectListItem[] = [
       vi: "Vận hành nội bộ",
       type: "enterprise",
     },
+    rank: "S",
+    unlocked: {
+      en: "~10,000 SKU Lifecycle Unified Across 4 Enterprise Departments",
+      vi: "Chuẩn hóa ~10.000 mã hàng kết nối tự động 4 phòng ban RitaVõ",
+    },
     technologies: ["Odoo 18", "Python", "PostgreSQL", "Docker Compose"],
     metrics: [
       { value: "~10K", label: "Product records", labelVi: "Bản ghi sản phẩm" },
@@ -198,6 +223,11 @@ export const projects: ProjectListItem[] = [
     category: "ai",
     group: "case-study",
     image: "/projects/omnimerhealth_preview.jpg",
+    rank: "S",
+    unlocked: {
+      en: "0.85 Relevancy · 0.78 Faithfulness · 90% High-Risk Safety Recall",
+      vi: "0.85 Độ liên quan · 0.78 Trung thực · 90% Safety Recall y tế",
+    },
     technologies: ["FastAPI", "LangGraph", "Kafka", "Qdrant", "Flutter"],
     metrics: [
       { value: "0.85", label: "Answer relevancy", labelVi: "Độ liên quan" },
@@ -223,6 +253,11 @@ export const projects: ProjectListItem[] = [
     category: "ai",
     group: "case-study",
     image: "/projects/omnimerfood_preview.jpg",
+    rank: "A",
+    unlocked: {
+      en: "Multimodal Vision + Voice Cooking Copilot with GraphRAG Guardrails",
+      vi: "Trợ lý nấu ăn đa phương thức (Ảnh + Giọng nói) kiểm chứng GraphRAG",
+    },
     technologies: ["Flutter", "FastAPI", "GraphRAG", "AI Vision", "Speech AI"],
     metrics: [
       { value: "3 INPUTS", label: "Text, image, voice", labelVi: "Văn bản, ảnh & giọng nói" },
@@ -247,6 +282,11 @@ export const projects: ProjectListItem[] = [
     category: "other",
     group: "case-study",
     image: "/cj_crop/1.png",
+    rank: "A",
+    unlocked: {
+      en: "Top 5 Excellent Projects · CJ Corporation Design Competition",
+      vi: "Top 5 Dự án Xuất sắc · Cuộc thi Thiết kế Tập đoàn CJ",
+    },
     technologies: ["Figma", "UX/UI Design", "System Design", "React/Astro"],
     metrics: [
       { value: "Top 5", label: "Excellent Projects", labelVi: "Dự án xuất sắc" },

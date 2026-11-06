@@ -191,140 +191,181 @@ const modelLabels = {
       </section>
     )}
 
-    <!-- Projects & Engagements Section -->
+    <!-- Projects & Engagements Section (Achievement Milestone Branch) -->
     <section class="projects-section" aria-labelledby="projects-heading">
-      <div class="section-title-wrap">
-        <span
-          class="section-kicker"
-          data-en={experience.projects.length > 1 ? "PROJECT ENGAGEMENTS & CLIENT SYSTEMS" : "FLAGSHIP ENTERPRISE SYSTEM"}
-          data-vi={experience.projects.length > 1 ? "DỰ ÁN KHÁCH HÀNG & PHÂN HỆ TRIỂN KHAI" : "HỆ THỐNG / SẢN PHẨM CỐT LÕI"}
-        >
-          {experience.projects.length > 1 ? "PROJECT ENGAGEMENTS & CLIENT SYSTEMS" : "FLAGSHIP ENTERPRISE SYSTEM"}
-        </span>
-        <h2 id="projects-heading" data-en={experience.projects.length > 1 ? "Delivered Projects & Specific Roles" : "Flagship Production Architecture"} data-vi={experience.projects.length > 1 ? "Dự án thực tế & Vai trò chuyên trách" : "Kiến trúc hệ thống vận hành thực tế"}>
-          {experience.projects.length > 1 ? "Delivered Projects & Specific Roles" : "Flagship Production Architecture"}
-        </h2>
+      <div class="section-title-wrap section-title-wrap--branch">
+        <div>
+          <span
+            class="section-kicker"
+            data-en={experience.projects.length > 1 ? "ACHIEVEMENT BRANCH // DELIVERED CLIENT SYSTEMS" : "ACHIEVEMENT NODE // FLAGSHIP ENTERPRISE SYSTEM"}
+            data-vi={experience.projects.length > 1 ? "NHÁNH THÀNH TỰU // DỰ ÁN KHÁCH HÀNG ĐỘC LẬP" : "NÚT THÀNH TỰU // HỆ THỐNG CỐT LÕI"}
+          >
+            {experience.projects.length > 1 ? "ACHIEVEMENT BRANCH // DELIVERED CLIENT SYSTEMS" : "ACHIEVEMENT NODE // FLAGSHIP ENTERPRISE SYSTEM"}
+          </span>
+          <h2 id="projects-heading" data-en={experience.projects.length > 1 ? "Milestone Tree & Individual Client Engagements" : "Flagship Production Architecture"} data-vi={experience.projects.length > 1 ? "Nhánh Thành tựu & Từng Dự án Khách hàng Riêng biệt" : "Kiến trúc hệ thống vận hành thực tế"}>
+            {experience.projects.length > 1 ? "Milestone Tree & Individual Client Engagements" : "Flagship Production Architecture"}
+          </h2>
+        </div>
+
+        <div class="branch-summary-pills">
+          <span class="branch-pill">
+            <i class="fa-solid fa-diagram-project" aria-hidden="true"></i>
+            <strong>{String(experience.projects.length).padStart(2, "0")}</strong>
+            <span data-en="Milestones" data-vi="Cột mốc">Milestones</span>
+          </span>
+          <span class="branch-pill branch-pill--s">
+            <strong>{experience.projects.filter((p) => (p.difficultyRank ?? "A") === "S").length}×</strong>
+            <span>RANK S</span>
+          </span>
+        </div>
       </div>
 
       <div class="engagement-stack">
-        {experience.projects.map((proj, idx) => (
-          <article class="engagement-card panel">
-            <!-- Project Header -->
-            <div class="engagement-header">
-              <div class="engagement-title-row">
-                {proj.clientLogo && (
-                  <div class="client-brand-badge" title={proj.clientName || "Enterprise Client"}>
-                    <img src={proj.clientLogo} alt={proj.clientName || "Client logo"} class="client-badge-img" loading="lazy" />
-                  </div>
-                )}
-                {proj.clientLogos && (
-                  <div class="client-brand-cluster" title={proj.clientName || "Partner Banks"}>
-                    {proj.clientLogos.map((l, lIdx) => (
-                      <div class="client-brand-badge client-brand-badge--mini">
-                        <img src={l} alt={`Partner bank ${lIdx + 1}`} class="client-badge-img" loading="lazy" />
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <div class="engagement-title-group">
-                  <div class="engagement-topline">
-                    <span class="engagement-index">PROJECT {String(idx + 1).padStart(2, "0")}</span>
-                    {proj.clientName && (
-                      <span class="client-name-tag">
-                        <i class="fa-solid fa-building" aria-hidden="true"></i>
-                        {proj.clientName}
+        {experience.projects.map((proj, idx) => {
+          const rank = (proj.difficultyRank ?? "A").toLowerCase();
+          return (
+            <article class:list={["engagement-card", "panel", `engagement-card--rank-${rank}`]}>
+              <!-- Circuit Spine Node Marker -->
+              <div class="milestone-node" aria-hidden="true">
+                <span class="milestone-node__core">{String(idx + 1).padStart(2, "0")}</span>
+                <span class="milestone-node__trace"></span>
+              </div>
+
+              <!-- 2-Tier Spacious Project Header (Zero Title Squeezing) -->
+              <div class="engagement-header">
+                <div class="engagement-telemetry-row">
+                  <div class="engagement-rank-group">
+                    <span class="engagement-index">MILESTONE {String(idx + 1).padStart(2, "0")}</span>
+                    <span class:list={["exp-rank-crest", `exp-rank-crest--${rank}`]}>
+                      <small>RANK</small>
+                      <strong>{proj.difficultyRank ?? "A"}</strong>
+                    </span>
+                    {proj.tierLabelEn && (
+                      <span class="tier-label-pill" data-en={proj.tierLabelEn} data-vi={proj.tierLabelVi ?? proj.tierLabelEn}>
+                        {proj.tierLabelEn}
                       </span>
                     )}
                   </div>
-                  <h3 class="engagement-title" data-en={proj.titleEn} data-vi={proj.titleVi}>
-                    {proj.titleEn}
-                  </h3>
-                </div>
-              </div>
 
-              <div class="engagement-status-wrap">
-                {proj.isConfidential && (
-                  <span class="pill-confidential" title="Confidential Client Engagement / NDA Protected">
-                    <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
-                    <span data-en="Enterprise Client · NDA" data-vi="Khách hàng Doanh nghiệp · NDA">Enterprise Client · NDA</span>
-                  </span>
-                )}
-                <span class="status-pill-secondary" data-en={proj.statusEn} data-vi={proj.statusVi}>
-                  {proj.statusEn}
-                </span>
-              </div>
-            </div>
-
-            <!-- Role & Domain Meta Bar -->
-            <div class="engagement-meta-bar">
-              {proj.roleEn && (
-                <div class="meta-tag meta-tag--role">
-                  <i class="fa-solid fa-user-gear" aria-hidden="true"></i>
-                  <small data-en="ROLE:" data-vi="VAI TRÒ:">ROLE:</small>
-                  <strong data-en={proj.roleEn} data-vi={proj.roleVi}>{proj.roleEn}</strong>
-                </div>
-              )}
-              {proj.clientDomainEn && (
-                <div class="meta-tag meta-tag--domain">
-                  <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
-                  <small data-en="DOMAIN:" data-vi="LĨNH VỰC:">DOMAIN:</small>
-                  <span data-en={proj.clientDomainEn} data-vi={proj.clientDomainVi}>{proj.clientDomainEn}</span>
-                </div>
-              )}
-              {proj.periodEn && (
-                <div class="meta-tag meta-tag--period">
-                  <i class="fa-regular fa-calendar" aria-hidden="true"></i>
-                  <span data-en={proj.periodEn} data-vi={proj.periodVi}>{proj.periodEn}</span>
-                </div>
-              )}
-            </div>
-
-            <!-- Project Description -->
-            <p class="engagement-desc" data-en={proj.descriptionEn} data-vi={proj.descriptionVi}>
-              {proj.descriptionEn}
-            </p>
-
-            <!-- Project Specific Tasks if available -->
-            {proj.tasks && proj.tasks.length > 0 && (
-              <div class="engagement-tasks-grid">
-                {proj.tasks.map((task) => (
-                  <div class="subtask-card">
-                    <div class="subtask-head">
-                      <i class={task.icon ?? "fa-solid fa-chevron-right"} aria-hidden="true"></i>
-                      <strong data-en={task.titleEn} data-vi={task.titleVi}>{task.titleEn}</strong>
-                    </div>
-                    <p data-en={task.descriptionEn} data-vi={task.descriptionVi}>{task.descriptionEn}</p>
+                  <div class="engagement-status-wrap">
+                    {proj.isConfidential && (
+                      <span class="pill-confidential" title="Confidential Client Engagement / NDA Protected">
+                        <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+                        <span data-en="Enterprise Client · NDA" data-vi="Khách hàng Doanh nghiệp · NDA">Enterprise Client · NDA</span>
+                      </span>
+                    )}
+                    <span class="status-pill-secondary" data-en={proj.statusEn} data-vi={proj.statusVi}>
+                      {proj.statusEn}
+                    </span>
                   </div>
-                ))}
-              </div>
-            )}
+                </div>
 
-            <!-- Technologies & Links Footer -->
-            <div class="engagement-footer">
-              <div class="tech-chip-row">
-                {proj.technologies.map((tech) => (
-                  <span class="tech-chip">{tech}</span>
-                ))}
+                <div class="engagement-identity-row">
+                  {proj.clientLogo && (
+                    <div class="client-brand-badge" title={proj.clientName || "Enterprise Client"}>
+                      <img src={proj.clientLogo} alt={proj.clientName || "Client logo"} class="client-badge-img" loading="lazy" />
+                    </div>
+                  )}
+                  <div class="engagement-title-group">
+                    {proj.clientName && (
+                      <div class="engagement-topline">
+                        <span class="client-name-tag">
+                          <i class="fa-solid fa-building" aria-hidden="true"></i>
+                          <span>{proj.clientName}</span>
+                        </span>
+                      </div>
+                    )}
+                    <h3 class="engagement-title" data-en={proj.titleEn} data-vi={proj.titleVi}>
+                      {proj.titleEn}
+                    </h3>
+                  </div>
+                </div>
               </div>
 
-              {proj.links && proj.links.length > 0 && (
-                <div class="engagement-links">
-                  {proj.links.map((link) => (
-                    <a
-                      href={link.href}
-                      target={link.isExternal ? "_blank" : undefined}
-                      rel={link.isExternal ? "noreferrer" : undefined}
-                      class="btn-project-link"
-                    >
-                      <span data-en={link.labelEn} data-vi={link.labelVi}>{link.labelEn}</span>
-                      <i class={link.icon ? `fa-solid ${link.icon}` : "fa-solid fa-arrow-up-right-from-square"} aria-hidden="true"></i>
-                    </a>
+              <!-- Role & Domain Meta Bar -->
+              <div class="engagement-meta-bar">
+                {proj.roleEn && (
+                  <div class="meta-tag meta-tag--role">
+                    <i class="fa-solid fa-user-gear" aria-hidden="true"></i>
+                    <small data-en="ROLE:" data-vi="VAI TRÒ:">ROLE:</small>
+                    <strong data-en={proj.roleEn} data-vi={proj.roleVi}>{proj.roleEn}</strong>
+                  </div>
+                )}
+                {proj.clientDomainEn && (
+                  <div class="meta-tag meta-tag--domain">
+                    <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+                    <small data-en="DOMAIN:" data-vi="LĨNH VỰC:">DOMAIN:</small>
+                    <span data-en={proj.clientDomainEn} data-vi={proj.clientDomainVi}>{proj.clientDomainEn}</span>
+                  </div>
+                )}
+                {proj.periodEn && (
+                  <div class="meta-tag meta-tag--period">
+                    <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+                    <span data-en={proj.periodEn} data-vi={proj.periodVi}>{proj.periodEn}</span>
+                  </div>
+                )}
+              </div>
+
+              <!-- Project Description -->
+              <p class="engagement-desc" data-en={proj.descriptionEn} data-vi={proj.descriptionVi}>
+                {proj.descriptionEn}
+              </p>
+
+              <!-- Unlocked Quantitative Achievement Banner -->
+              {proj.unlockedEn && (
+                <div class="unlocked-banner">
+                  <span class="unlocked-banner__tag">
+                    <i class="fa-solid fa-unlock-keyhole" aria-hidden="true"></i>
+                    <span data-en="UNLOCKED OUTCOME" data-vi="THÀNH TỰU MỞ KHÓA">UNLOCKED OUTCOME</span>
+                  </span>
+                  <strong class="unlocked-banner__value" data-en={proj.unlockedEn} data-vi={proj.unlockedVi ?? proj.unlockedEn}>
+                    {proj.unlockedEn}
+                  </strong>
+                </div>
+              )}
+
+              <!-- Project Specific Tasks if available -->
+              {proj.tasks && proj.tasks.length > 0 && (
+                <div class="engagement-tasks-grid">
+                  {proj.tasks.map((task) => (
+                    <div class="subtask-card">
+                      <div class="subtask-head">
+                        <i class={task.icon ?? "fa-solid fa-chevron-right"} aria-hidden="true"></i>
+                        <strong data-en={task.titleEn} data-vi={task.titleVi}>{task.titleEn}</strong>
+                      </div>
+                      <p data-en={task.descriptionEn} data-vi={task.descriptionVi}>{task.descriptionEn}</p>
+                    </div>
                   ))}
                 </div>
               )}
-            </div>
-          </article>
-        ))}
+
+              <!-- Technologies & Links Footer -->
+              <div class="engagement-footer">
+                <div class="tech-chip-row">
+                  {proj.technologies.map((tech) => (
+                    <span class="tech-chip">{tech}</span>
+                  ))}
+                </div>
+
+                {proj.links && proj.links.length > 0 && (
+                  <div class="engagement-links">
+                    {proj.links.map((link) => (
+                      <a
+                        href={link.href}
+                        target={link.isExternal ? "_blank" : undefined}
+                        rel={link.isExternal ? "noreferrer" : undefined}
+                        class="btn-project-link"
+                      >
+                        <span data-en={link.labelEn} data-vi={link.labelVi}>{link.labelEn}</span>
+                        <i class={link.icon ? `fa-solid ${link.icon}` : "fa-solid fa-arrow-up-right-from-square"} aria-hidden="true"></i>
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </article>
+          );
+        })}
       </div>
     </section>
 
@@ -749,49 +790,249 @@ const modelLabels = {
     text-overflow: ellipsis;
   }
 
-  /* Projects Section */
+  /* Projects Section — Enterprise Achievement Milestone Tree */
   .projects-section {
     margin-bottom: 52px;
   }
 
+  .section-title-wrap--branch {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .branch-summary-pills {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .branch-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: var(--radius-pill);
+    background: rgb(255 255 255 / 4%);
+    border: 1px solid rgb(255 255 255 / 10%);
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro, 0.7rem);
+  }
+
+  .branch-pill i {
+    color: var(--brand-soft);
+  }
+
+  .branch-pill strong {
+    color: var(--text-main);
+  }
+
+  .branch-pill--s {
+    background: linear-gradient(135deg, rgb(24 199 133 / 18%), rgb(250 204 21 / 12%));
+    border-color: rgb(78 237 176 / 45%);
+    color: #fef08a;
+  }
+
+  .branch-pill--s strong {
+    color: #4eedb0;
+  }
+
+  /* Vertical Circuit Conduit Spine */
   .engagement-stack {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 26px;
+    padding-left: 44px;
+  }
+
+  .engagement-stack::before {
+    content: "";
+    position: absolute;
+    left: 14px;
+    top: 28px;
+    bottom: 28px;
+    width: 2px;
+    background: linear-gradient(
+      180deg,
+      rgb(24 199 133 / 65%) 0%,
+      rgb(56 189 248 / 45%) 50%,
+      rgb(24 199 133 / 25%) 100%
+    );
+    box-shadow: 0 0 12px rgb(24 199 133 / 30%);
+    border-radius: 999px;
   }
 
   .engagement-card {
-    padding: 30px 32px;
+    --card-rank-accent: #38bdf8;
+
+    position: relative;
+    padding: 28px 32px;
     border-radius: 20px;
-    background: linear-gradient(160deg, rgb(15 32 24 / 75%), rgb(6 14 11 / 90%));
+    background: linear-gradient(160deg, rgb(15 32 24 / 78%), rgb(6 14 11 / 92%));
     border: 1px solid var(--border-default);
-    transition: transform var(--duration-fast) ease, border-color var(--duration-fast) ease;
+    transition:
+      transform var(--duration-fast) ease,
+      border-color var(--duration-fast) ease,
+      box-shadow var(--duration-fast) ease;
+  }
+
+  .engagement-card--rank-s {
+    --card-rank-accent: #18c785;
+    border-color: rgb(24 199 133 / 28%);
+  }
+
+  .engagement-card--rank-a {
+    --card-rank-accent: #38bdf8;
+    border-color: rgb(56 189 248 / 22%);
+  }
+
+  .engagement-card--rank-b {
+    --card-rank-accent: #a855f7;
+    border-color: rgb(168 85 247 / 22%);
   }
 
   .engagement-card:hover {
-    border-color: rgb(24 199 133 / 35%);
+    transform: translateY(-2px);
+    border-color: var(--card-rank-accent);
+    box-shadow:
+      0 18px 36px -14px rgb(0 0 0 / 65%),
+      0 0 22px -8px var(--card-rank-accent);
   }
 
-  .engagement-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 14px;
-  }
-
-  .engagement-title-row {
+  /* Circuit Spine Node Marker */
+  .milestone-node {
+    position: absolute;
+    left: -44px;
+    top: 28px;
+    width: 44px;
+    height: 30px;
     display: flex;
     align-items: center;
-    gap: 16px;
-    min-width: 0;
+    pointer-events: none;
+  }
+
+  .milestone-node__core {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    background: #07130e;
+    border: 1.5px solid var(--card-rank-accent);
+    box-shadow: 0 0 14px -2px var(--card-rank-accent);
+    color: var(--text-main);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+  }
+
+  .milestone-node__trace {
     flex: 1;
+    height: 1.5px;
+    background: linear-gradient(90deg, var(--card-rank-accent), rgb(255 255 255 / 12%));
+  }
+
+  /* 2-Tier Engagement Header */
+  .engagement-header {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .engagement-telemetry-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed rgb(255 255 255 / 8%);
+  }
+
+  .engagement-rank-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .engagement-index {
+    color: var(--brand-green);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro, 0.7rem);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  .exp-rank-crest {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    padding: 3px 9px;
+    clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+    font-family: var(--font-mono);
+    line-height: 1;
+  }
+
+  .exp-rank-crest small {
+    font-size: 0.7rem;
+    font-weight: 600;
+    opacity: 0.88;
+  }
+
+  .exp-rank-crest strong {
+    font-size: 0.84rem;
+    font-weight: 800;
+  }
+
+  .exp-rank-crest--s {
+    background: linear-gradient(135deg, rgb(24 199 133 / 28%), rgb(250 204 21 / 22%));
+    color: #fef08a;
+    box-shadow: inset 0 0 0 1px rgb(78 237 176 / 55%);
+  }
+
+  .exp-rank-crest--a {
+    background: linear-gradient(135deg, rgb(56 189 248 / 25%), rgb(59 130 246 / 18%));
+    color: #bae6fd;
+    box-shadow: inset 0 0 0 1px rgb(56 189 248 / 50%);
+  }
+
+  .exp-rank-crest--b {
+    background: rgb(168 85 247 / 22%);
+    color: #e9d5ff;
+    box-shadow: inset 0 0 0 1px rgb(168 85 247 / 45%);
+  }
+
+  .tier-label-pill {
+    padding: 3px 9px;
+    border-radius: 6px;
+    background: rgb(255 255 255 / 4%);
+    border: 1px solid rgb(255 255 255 / 10%);
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro, 0.7rem);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .engagement-identity-row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    min-width: 0;
   }
 
   .client-brand-badge {
     flex-shrink: 0;
-    width: 82px;
-    height: 42px;
+    width: 88px;
+    height: 46px;
     padding: 6px 10px;
     border-radius: 10px;
     background: #ffffff;
@@ -804,21 +1045,7 @@ const modelLabels = {
   }
 
   .client-brand-badge:hover {
-    transform: scale(1.05);
-  }
-
-  .client-brand-cluster {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-    flex-shrink: 0;
-  }
-
-  .client-brand-badge--mini {
-    width: 66px;
-    height: 36px;
-    padding: 5px 8px;
+    transform: scale(1.04);
   }
 
   .client-badge-img {
@@ -828,11 +1055,16 @@ const modelLabels = {
     display: block;
   }
 
+  .engagement-title-group {
+    flex: 1;
+    min-width: 0;
+  }
+
   .engagement-topline {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
     flex-wrap: wrap;
   }
 
@@ -845,23 +1077,16 @@ const modelLabels = {
     font-size: var(--text-micro, 0.7rem);
     font-weight: 600;
     letter-spacing: 0.04em;
-    padding: 2px 8px;
-    border-radius: 4px;
+    padding: 3px 9px;
+    border-radius: 6px;
     background: rgb(24 199 133 / 10%);
-    border: 1px solid rgb(24 199 133 / 26%);
-  }
-
-  .engagement-index {
-    display: block;
-    color: var(--brand-green);
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.1em;
+    border: 1px solid rgb(24 199 133 / 28%);
   }
 
   .engagement-title {
     margin: 0;
-    font-size: 1.25rem;
+    font-size: clamp(1.18rem, 2vw, 1.42rem);
+    line-height: 1.28;
     letter-spacing: -0.03em;
     color: var(--text-main);
   }
@@ -935,11 +1160,44 @@ const modelLabels = {
   }
 
   .engagement-desc {
-    margin: 0 0 20px;
+    margin: 0 0 16px;
     color: var(--text-muted);
     font-size: 0.88rem;
     line-height: 1.6;
     max-width: 860px;
+  }
+
+  .unlocked-banner {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    background: linear-gradient(90deg, rgb(24 199 133 / 12%), rgb(56 189 248 / 6%), transparent);
+    border: 1px solid rgb(24 199 133 / 32%);
+  }
+
+  .unlocked-banner__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgb(24 199 133 / 18%);
+    color: #4eedb0;
+    font-family: var(--font-mono);
+    font-size: var(--text-micro, 0.7rem);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+
+  .unlocked-banner__value {
+    color: #f0fdf8;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 600;
   }
 
   .engagement-tasks-grid {
@@ -1225,7 +1483,16 @@ const modelLabels = {
       grid-template-columns: 1fr;
     }
 
-    .engagement-title-row {
+    .engagement-stack {
+      padding-left: 0;
+    }
+
+    .engagement-stack::before,
+    .milestone-node {
+      display: none;
+    }
+
+    .engagement-identity-row {
       flex-direction: column;
       align-items: flex-start;
       gap: 12px;

@@ -1,0 +1,301 @@
+---
+/**
+ * @name 404.astro
+ * @description Custom 404 error page styled with Cyber-Arboretum aesthetic, bilingual text,
+ *              telemetry status badge, and direct recovery paths.
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="404: Node Not Found — Huynh Minh Tri"
+  description="The requested page could not be found in the Cyber-Arboretum. Return to the canopy or explore engineering projects."
+  isHome={false}
+>
+  <main class="not-found-main shell" id="main-content">
+    <div class="not-found-card panel">
+      <!-- Top Diagnostic Kicker -->
+      <div class="kicker-wrap">
+        <span class="pulse-indicator" aria-hidden="true"></span>
+        <span class="diagnostic-code">BIO-TELEMETRY // 404_NODE_NOT_FOUND</span>
+      </div>
+
+      <!-- Large Holographic Error Number -->
+      <div class="glitch-number-wrap">
+        <span class="glitch-number" aria-hidden="true">404</span>
+        <span class="radar-crosshair" aria-hidden="true"></span>
+      </div>
+
+      <!-- Heading & Narrative -->
+      <div class="copy-wrap">
+        <h1 data-en="Lost in the Cyber-Arboretum." data-vi="Lạc giữa khu rừng tri thức số.">
+          Lost in the Cyber-Arboretum.
+        </h1>
+        <p
+          data-en="The synaptic branch or coordinates you requested could not be located in this neural tree. The path may have moved, dissolved into data spores, or never existed."
+          data-vi="Nhánh tri thức hoặc tọa độ bạn đang tìm kiếm không tồn tại trong mạng nơ-ron này. Đường dẫn có thể đã được di dời, tái cấu trúc hoặc chưa từng được khai mở."
+        >
+          The synaptic branch or coordinates you requested could not be located in this neural tree. The path may have moved, dissolved into data spores, or never existed.
+        </p>
+      </div>
+
+      <!-- Telemetry Status Grid -->
+      <div class="telemetry-box" aria-label="Diagnostic Telemetry">
+        <div class="telemetry-item">
+          <small>STATUS</small>
+          <strong>UNRESOLVED_ROUTE</strong>
+        </div>
+        <div class="telemetry-item">
+          <small>BEACON</small>
+          <strong class="text-green">SG_CORE_1109</strong>
+        </div>
+        <div class="telemetry-item">
+          <small>GPS COORDS</small>
+          <strong>10.76°N, 106.66°E</strong>
+        </div>
+      </div>
+
+      <!-- Recovery Navigation CTAs -->
+      <div class="recovery-actions">
+        <a href="/" class="btn-recovery btn-recovery--primary">
+          <i class="fa-solid fa-compass" aria-hidden="true"></i>
+          <span data-en="Return to Canopy" data-vi="Về Tán Rừng Mở (Trang Chủ)">Return to Canopy</span>
+        </a>
+        <a href="/projects" class="btn-recovery btn-recovery--secondary">
+          <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+          <span data-en="Explore Projects" data-vi="Khám Phá Dự Án">Explore Projects</span>
+        </a>
+        <a href="/blog" class="btn-recovery btn-recovery--secondary">
+          <i class="fa-solid fa-book-bookmark" aria-hidden="true"></i>
+          <span data-en="Knowledge Base" data-vi="Cơ Sở Tri Thức">Knowledge Base</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .not-found-main {
+    min-height: calc(100vh - 180px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 60px;
+    padding-bottom: 80px;
+  }
+
+  .not-found-card {
+    position: relative;
+    max-width: 680px;
+    width: 100%;
+    padding: 48px 44px;
+    border-radius: var(--radius-feature, 24px);
+    background: linear-gradient(165deg, rgb(15 32 24 / 85%), rgb(5 12 9 / 92%));
+    border: 1px solid var(--border-default);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 24px 60px -15px rgb(0 0 0 / 75%), 0 0 35px -5px rgb(24 199 133 / 12%);
+  }
+
+  .kicker-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px;
+    border-radius: var(--radius-pill);
+    background: rgb(239 68 68 / 10%);
+    border: 1px solid rgb(239 68 68 / 30%);
+    margin-bottom: 24px;
+  }
+
+  .pulse-indicator {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #f87171;
+    box-shadow: 0 0 8px #f87171;
+    animation: beaconPulse 1.8s infinite ease-in-out;
+  }
+
+  .diagnostic-code {
+    color: #fca5a5;
+    font-family: var(--font-mono);
+    font-size: var(--text-micro, 0.7rem);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  .glitch-number-wrap {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+
+  .glitch-number {
+    font-family: var(--font-mono);
+    font-size: clamp(5.5rem, 15vw, 8.5rem);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -0.06em;
+    background: linear-gradient(180deg, #f2f7f4 0%, #75e6b2 45%, #18c785 80%, #0d402e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 28px rgb(24 199 133 / 35%));
+    user-select: none;
+  }
+
+  .radar-crosshair {
+    position: absolute;
+    inset: -12px;
+    border: 1px dashed rgb(24 199 133 / 22%);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: rotateSlow 30s linear infinite;
+  }
+
+  .copy-wrap h1 {
+    margin: 12px 0 14px;
+    font-size: clamp(1.8rem, 3.6vw, 2.5rem);
+    letter-spacing: -0.04em;
+    color: var(--text-main);
+  }
+
+  .copy-wrap p {
+    margin: 0 auto 28px;
+    max-width: 520px;
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+
+  .telemetry-box {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: 100%;
+    padding: 12px 18px;
+    border-radius: var(--radius-standard, 14px);
+    background: rgb(5 11 9 / 60%);
+    border: 1px solid rgb(255 255 255 / 6%);
+    margin-bottom: 32px;
+  }
+
+  .telemetry-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    text-align: center;
+  }
+
+  .telemetry-item small {
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro, 0.7rem);
+    letter-spacing: 0.08em;
+  }
+
+  .telemetry-item strong {
+    color: var(--text-main);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs, 0.75rem);
+    font-weight: 600;
+  }
+
+  .telemetry-item .text-green {
+    color: var(--brand-green);
+  }
+
+  .recovery-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .btn-recovery {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 20px;
+    border-radius: 12px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all var(--duration-fast) ease;
+    min-height: 44px;
+  }
+
+  .btn-recovery--primary {
+    background: var(--brand-green);
+    color: #030806;
+    border: 1px solid var(--brand-green);
+    box-shadow: 0 4px 18px rgb(24 199 133 / 30%);
+  }
+
+  .btn-recovery--primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgb(24 199 133 / 45%);
+    background: var(--brand-soft);
+  }
+
+  .btn-recovery--secondary {
+    background: rgb(255 255 255 / 4%);
+    border: 1px solid rgb(255 255 255 / 12%);
+    color: var(--text-secondary);
+  }
+
+  .btn-recovery--secondary:hover {
+    background: rgb(24 199 133 / 12%);
+    border-color: rgb(24 199 133 / 35%);
+    color: var(--brand-soft);
+    transform: translateY(-2px);
+  }
+
+  @keyframes beaconPulse {
+    0%, 100% {
+      opacity: 0.6;
+      transform: scale(0.9);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.15);
+    }
+  }
+
+  @keyframes rotateSlow {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .not-found-card {
+      padding: 36px 20px;
+    }
+
+    .telemetry-box {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .recovery-actions {
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .btn-recovery {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
+
