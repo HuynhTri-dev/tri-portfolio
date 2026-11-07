@@ -392,84 +392,6 @@ export default function SkillTreeMatrix({ kbItems = [] }: SkillTreeMatrixProps) 
             </button>
           </div>
         </div>
-
-        {/* Interactive Rank Progression Scale: F -> S */}
-        <div className="skill-matrix__legend-box">
-          <div className="skill-matrix__legend-header">
-            <span className="skill-matrix__legend-label">
-              {language === "vi" ? "THANG CẤP ĐỘ (F → S)" : "RANK SCALE (F → S)"}
-            </span>
-            {activeRankFilter !== "ALL" && (
-              <button
-                type="button"
-                className="skill-matrix__rank-reset"
-                onClick={() => setActiveRankFilter("ALL")}
-              >
-                {language === "vi" ? "Tất cả Rank" : "All Ranks"}
-              </button>
-            )}
-          </div>
-
-          <div
-            className="skill-matrix__rank-scale"
-            role="group"
-            aria-label={language === "vi" ? "Lọc theo cấp độ Rank" : "Filter by mastery rank"}
-          >
-            {orderedScale.map((meta, idx) => {
-              const count = rankCounts[meta.rank];
-              const isSelected = activeRankFilter === meta.rank;
-              const isInspected = inspectedRank === meta.rank;
-              const hasNodes = count > 0;
-
-              return (
-                <div key={meta.rank} className="skill-matrix__rank-step">
-                  <button
-                    type="button"
-                    className={[
-                      "skill-matrix__rank-pill",
-                      `skill-matrix__rank-pill--${meta.rank.toLowerCase()}`,
-                      isSelected ? "is-selected" : "",
-                      isInspected ? "is-inspected" : "",
-                      !hasNodes ? "is-dormant" : "",
-                    ]
-                      .filter(Boolean)
-                      .join(" ")}
-                    onMouseEnter={() => setInspectedRank(meta.rank)}
-                    onFocus={() => setInspectedRank(meta.rank)}
-                    onClick={() => {
-                      setInspectedRank(meta.rank);
-                      if (!hasNodes) return;
-                      setActiveRankFilter((prev) => (prev === meta.rank ? "ALL" : meta.rank));
-                    }}
-                    aria-pressed={isSelected}
-                    title={`${meta.rank} — ${language === "vi" ? meta.titleVi : meta.titleEn}`}
-                  >
-                    <span className="rank-letter">{meta.rank}</span>
-                    {count > 0 && <span className="rank-count">×{count}</span>}
-                  </button>
-                  {idx < orderedScale.length - 1 && (
-                    <span className="skill-matrix__rank-arrow" aria-hidden="true">
-                      ▸
-                    </span>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          <div
-            className="skill-matrix__criteria-bar"
-            style={{ "--rank-color": inspectedRankMeta.accent } as React.CSSProperties}
-          >
-            <span className="criteria-badge">RANK {inspectedRankMeta.rank}</span>
-            <strong className="criteria-title">
-              {language === "vi" ? inspectedRankMeta.titleVi : inspectedRankMeta.titleEn}:
-            </strong>
-            <span className="criteria-text">
-              {language === "vi" ? inspectedRankMeta.criteriaVi : inspectedRankMeta.criteriaEn}
-            </span>
-          </div>
-        </div>
       </div>
 
       {viewMode === "GRAPH" ? (
@@ -488,216 +410,216 @@ export default function SkillTreeMatrix({ kbItems = [] }: SkillTreeMatrixProps) 
             role="tablist"
             aria-label={language === "vi" ? "Các nhánh kỹ năng chuyên môn" : "Engineering skill branches"}
           >
-        <button
-          type="button"
-          role="tab"
-          aria-selected={activeDomain === "ALL"}
-          className={`domain-tab ${activeDomain === "ALL" ? "is-active" : ""}`}
-          onClick={() => handleSelectDomain("ALL")}
-        >
-          <i className="fa-solid fa-border-all" aria-hidden="true" />
-          <span className="domain-tab__label">
-            {language === "vi" ? "Tất cả Nhánh" : "All Branches"}
-          </span>
-          <span className="domain-tab__count">{allSkills.length}</span>
-        </button>
-
-        {SKILL_MATRIX_BRANCHES.map((branch) => {
-          const isSelected = activeDomain === branch.id;
-          const sRanks = branch.skills.filter((s) => s.rank === "S").length;
-          return (
             <button
-              key={branch.id}
               type="button"
               role="tab"
-              aria-selected={isSelected}
-              className={`domain-tab ${isSelected ? "is-active" : ""}`}
-              style={
-                {
-                  "--tab-accent": branch.accent,
-                  "--tab-soft": branch.softAccent,
-                  "--tab-glow": branch.glow,
-                } as React.CSSProperties
-              }
-              onClick={() => handleSelectDomain(branch.id)}
+              aria-selected={activeDomain === "ALL"}
+              className={`domain-tab ${activeDomain === "ALL" ? "is-active" : ""}`}
+              onClick={() => handleSelectDomain("ALL")}
             >
-              <i className={branch.icon} aria-hidden="true" />
+              <i className="fa-solid fa-border-all" aria-hidden="true" />
               <span className="domain-tab__label">
-                {language === "vi" ? branch.titleVi : branch.titleEn}
+                {language === "vi" ? "Tất cả Nhánh" : "All Branches"}
               </span>
-              <span className="domain-tab__count" title={`${sRanks} Rank-S skills`}>
-                {branch.skills.length}
-              </span>
+              <span className="domain-tab__count">{allSkills.length}</span>
             </button>
-          );
-        })}
-      </div>
 
-      {/* Active Branch Telemetry Readout */}
-      <div className="skill-matrix__telemetry">
-        <div className="telemetry-branch-info">
-          <span className="telemetry-code">
-            {activeBranch ? activeBranch.code : "00 // FULL-SPECTRUM MATRIX"}
-          </span>
-          <span className="telemetry-desc">
-            {activeBranch
-              ? language === "vi"
-                ? activeBranch.subtitleVi
-                : activeBranch.subtitleEn
-              : language === "vi"
-                ? "Tổng hợp 7 nhánh kỹ năng từ Quản trị Sản phẩm, Phân tích Nghiệp vụ, Dữ liệu đến Kỹ thuật Lõi & AI."
-                : "Integrated view across PM, BA, Data Streaming, Core Backend, AI Agents, Frontend, and Cloud Infra."}
-          </span>
-        </div>
-
-        <div className="telemetry-metrics">
-          <div className="telemetry-chip">
-            <span>AVG LVL</span>
-            <strong>{branchSummaryStats.avgLevel}/100</strong>
-          </div>
-          <div className="telemetry-chip telemetry-chip--s">
-            <span>RANK S</span>
-            <strong>
-              {branchSummaryStats.sCount}/{branchSummaryStats.count}
-            </strong>
-          </div>
-          <div className="telemetry-chip">
-            <span>{language === "vi" ? "MINH CHỨNG" : "PROOFS"}</span>
-            <strong>{branchSummaryStats.totalProofs}</strong>
-          </div>
-        </div>
-      </div>
-
-      {/* Skill Nodes Circuit Grid */}
-      <div className="skill-matrix__grid">
-        <AnimatePresence mode="popLayout">
-          {visibleSkills.map((skill) => {
-            const branch = branchById.get(skill.domain);
-            const matchedSlugs = skillMatchesMap.get(skill.id) ?? [];
-            const isSelected = selectedSkillId === skill.id;
-
-            return (
-              <motion.article
-                key={skill.id}
-                layout={!reduceMotion}
-                initial={reduceMotion ? false : { opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={reduceMotion ? undefined : { opacity: 0, scale: 0.97 }}
-                transition={{ duration: 0.2 }}
-                className={[
-                  "skill-node",
-                  `skill-node--rank-${skill.rank.toLowerCase()}`,
-                  isSelected ? "is-selected" : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-                style={
-                  {
-                    "--node-branch-accent": branch?.accent ?? "#18c785",
-                    "--node-branch-soft": branch?.softAccent ?? "#6ee7b7",
-                  } as React.CSSProperties
-                }
-                onClick={() => handleToggleSkill(skill)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    handleToggleSkill(skill);
+            {SKILL_MATRIX_BRANCHES.map((branch) => {
+              const isSelected = activeDomain === branch.id;
+              const sRanks = branch.skills.filter((s) => s.rank === "S").length;
+              return (
+                <button
+                  key={branch.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={isSelected}
+                  className={`domain-tab ${isSelected ? "is-active" : ""}`}
+                  style={
+                    {
+                      "--tab-accent": branch.accent,
+                      "--tab-soft": branch.softAccent,
+                      "--tab-glow": branch.glow,
+                    } as React.CSSProperties
                   }
-                }}
-                tabIndex={0}
-                role="button"
-                aria-pressed={isSelected}
-              >
-                {/* Node Header: Polygonal Rank Crest + Branch Tag + KB Match Pill */}
-                <div className="skill-node__head">
-                  <div className="skill-node__crest-wrap">
-                    <span
-                      className={`rank-crest rank-crest--${skill.rank.toLowerCase()}`}
-                      title={`Rank ${skill.rank}`}
-                    >
-                      <small>RANK</small>
-                      <strong>{skill.rank}</strong>
-                    </span>
-                    <span className="skill-node__domain-pill">
-                      <i className={skill.icon} aria-hidden="true" />
-                      <span>{skill.domain}</span>
-                    </span>
-                  </div>
-
-                  <span
-                    className={`skill-node__kb-badge ${matchedSlugs.length > 0 ? "has-kb" : ""}`}
-                    title={
-                      language === "vi"
-                        ? "Nhấp để lọc bài nghiên cứu D1 liên quan"
-                        : "Click card to filter matching D1 studies"
-                    }
-                  >
-                    <i
-                      className={
-                        isSelected
-                          ? "fa-solid fa-filter-circle-xmark"
-                          : matchedSlugs.length > 0
-                            ? "fa-solid fa-database"
-                            : "fa-solid fa-folder-tree"
-                      }
-                      aria-hidden="true"
-                    />
-                    <span>
-                      {isSelected
-                        ? language === "vi"
-                          ? "Đang lọc"
-                          : "Filtering"
-                        : matchedSlugs.length > 0
-                          ? `${matchedSlugs.length} D1`
-                          : `${skill.proofs.length} ${language === "vi" ? "Hồ sơ" : "Dossier"}`}
-                    </span>
+                  onClick={() => handleSelectDomain(branch.id)}
+                >
+                  <i className={branch.icon} aria-hidden="true" />
+                  <span className="domain-tab__label">
+                    {language === "vi" ? branch.titleVi : branch.titleEn}
                   </span>
-                </div>
+                  <span className="domain-tab__count" title={`${sRanks} Rank-S skills`}>
+                    {branch.skills.length}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
 
-                {/* Skill Title & Concise Operational Summary */}
-                <h4 className="skill-node__title">
-                  {language === "vi" ? skill.nameVi : skill.nameEn}
-                </h4>
+          {/* Active Branch Telemetry Readout */}
+          <div className="skill-matrix__telemetry">
+            <div className="telemetry-branch-info">
+              <span className="telemetry-code">
+                {activeBranch ? activeBranch.code : "00 // FULL-SPECTRUM MATRIX"}
+              </span>
+              <span className="telemetry-desc">
+                {activeBranch
+                  ? language === "vi"
+                    ? activeBranch.subtitleVi
+                    : activeBranch.subtitleEn
+                  : language === "vi"
+                    ? "Tổng hợp 7 nhánh kỹ năng từ Quản trị Sản phẩm, Phân tích Nghiệp vụ, Dữ liệu đến Kỹ thuật Lõi & AI."
+                    : "Integrated view across PM, BA, Data Streaming, Core Backend, AI Agents, Frontend, and Cloud Infra."}
+              </span>
+            </div>
 
-                <p className="skill-node__summary">
-                  {language === "vi" ? skill.summaryVi : skill.summaryEn}
-                </p>
+            <div className="telemetry-metrics">
+              <div className="telemetry-chip">
+                <span>AVG LVL</span>
+                <strong>{branchSummaryStats.avgLevel}/100</strong>
+              </div>
+              <div className="telemetry-chip telemetry-chip--s">
+                <span>RANK S</span>
+                <strong>
+                  {branchSummaryStats.sCount}/{branchSummaryStats.count}
+                </strong>
+              </div>
+              <div className="telemetry-chip">
+                <span>{language === "vi" ? "MINH CHỨNG" : "PROOFS"}</span>
+                <strong>{branchSummaryStats.totalProofs}</strong>
+              </div>
+            </div>
+          </div>
 
-                {/* Mastery Level Progress Meter */}
-                <div className="skill-node__meter">
-                  <div className="skill-node__meter-labels">
-                    <span>MASTERY INDEX</span>
-                    <strong>LVL {skill.level}/100</strong>
-                  </div>
-                  <div className="skill-node__meter-track" aria-hidden="true">
-                    <div
-                      className="skill-node__meter-fill"
-                      style={{ width: `${skill.level}%` }}
-                    />
-                  </div>
-                </div>
+          {/* Skill Nodes Circuit Grid */}
+          <div className="skill-matrix__grid">
+            <AnimatePresence mode="popLayout">
+              {visibleSkills.map((skill) => {
+                const branch = branchById.get(skill.domain);
+                const matchedSlugs = skillMatchesMap.get(skill.id) ?? [];
+                const isSelected = selectedSkillId === skill.id;
 
-                {/* Direct Verified Proofs (Stop propagation so links open cleanly) */}
-                <div className="skill-node__proofs">
-                  {skill.proofs.map((proof) => (
-                    <a
-                      key={proof.href + proof.labelEn}
-                      href={proof.href}
-                      className="skill-node__proof-link"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <i className="fa-solid fa-arrow-up-right-from-square" aria-hidden="true" />
-                      <span>{language === "vi" ? proof.labelVi : proof.labelEn}</span>
-                    </a>
-                  ))}
-                </div>
-              </motion.article>
-            );
-          })}
-        </AnimatePresence>
-      </div>
-    </>
-  )}
-</section>
+                return (
+                  <motion.article
+                    key={skill.id}
+                    layout={!reduceMotion}
+                    initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={reduceMotion ? undefined : { opacity: 0, scale: 0.97 }}
+                    transition={{ duration: 0.2 }}
+                    className={[
+                      "skill-node",
+                      `skill-node--rank-${skill.rank.toLowerCase()}`,
+                      isSelected ? "is-selected" : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
+                    style={
+                      {
+                        "--node-branch-accent": branch?.accent ?? "#18c785",
+                        "--node-branch-soft": branch?.softAccent ?? "#6ee7b7",
+                      } as React.CSSProperties
+                    }
+                    onClick={() => handleToggleSkill(skill)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        handleToggleSkill(skill);
+                      }
+                    }}
+                    tabIndex={0}
+                    role="button"
+                    aria-pressed={isSelected}
+                  >
+                    {/* Node Header: Polygonal Rank Crest + Branch Tag + KB Match Pill */}
+                    <div className="skill-node__head">
+                      <div className="skill-node__crest-wrap">
+                        <span
+                          className={`rank-crest rank-crest--${skill.rank.toLowerCase()}`}
+                          title={`Rank ${skill.rank}`}
+                        >
+                          <small>RANK</small>
+                          <strong>{skill.rank}</strong>
+                        </span>
+                        <span className="skill-node__domain-pill">
+                          <i className={skill.icon} aria-hidden="true" />
+                          <span>{skill.domain}</span>
+                        </span>
+                      </div>
+
+                      <span
+                        className={`skill-node__kb-badge ${matchedSlugs.length > 0 ? "has-kb" : ""}`}
+                        title={
+                          language === "vi"
+                            ? "Nhấp để lọc bài nghiên cứu D1 liên quan"
+                            : "Click card to filter matching D1 studies"
+                        }
+                      >
+                        <i
+                          className={
+                            isSelected
+                              ? "fa-solid fa-filter-circle-xmark"
+                              : matchedSlugs.length > 0
+                                ? "fa-solid fa-database"
+                                : "fa-solid fa-folder-tree"
+                          }
+                          aria-hidden="true"
+                        />
+                        <span>
+                          {isSelected
+                            ? language === "vi"
+                              ? "Đang lọc"
+                              : "Filtering"
+                            : matchedSlugs.length > 0
+                              ? `${matchedSlugs.length} D1`
+                              : `${skill.proofs.length} ${language === "vi" ? "Hồ sơ" : "Dossier"}`}
+                        </span>
+                      </span>
+                    </div>
+
+                    {/* Skill Title & Concise Operational Summary */}
+                    <h4 className="skill-node__title">
+                      {language === "vi" ? skill.nameVi : skill.nameEn}
+                    </h4>
+
+                    <p className="skill-node__summary">
+                      {language === "vi" ? skill.summaryVi : skill.summaryEn}
+                    </p>
+
+                    {/* Mastery Level Progress Meter */}
+                    <div className="skill-node__meter">
+                      <div className="skill-node__meter-labels">
+                        <span>MASTERY INDEX</span>
+                        <strong>LVL {skill.level}/100</strong>
+                      </div>
+                      <div className="skill-node__meter-track" aria-hidden="true">
+                        <div
+                          className="skill-node__meter-fill"
+                          style={{ width: `${skill.level}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Direct Verified Proofs (Stop propagation so links open cleanly) */}
+                    <div className="skill-node__proofs">
+                      {skill.proofs.map((proof) => (
+                        <a
+                          key={proof.href + proof.labelEn}
+                          href={proof.href}
+                          className="skill-node__proof-link"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <i className="fa-solid fa-arrow-up-right-from-square" aria-hidden="true" />
+                          <span>{language === "vi" ? proof.labelVi : proof.labelEn}</span>
+                        </a>
+                      ))}
+                    </div>
+                  </motion.article>
+                );
+              })}
+            </AnimatePresence>
+          </div>
+        </>
+      )}
+    </section>
   );
 }
