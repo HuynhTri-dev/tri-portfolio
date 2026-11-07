@@ -160,4 +160,57 @@ CREATE TABLE IF NOT EXISTS search_misses (
     hits INTEGER DEFAULT 1,
     last_seen DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+-- =========================================================================
+-- SKILL KNOWLEDGE GRAPH (GRAPHDB MODEL)
+-- =========================================================================
+
+CREATE TABLE IF NOT EXISTS skill_domains (
+    id TEXT PRIMARY KEY,
+    name_en TEXT NOT NULL,
+    name_vi TEXT NOT NULL,
+    color_hex TEXT NOT NULL DEFAULT '#18c785',
+    order_index INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS skill_nodes (
+    id TEXT PRIMARY KEY,
+    domain_id TEXT NOT NULL,
+    parent_id TEXT,
+    name_en TEXT NOT NULL,
+    name_vi TEXT NOT NULL,
+    rank TEXT NOT NULL CHECK(rank IN ('F', 'D', 'C', 'B', 'A', 'S')),
+    level INTEGER NOT NULL DEFAULT 50,
+    node_type TEXT NOT NULL CHECK(node_type IN ('HUB', 'BRANCH', 'LEAF')),
+    summary_en TEXT,
+    summary_vi TEXT,
+    icon TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(domain_id) REFERENCES skill_domains(id),
+    FOREIGN KEY(parent_id) REFERENCES skill_nodes(id)
+);
+
+CREATE TABLE IF NOT EXISTS skill_graph_edges (
+    id TEXT PRIMARY KEY,
+    source_node_id TEXT NOT NULL,
+    target_node_id TEXT NOT NULL,
+    relation_type TEXT NOT NULL CHECK(relation_type IN ('BRANCHES_TO', 'DEPENDS_ON', 'COMPLEMENTS')),
+    weight REAL DEFAULT 1.0,
+    FOREIGN KEY(source_node_id) REFERENCES skill_nodes(id),
+    FOREIGN KEY(target_node_id) REFERENCES skill_nodes(id)
+);
+
+CREATE TABLE IF NOT EXISTS article_skill_links (
+    article_slug TEXT NOT NULL,
+    skill_node_id TEXT NOT NULL,
+    relationship TEXT NOT NULL DEFAULT 'PROVES_KNOWLEDGE',
+    PRIMARY KEY (article_slug, skill_node_id),
+    FOREIGN KEY(article_slug) REFERENCES articles(slug) ON DELETE CASCADE,
+    FOREIGN KEY(skill_node_id) REFERENCES skill_nodes(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_skill_nodes_domain ON skill_nodes(domain_id);
+CREATE INDEX IF NOT EXISTS idx_skill_nodes_parent ON skill_nodes(parent_id);
+CREATE INDEX IF NOT EXISTS idx_graph_edges_source ON skill_graph_edges(source_node_id);
+CREATE INDEX IF NOT EXISTS idx_article_skills_node ON article_skill_links(skill_node_id);
 `;

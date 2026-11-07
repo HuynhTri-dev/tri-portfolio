@@ -257,9 +257,13 @@ const formatDate = (date: Date | string) => {
       </div>
 
       {kbArticlesWithProblems.length === 0 && (
-        <div class="empty panel">
-          <p>No knowledge base items found in database yet.</p>
-          <p class="small">Run <code>npm run kb:sync</code> to index existing articles or use <code>POST /api/kb</code>.</p>
+        <div class="empty panel" data-kb-empty-notice>
+          <p data-en="Synchronizing Knowledge Repository with Cloudflare D1..." data-vi="Đang đồng bộ Kho Tri thức với Cloudflare D1...">
+            Synchronizing Knowledge Repository with Cloudflare D1...
+          </p>
+          <p class="small">
+            Live telemetry stream initializing. If empty, run <code>npm run kb:sync</code> to index local notes.
+          </p>
         </div>
       )}
     </div>

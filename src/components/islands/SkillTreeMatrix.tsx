@@ -15,6 +15,7 @@ import {
   type SkillNode,
   type SkillRank,
 } from "../../data/skill-matrix";
+import { SkillGraphNetwork } from "./SkillGraphNetwork";
 import "./SkillTreeMatrix.css";
 
 type Language = "en" | "vi";
@@ -97,6 +98,7 @@ function matchesSkillTokens(keywords: string[], articleTokens: Set<string>): boo
  */
 export default function SkillTreeMatrix({ kbItems = [] }: SkillTreeMatrixProps) {
   const [language, setLanguage] = useState<Language>("en");
+  const [viewMode, setViewMode] = useState<"GRAPH" | "MATRIX">("GRAPH");
   const [activeDomain, setActiveDomain] = useState<"ALL" | SkillDomainId>("ALL");
   const [activeRankFilter, setActiveRankFilter] = useState<"ALL" | SkillRank>("ALL");
   const [inspectedRank, setInspectedRank] = useState<SkillRank>("S");
@@ -270,6 +272,38 @@ export default function SkillTreeMatrix({ kbItems = [] }: SkillTreeMatrixProps) 
     }
   };
 
+  const handleGraphSelectSkill = useCallback(
+    (detail: {
+      skillId: string | null;
+      skillNameEn: string;
+      skillNameVi: string;
+      rank: SkillRank | null;
+      domain: string | null;
+      matchedSlugs: string[];
+      proofs: { labelEn: string; labelVi: string; href: string }[];
+    }) => {
+      setSelectedSkillId(detail.skillId);
+      if (detail.rank) setInspectedRank(detail.rank);
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("kb-skill-filter", {
+            detail: {
+              skillId: detail.skillId,
+              skillNameEn: detail.skillNameEn,
+              skillNameVi: detail.skillNameVi,
+              rank: detail.rank,
+              domain: detail.domain as any,
+              matchedSlugs: detail.matchedSlugs,
+              proofs: detail.proofs,
+            },
+          })
+        );
+      }
+    },
+    []
+  );
+
   const visibleSkills = useMemo(() => {
     return allSkills.filter((skill) => {
       const matchesDomain = activeDomain === "ALL" || skill.domain === activeDomain;
@@ -333,6 +367,30 @@ export default function SkillTreeMatrix({ kbItems = [] }: SkillTreeMatrixProps) 
               ? "Chọn từng nhánh chuyên môn (PM, BA, DA, Backend, AI, Frontend, Infra) hoặc nhấp vào một kỹ năng để lọc trực tiếp các bài nghiên cứu D1 bên dưới."
               : "Explore specialized branches (PM, BA, DA, Backend, AI, Frontend, Infra) or click any skill node to filter live D1 Knowledge Base studies below."}
           </p>
+
+          {/* View Mode Toggle: Network Graph vs Tactical Matrix */}
+          <div className="skill-matrix__view-toggle" role="group" aria-label="View mode toggle">
+            <button
+              type="button"
+              className={`view-toggle-btn ${viewMode === "GRAPH" ? "view-toggle-btn--active" : ""}`}
+              onClick={() => setViewMode("GRAPH")}
+            >
+              <i className="fa-solid fa-circle-nodes" aria-hidden="true" />
+              <span>
+                {language === "vi" ? "Sơ Đồ Mạng (GraphDB)" : "Skill Network Graph"}
+              </span>
+            </button>
+            <button
+              type="button"
+              className={`view-toggle-btn ${viewMode === "MATRIX" ? "view-toggle-btn--active" : ""}`}
+              onClick={() => setViewMode("MATRIX")}
+            >
+              <i className="fa-solid fa-table-cells-large" aria-hidden="true" />
+              <span>
+                {language === "vi" ? "Ma Trận Phân Hệ (Matrix)" : "Tactical Matrix"}
+              </span>
+            </button>
+          </div>
         </div>
 
         {/* Interactive Rank Progression Scale: F -> S */}
@@ -414,12 +472,20 @@ export default function SkillTreeMatrix({ kbItems = [] }: SkillTreeMatrixProps) 
         </div>
       </div>
 
-      {/* 7-Branch Domain Selector Bar */}
-      <div
-        className="skill-matrix__domains"
-        role="tablist"
-        aria-label={language === "vi" ? "Các nhánh kỹ năng chuyên môn" : "Engineering skill branches"}
-      >
+      {viewMode === "GRAPH" ? (
+        <SkillGraphNetwork
+          language={language}
+          selectedSkillId={selectedSkillId}
+          onSelectSkill={handleGraphSelectSkill}
+        />
+      ) : (
+        <>
+          {/* 7-Branch Domain Selector Bar */}
+          <div
+            className="skill-matrix__domains"
+            role="tablist"
+            aria-label={language === "vi" ? "Các nhánh kỹ năng chuyên môn" : "Engineering skill branches"}
+          >
         <button
           type="button"
           role="tab"
@@ -628,6 +694,8 @@ export default function SkillTreeMatrix({ kbItems = [] }: SkillTreeMatrixProps) 
           })}
         </AnimatePresence>
       </div>
-    </section>
+    </>
+  )}
+</section>
   );
 }

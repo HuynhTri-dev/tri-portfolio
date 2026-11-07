@@ -1,0 +1,145 @@
+---
+title: "Vận hành, debug và bảo mật Asterisk lab"
+description: "Lệnh sức khỏe, debug SIP tách RTP, bảng sự cố 401/one-way/CONGESTION, firewall hai tầng, và giới hạn VM 2 vCPU."
+pubDate: 2026-10-19
+thumbnail: "/images/blog/default.png"
+thumbnailAlt: "Vận hành, debug và bảo mật Asterisk lab"
+hashtags:
+  - Asterisk
+  - Debug
+  - Security
+  - Firewall
+draft: false
+isKnowledgeBase: true
+kbCategory: "devops"
+targetAgents:
+  - claude
+  - cursor
+  - codex
+  - anti
+summaryForAgents: "Debug the failed layer: pjsip set logger on for 401 and 403; dialplan show for no-match; rtp set debug on when ringing works but speech does not. Unavailable means no Contact yet. REGISTER timeout is Vultr /32 or UFW. One-way audio is external_media_address, UDP 10000-20000, or direct_media. 9999 CONGESTION means Pipecat is down on 127.0.0.1:10003. Do not expose AMI 5038. Lab is 2 vCPU and 4 GB. Reload keeps bridges; restart drops them."
+---
+
+# Vận hành, debug và bảo mật Asterisk lab
+
+Asterisk 22.11 trên VM 2 vCPU / 4 GB, public IP `45.76.147.0`. Các bài cấu hình: PJSIP `asterisk-pjsip-wizard-transport-nat`, dialplan `asterisk-dialplan-ivr-queue-voicemail`, API `asterisk-cdr-cel-ami-ari`.
+
+## 1. Log
+
+`logger.conf` ghi `/var/log/asterisk/messages`.
+
+```bash
+tail -f /var/log/asterisk/messages
+journalctl -u asterisk -f
+asterisk -rvvv
+core set verbose 5
+```
+
+Verbose cao khi đang debug, hạ lại sau. Đừng để `pjsip set logger on` chạy qua đêm.
+
+## 2. Debug đúng tầng
+
+SIP và RTP là hai tầng. Bật đúng tầng của triệu chứng.
+
+| Triệu chứng | Lệnh |
+|-------------|------|
+| Không REGISTER, 401, 403 | `pjsip set logger on` trong console `-rvvv` |
+| Sai context, không match số | `dialplan show from-internal@<số>` |
+| Có tiếng chuông, không có tiếng nói | `rtp set debug on`, `rtp show stats` |
+| 9999 cúp ngay | `dialplan show from-internal@9999`, `ss -lntp \| grep 10003`, `systemctl is-active pipecat-voicebot` |
+| Hàng đợi | `queue show` |
+
+Tắt: `pjsip set logger off`, `rtp set debug off`.
+
+`core show channels` trong lúc gọi cho biết leg `PJSIP/...` và, với 9999, leg `WebSocket/pipecat`. Không có channel nghĩa là SIP chưa vào dialplan.
+
+## 3. Sức khỏe định kỳ
+
+```bash
+asterisk -rx "core show version"
+asterisk -rx "core show uptime"
+asterisk -rx "core show calls"
+asterisk -rx "core show channels"
+asterisk -rx "pjsip show endpoints"
+asterisk -rx "pjsip show registrations"
+asterisk -rx "pjsip show transport transport-udp"
+asterisk -rx "rtp show settings"
+asterisk -rx "cdr show status"
+asterisk -rx "cel show status"
+asterisk -rx "module show like wizard"
+asterisk -rx "module show like websocket"
+```
+
+Kỳ vọng transport: bind `0.0.0.0:5060`, `external_media_address` và `external_signaling_address` = `45.76.147.0`, `local_net` = `127.0.0.0/8`. RTP 10000–20000, `strictrtp=yes`. CDR Enabled. CEL Disabled cho đến khi bật có chủ đích.
+
+## 4. Bảng sự cố
+
+| Triệu chứng | Hướng xử lý |
+|-------------|-------------|
+| 401 Unauthorized lặp | Sai `inbound_auth` username/password |
+| 403 Forbidden | Auth sai hoặc ACL chặn IP |
+| 404 / 484 | Không có endpoint, hoặc dialplan không match |
+| Unavailable | Chưa REGISTER. Xem contact sau khi phone bật |
+| REGISTER timeout | Vultr /32 đổi IP, hoặc UFW chưa mở 5060 và RTP |
+| One-way audio | `external_media_address`, UDP 10000–20000, `direct_media=no`, `rtp_symmetric` |
+| 999 im | Thiếu WAV 8 kHz mono, thiếu `Answer()`, quyền file |
+| Quay số ngoài not found | Chưa có pattern outbound và trunk. Đúng với lab extension-only |
+| 9999 CONGESTION, beep rồi cúp | Pipecat không listen `127.0.0.1:10003`, hoặc `websocket_client` URI sai |
+| Endpoint biến mất sau reload | Syntax wizard, hoặc `res_pjsip_config_wizard` không Running |
+| App not registered | Module `.so` Not Running |
+
+One-way: SIP 180 đã tới nên người dùng tưởng “gọi được”. Xem SDP `c=IN IP4` có phải public IP.
+
+## 5. Firewall
+
+Hai tầng: cloud Vultr và UFW trên VM.
+
+| Cổng | Ai cần | Public? |
+|------|--------|---------|
+| TCP 22 | SSH admin, IP /32 | Không mở thế giới |
+| UDP/TCP 5060 | SIP softphone | Chỉ IP cần thiết nếu chính sách cho phép |
+| UDP 10000–20000 | RTP | Cùng policy với SIP |
+| TCP 5038 | AMI | **Không** |
+| TCP 8088/8089 | ARI, WSS | Chỉ khi bật WebRTC/ARI, nên VPN |
+| TCP 10003 | Pipecat | **Không**. Chỉ `127.0.0.1` |
+
+```bash
+ufw allow 5060/udp
+ufw allow 5060/tcp
+ufw allow 10000:20000/udp
+ufw status
+```
+
+Đổi Wi-Fi làm IP admin đổi. VM vẫn running nhưng SSH và SIP timeout. Thêm rule /32 mới, đừng mở 0.0.0.0/0 để “cho nhanh” rồi quên.
+
+## 6. Bảo mật production
+
+| Rủi ro | Giảm |
+|--------|------|
+| Scan SIP, brute force | Mật khẩu mạnh từng extension, ACL, fail2ban trên 5060, không dùng mật khẩu sample |
+| Toll fraud | `from-pstn` không có pattern gọi ra trunk. Outbound chỉ pattern đã chuẩn hóa |
+| AMI/ARI lộ | Bind localhost, secret riêng, bỏ quyền write không cần |
+| Secret trong git | Password wizard và API key chỉ trên server hoặc vault |
+| `make samples` | Không giữ context mở và user mặc định |
+| Advisor | Theo security advisory Asterisk trước khi expose 5060 |
+
+Backup: `/etc/asterisk/` và `/var/lib/asterisk/` (sounds custom, voicemail). Ghi âm spool nằm `/var/spool/asterisk/`, backup riêng nếu cần giữ thoại. Không backup `.env` Pipecat vào git.
+
+SBC (Kamailio, OpenSIPS, SBC thương mại) đứng trước Asterisk khi expose Internet thật: ẩn topology, chuẩn hóa header, chặn fraud. Lab Vultr không có SBC. Firewall IP là lớp duy nhất.
+
+## 7. Dung lượng VM lab
+
+2 vCPU / 4 GB chịu vài kênh G.711 cùng Redpanda và một Pipecat nhẹ. Không chịu:
+
+- Nhiều transcode opus ↔ ulaw
+- Conference nhiều người
+- Hàng trăm CPS
+- STT+LLM+TTS cộng MixMonitor cộng Kafka trên cùng hộp khi tải thật
+
+Tách voicebot sang máy khác nếu CPU sát trần. `direct_media=no` nghĩa là mọi cuộc nội bộ cũng tốn RTP trên PBX. Đó là chủ đích của lab, không phải cấu hình tiết kiệm băng thông.
+
+## 8. Reload an toàn khi đang có cuộc gọi
+
+`dialplan reload` và `pjsip reload` không cắt cuộc đã bridge, nhưng cuộc mới dùng config mới. `systemctl restart asterisk` cắt mọi cuộc. Restart chỉ khi nạp `.so`, đổi TLS, hoặc process kẹt.
+
+Thứ tự sửa an toàn: sửa file → `chown asterisk:asterisk` → reload subsystem đúng → `dialplan show` hoặc `pjsip show` → một cuộc thử → tắt debug logger.

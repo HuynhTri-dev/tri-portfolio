@@ -14,6 +14,36 @@ import {
   estimateTokens,
   type SectionRecord,
 } from "./search-utils";
+import {
+  SEED_DOMAINS,
+  SEED_NODES,
+  SEED_EDGES,
+  SEED_ARTICLE_LINKS,
+  type SkillDomainSeed,
+  type SkillNodeSeed,
+  type SkillGraphEdgeSeed,
+  type ArticleSkillLinkSeed,
+} from "../data/skill-graph-seed";
+
+export interface SkillNodeWithLinks extends SkillNodeSeed {
+  linkedArticles: {
+    slug: string;
+    title: string;
+    relationship: string;
+  }[];
+}
+
+export interface SkillGraphTopology {
+  domains: SkillDomainSeed[];
+  nodes: SkillNodeWithLinks[];
+  edges: SkillGraphEdgeSeed[];
+  stats: {
+    totalDomains: number;
+    totalNodes: number;
+    totalEdges: number;
+    totalArticles: number;
+  };
+}
 
 export interface ArticleRecord {
   id: string;
@@ -931,7 +961,229 @@ ${solutionMarkdown}
       }
     }
 
+    // 3. Synchronize Skill Knowledge Graph taxonomy (domains, nodes, edges, article links)
+    await this.syncSkillGraphDefaults();
+
     return { syncedArticles, syncedProblems };
+  }
+
+  /**
+   * Syncs the default Skill Knowledge Graph taxonomy (domains, nodes, edges, article links)
+   */
+  async syncSkillGraphDefaults(): Promise<{ domains: number; nodes: number; edges: number; links: number }> {
+    // 1. Domains
+    for (const d of SEED_DOMAINS) {
+      await this.db.execute(
+        `INSERT INTO skill_domains (id, name_en, name_vi, color_hex, order_index)
+        VALUES (?, ?, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+          name_en = excluded.name_en,
+          name_vi = excluded.name_vi,
+          color_hex = excluded.color_hex,
+          order_index = excluded.order_index;`,
+        [d.id, d.name_en, d.name_vi, d.color_hex, d.order_index]
+      );
+    }
+
+    // 2. Nodes
+    for (const n of SEED_NODES) {
+      await this.db.execute(
+        `INSERT INTO skill_nodes (id, domain_id, parent_id, name_en, name_vi, rank, level, node_type, summary_en, summary_vi, icon)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+          domain_id = excluded.domain_id,
+          parent_id = excluded.parent_id,
+          name_en = excluded.name_en,
+          name_vi = excluded.name_vi,
+          rank = excluded.rank,
+          level = excluded.level,
+          node_type = excluded.node_type,
+          summary_en = excluded.summary_en,
+          summary_vi = excluded.summary_vi,
+          icon = excluded.icon;`,
+        [
+          n.id,
+          n.domain_id,
+          n.parent_id || null,
+          n.name_en,
+          n.name_vi,
+          n.rank,
+          n.level,
+          n.node_type,
+          n.summary_en || null,
+          n.summary_vi || null,
+          n.icon || null,
+        ]
+      );
+    }
+
+    // 3. Edges
+    for (const e of SEED_EDGES) {
+      await this.db.execute(
+        `INSERT INTO skill_graph_edges (id, source_node_id, target_node_id, relation_type, weight)
+        VALUES (?, ?, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+          source_node_id = excluded.source_node_id,
+          target_node_id = excluded.target_node_id,
+          relation_type = excluded.relation_type,
+          weight = excluded.weight;`,
+        [e.id, e.source_node_id, e.target_node_id, e.relation_type, e.weight]
+      );
+    }
+
+    // 4. Article Links
+    let linkedCount = 0;
+    for (const l of SEED_ARTICLE_LINKS) {
+      try {
+        await this.db.execute(
+          `INSERT INTO article_skill_links (article_slug, skill_node_id, relationship)
+          VALUES (?, ?, ?)
+          ON CONFLICT(article_slug, skill_node_id) DO UPDATE SET
+            relationship = excluded.relationship;`,
+          [l.article_slug, l.skill_node_id, l.relationship]
+        );
+        linkedCount++;
+      } catch {
+        // If article does not exist yet in db, skip gracefully
+      }
+    }
+
+    return {
+      domains: SEED_DOMAINS.length,
+      nodes: SEED_NODES.length,
+      edges: SEED_EDGES.length,
+      links: linkedCount,
+    };
+  }
+
+  /**
+   * Retrieves the full or filtered Skill Knowledge Graph topology
+   */
+  async getSkillGraph(filter?: { domain?: string; root?: string }): Promise<SkillGraphTopology> {
+    let domainQuery = "SELECT * FROM skill_domains ORDER BY order_index ASC";
+    let domainParams: any[] = [];
+    if (filter?.domain) {
+      domainQuery = "SELECT * FROM skill_domains WHERE id = ? ORDER BY order_index ASC";
+      domainParams = [filter.domain];
+    }
+    const domainRes = await this.db.query<SkillDomainSeed>(domainQuery, domainParams);
+    const domains = domainRes.results || [];
+
+    let nodeQuery = "SELECT * FROM skill_nodes";
+    let nodeParams: any[] = [];
+    if (filter?.domain) {
+      nodeQuery += " WHERE domain_id = ?";
+      nodeParams.push(filter.domain);
+    }
+    const nodeRes = await this.db.query<SkillNodeSeed>(nodeQuery, nodeParams);
+    const rawNodes = nodeRes.results || [];
+
+    // If root filter is provided, collect subgraph (root and children)
+    let activeNodes = rawNodes;
+    if (filter?.root) {
+      const rootId = filter.root;
+      activeNodes = rawNodes.filter((n) => n.id === rootId || n.parent_id === rootId);
+    }
+    const activeNodeIds = new Set(activeNodes.map((n) => n.id));
+
+    // Fetch edges
+    const edgeRes = await this.db.query<SkillGraphEdgeSeed>("SELECT * FROM skill_graph_edges");
+    const allEdges = edgeRes.results || [];
+    const edges = allEdges.filter(
+      (e) => activeNodeIds.has(e.source_node_id) && activeNodeIds.has(e.target_node_id)
+    );
+
+    // Fetch article links for active nodes
+    const linksRes = await this.db.query<{
+      skill_node_id: string;
+      relationship: string;
+      slug: string;
+      title: string;
+    }>(`
+      SELECT l.skill_node_id, l.relationship, a.slug, a.title
+      FROM article_skill_links l
+      JOIN articles a ON a.slug = l.article_slug
+    `);
+
+    const linksByNode = new Map<string, { slug: string; title: string; relationship: string }[]>();
+    for (const r of linksRes.results || []) {
+      if (!linksByNode.has(r.skill_node_id)) {
+        linksByNode.set(r.skill_node_id, []);
+      }
+      linksByNode.get(r.skill_node_id)!.push({
+        slug: r.slug,
+        title: r.title,
+        relationship: r.relationship,
+      });
+    }
+
+    const nodesWithLinks: SkillNodeWithLinks[] = activeNodes.map((node) => ({
+      ...node,
+      linkedArticles: linksByNode.get(node.id) || [],
+    }));
+
+    return {
+      domains,
+      nodes: nodesWithLinks,
+      edges,
+      stats: {
+        totalDomains: domains.length,
+        totalNodes: nodesWithLinks.length,
+        totalEdges: edges.length,
+        totalArticles: linksRes.results?.length || 0,
+      },
+    };
+  }
+
+  /**
+   * Search skill graph nodes by keyword, resolving upstream hubs and related articles
+   */
+  async searchSkillGraph(query: string): Promise<{
+    matchedNodes: SkillNodeWithLinks[];
+    relatedHubs: SkillNodeSeed[];
+    linkedArticles: { slug: string; title: string; skillNodeId: string }[];
+  }> {
+    const fullGraph = await this.getSkillGraph();
+    const qLower = query.toLowerCase().trim();
+    if (!qLower) {
+      return { matchedNodes: [], relatedHubs: [], linkedArticles: [] };
+    }
+
+    const matchedNodes = fullGraph.nodes.filter((node) => {
+      const matchName = node.name_en.toLowerCase().includes(qLower) || node.name_vi.toLowerCase().includes(qLower);
+      const matchSummary = (node.summary_en || "").toLowerCase().includes(qLower) || (node.summary_vi || "").toLowerCase().includes(qLower);
+      const matchRank = node.rank.toLowerCase() === qLower;
+      const matchId = node.id.toLowerCase().includes(qLower);
+      return matchName || matchSummary || matchRank || matchId;
+    });
+
+    const hubIds = new Set<string>();
+    for (const node of matchedNodes) {
+      if (node.parent_id) {
+        hubIds.add(node.parent_id);
+      } else if (node.node_type === "HUB") {
+        hubIds.add(node.id);
+      }
+    }
+
+    const relatedHubs = fullGraph.nodes.filter((n) => hubIds.has(n.id) && n.node_type === "HUB");
+
+    const linkedArticles: { slug: string; title: string; skillNodeId: string }[] = [];
+    for (const node of matchedNodes) {
+      for (const art of node.linkedArticles) {
+        linkedArticles.push({
+          slug: art.slug,
+          title: art.title,
+          skillNodeId: node.id,
+        });
+      }
+    }
+
+    return {
+      matchedNodes,
+      relatedHubs,
+      linkedArticles,
+    };
   }
 
   private mapArticleRow(row: any): ArticleRecord {

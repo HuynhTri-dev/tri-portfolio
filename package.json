@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "npm run kb:sync && astro build",
     "preview": "astro preview",
     "deploy": "npm run build && wrangler deploy",
     "kb:sync": "tsx scripts/sync-kb.ts"
