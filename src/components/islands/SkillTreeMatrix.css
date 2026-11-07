@@ -708,32 +708,32 @@
   box-shadow: 0 0 16px rgba(56, 189, 248, 0.45);
 }
 
-/* Outer Constellation Arena */
+/* Outer Constellation Arena (Seamless, No Nested Dark-Blue Box) */
 .constellation-arena {
   position: relative;
-  border-radius: 24px;
-  padding: 24px 28px;
-  background:
-    radial-gradient(circle at 10% 10%, rgba(56, 189, 248, 0.08), transparent 40%),
-    radial-gradient(circle at 90% 90%, rgba(245, 158, 11, 0.06), transparent 45%),
-    linear-gradient(168deg, #09121d, #04080e);
-  border: 1px solid rgba(56, 189, 248, 0.22);
-  box-shadow:
-    0 24px 60px -15px rgba(0, 0, 0, 0.8),
-    inset 0 1px 0 rgba(255, 255, 255, 0.09);
-  margin-top: 22px;
-  overflow: hidden;
+  width: 100%;
+  margin-top: 18px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
 }
 
-/* Top Gaming Bar */
+/* Top Gaming Telemetry Bar (Seamless Floating Glass) */
 .constellation-arena__topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 20px;
+  padding: 14px 20px;
+  border-radius: 16px;
+  background: rgba(4, 12, 18, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
   flex-wrap: wrap;
+  margin-bottom: 20px;
 }
 
 .arena-user-profile {
@@ -854,12 +854,34 @@
   letter-spacing: 0.04em;
 }
 
-/* Main Stage: Left SVG Graph + Right HUD Card */
+.arena-ctrl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.arena-ctrl-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+/* Main Stage: Left Living Constellation + Right Floating HUD */
 .constellation-arena__stage {
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.95fr);
   gap: 24px;
-  margin-top: 20px;
   align-items: start;
 }
 
@@ -870,50 +892,82 @@
   align-items: center;
   justify-content: center;
   background:
-    radial-gradient(circle at center, rgba(14, 30, 48, 0.65), rgba(4, 9, 16, 0.95));
-  border: 1px solid rgba(56, 189, 248, 0.16);
+    radial-gradient(ellipse at 50% 50%, rgba(10, 24, 38, 0.45) 0%, rgba(3, 8, 14, 0.85) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
-  padding: 16px;
-  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5);
+  padding: 12px 14px 18px;
+  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+  user-select: none;
 }
 
 .constellation-svg {
   width: 100%;
   height: auto;
-  max-height: 560px;
+  max-height: 580px;
   display: block;
+  touch-action: none;
 }
 
-.constellation-edge {
-  transition: stroke-width 200ms ease, stroke-opacity 200ms ease;
+/* Celestial Physics & Animations */
+@keyframes stardustTwinkle {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.3);
+  }
 }
 
-.constellation-hub-ring {
-  animation: rotateHubRing 24s linear infinite;
+.stardust-particle {
+  animation: stardustTwinkle 3s ease-in-out infinite;
   transform-origin: center;
 }
 
-@keyframes rotateHubRing {
-  from {
-    transform: rotate(0deg);
+@keyframes coreBeaconPulse {
+  0%, 100% {
+    stroke-opacity: 0.5;
+    stroke-width: 1.8;
   }
-  to {
-    transform: rotate(360deg);
+  50% {
+    stroke-opacity: 1;
+    stroke-width: 3.2;
+    filter: drop-shadow(0 0 10px #00e5ff);
   }
 }
 
-.constellation-node-group:hover circle {
-  filter: brightness(1.3);
+.core-beacon-ring {
+  animation: coreBeaconPulse 2.8s ease-in-out infinite;
 }
 
-.constellation-node-group--core:hover polygon {
-  filter: drop-shadow(0 0 14px #38bdf8);
+@keyframes hubPulseAura {
+  0%, 100% {
+    transform: scale(0.95);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.95;
+  }
 }
 
-.constellation-leaf-label {
-  font-family: var(--font-mono);
-  pointer-events: none;
+.hub-pulse-aura {
+  animation: hubPulseAura 2.2s ease-in-out infinite;
+  transform-origin: 0 0;
+}
+
+.constellation-hub-node,
+.constellation-leaf-node,
+.constellation-core-node {
+  transition: transform 60ms linear;
   user-select: none;
+}
+
+.constellation-hub-node:hover circle:nth-child(2),
+.constellation-leaf-node:hover circle:first-child {
+  filter: brightness(1.3) drop-shadow(0 0 8px currentColor);
 }
 
 /* Legend Bar */
@@ -921,21 +975,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 10px;
   margin-top: 14px;
   flex-wrap: wrap;
   width: 100%;
 }
 
-.legend-item {
+.legend-pill {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 12px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.035);
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #94a3b8;
+  color: var(--text-muted);
   font-family: var(--font-mono);
   font-size: 0.7rem;
   font-weight: 600;
@@ -943,9 +997,9 @@
   transition: all 180ms ease;
 }
 
-.legend-item:hover,
-.legend-item.is-active {
-  background: rgba(255, 255, 255, 0.08);
+.legend-pill:hover,
+.legend-pill.is-active {
+  background: rgba(255, 255, 255, 0.1);
   color: #ffffff;
   border-color: rgba(255, 255, 255, 0.25);
   transform: translateY(-1px);
@@ -958,18 +1012,20 @@
   box-shadow: 0 0 6px currentColor;
 }
 
-/* Right Tactical HUD Card */
+/* Right Floating Tactical HUD Card */
 .constellation-hud-card {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 24px;
-  border-radius: 20px;
-  background: linear-gradient(165deg, rgba(13, 23, 38, 0.95), rgba(7, 13, 22, 0.98));
-  border: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 22px 20px;
+  border-radius: 18px;
+  background: rgba(6, 14, 18, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow:
-    0 16px 40px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    0 16px 40px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .hud-header {
@@ -1072,13 +1128,20 @@
 }
 
 .hud-quest-item {
-  padding: 10px 14px;
+  padding: 12px 14px;
   border-radius: 12px;
-  background: rgba(0, 0, 0, 0.28);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
+  transition: all 180ms ease;
+}
+
+.hud-quest-item:hover {
+  background: rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.16);
+  transform: translateY(-1px);
 }
 
 .hud-quest-head {
@@ -1105,18 +1168,25 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-top: 4px;
+  margin-top: 6px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.25);
   font-family: var(--font-mono);
   font-size: 0.68rem;
   color: #38bdf8;
   text-decoration: none;
   font-weight: 600;
-  transition: color 150ms ease;
+  transition: all 150ms ease;
+  width: fit-content;
 }
 
 .hud-quest-link:hover {
-  color: #7dd3fc;
-  text-decoration: underline;
+  background: rgba(56, 189, 248, 0.18);
+  border-color: #38bdf8;
+  color: #ffffff;
+  transform: translateX(2px);
 }
 
 .hud-leaf-inspect {
@@ -1176,33 +1246,47 @@
   text-decoration: underline;
 }
 
-.hud-actions {
-  margin-top: 8px;
+/* Streamlined Contextual D1 Footer (Replaced bloated button) */
+.hud-footer-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 6px;
 }
 
-.hud-main-btn {
+.hud-indicator-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.hud-filter-scroll-btn {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 13px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #f59e0b, #ea580c);
-  border: none;
-  color: #ffffff;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(24, 199, 133, 0.12);
+  border: 1px solid rgba(24, 199, 133, 0.35);
+  color: #34d399;
   font-family: var(--font-mono);
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
+  font-size: 0.68rem;
+  font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 18px rgba(245, 158, 11, 0.4);
   transition: all 180ms ease;
 }
 
-.hud-main-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(245, 158, 11, 0.6);
+.hud-filter-scroll-btn:hover {
+  background: rgba(24, 199, 133, 0.22);
+  border-color: #34d399;
+  color: #ffffff;
+  transform: translateY(-1px);
 }
 
 @media (max-width: 960px) {
