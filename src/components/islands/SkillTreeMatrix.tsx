@@ -287,7 +287,7 @@ export default function SkillTreeMatrix({ kbItems = [] }: SkillTreeMatrixProps) 
 
       if (typeof window !== "undefined") {
         window.dispatchEvent(
-          new CustomEvent("kb-skill-filter", {
+          new CustomEvent("portfolio:filter-kb", {
             detail: {
               skillId: detail.skillId,
               skillNameEn: detail.skillNameEn,
@@ -477,6 +477,8 @@ export default function SkillTreeMatrix({ kbItems = [] }: SkillTreeMatrixProps) 
           language={language}
           selectedSkillId={selectedSkillId}
           onSelectSkill={handleGraphSelectSkill}
+          kbItems={kbItems}
+          activeRankFilter={activeRankFilter}
         />
       ) : (
         <>

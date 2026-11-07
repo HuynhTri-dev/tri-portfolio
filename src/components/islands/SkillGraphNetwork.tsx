@@ -1,14 +1,21 @@
 /**
  * @name SkillGraphNetwork.tsx
- * @description Living Constellation Skill Graph Engine:
- *              - Elastic spring drag physics: drag any star/hub node with spring-loaded edges.
- *              - Organic celestial aesthetic: twinkling stardust, quadrant nebulas, and moving photon energy pulses.
- *              - Seamless integration: eliminated inner dark-blue container box.
- *              - Streamlined HUD: eliminated redundant 'Inspect Source' button in favor of contextual D1 lesson links.
+ * @description Cohesive Cyber-Arboretum Synaptic Skill Graph (GraphDB) connected to the
+ *              34-node skill taxonomy and 18 Cloudflare D1 Knowledge Base studies.
+ *              Features two-level radial constellation geometry (Overview + Domain Focus),
+ *              elastic spring drag physics, and an equal-height Synaptic Node Dossier.
  */
 
 import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import type { SkillRank } from "../../data/skill-matrix";
+import type { KbIndexSummaryItem } from "./SkillTreeMatrix";
+import {
+  SEED_DOMAINS,
+  SEED_NODES,
+  SEED_EDGES,
+  SEED_ARTICLE_LINKS,
+  type SkillNodeSeed,
+} from "../../lib/data/skill-graph-seed";
 
 interface SkillGraphNetworkProps {
   language: "en" | "vi";
@@ -22,765 +29,1064 @@ interface SkillGraphNetworkProps {
     proofs: { labelEn: string; labelVi: string; href: string }[];
   }) => void;
   selectedSkillId: string | null;
+  kbItems?: KbIndexSummaryItem[];
+  activeRankFilter?: "ALL" | SkillRank;
 }
 
-interface ConstellationNode {
+interface PositionedGraphNode {
   id: string;
+  kind: "CORE" | "HUB" | "BRANCH" | "ARTICLE";
   labelEn: string;
   labelVi: string;
-  badge: "MAX" | "LV.4" | "CORE";
-  hubId: "core" | "voice_ai" | "backend" | "mobile" | "domain";
+  shortEn: string;
+  shortVi: string;
+  rank: SkillRank;
+  level: number;
+  domainId: string;
+  parentId: string | null;
   originX: number;
   originY: number;
   color: string;
-  summaryEn: string;
-  summaryVi: string;
-  linkedSlugs: string[];
-  attributes?: { labelEn: string; labelVi: string; value: string; pct: number; color: string }[];
-  runes?: string[];
-  raidQuests?: { titleEn: string; titleVi: string; descEn: string; descVi: string; slug?: string }[];
+  articleCount: number;
+  href?: string;
 }
 
-interface NodePosition {
+interface PositionedEdge {
+  id: string;
+  from: string;
+  to: string;
+  color: string;
+  isPrimary: boolean;
+}
+
+interface NodePhysicsPos {
   x: number;
   y: number;
   vx: number;
   vy: number;
 }
 
+const RANK_COLOR_MAP: Record<SkillRank, string> = {
+  S: "#18c785",
+  A: "#38bdf8",
+  B: "#a855f7",
+  C: "#94a3b8",
+  D: "#64748b",
+  E: "#475569",
+  F: "#334155",
+};
+
+const DOMAIN_META: Record<
+  string,
+  {
+    shortEn: string;
+    shortVi: string;
+    icon: string;
+    color: string;
+    proofs: { labelEn: string; labelVi: string; href: string }[];
+  }
+> = {
+  voip: {
+    shortEn: "VoIP & Asterisk PBX",
+    shortVi: "Tổng đài VoIP & Asterisk",
+    icon: "fa-solid fa-phone-volume",
+    color: "#18c785",
+    proofs: [
+      {
+        labelEn: "IDB Enterprise 3CX & Asterisk Systems",
+        labelVi: "Hệ thống Tổng đài 3CX & Asterisk tại IDB",
+        href: "/experience/idb",
+      },
+    ],
+  },
+  ai: {
+    shortEn: "Voicebot & AI RAG",
+    shortVi: "Voicebot & AI RAG",
+    icon: "fa-solid fa-microphone-lines",
+    color: "#a855f7",
+    proofs: [
+      {
+        labelEn: "Sacombank & Nam Á Bank AI Voicebot PoC",
+        labelVi: "PoC Voicebot AI Ngân hàng Sacombank & Nam Á",
+        href: "/experience/idb",
+      },
+      {
+        labelEn: "OmniMer Health GraphRAG Architecture",
+        labelVi: "Kiến trúc GraphRAG Y tế OmniMer Health",
+        href: "/projects/omnimer-health",
+      },
+    ],
+  },
+  be: {
+    shortEn: "Backend, Kafka & Redis",
+    shortVi: "Backend, Kafka & Redis",
+    icon: "fa-solid fa-bolt",
+    color: "#38bdf8",
+    proofs: [
+      {
+        labelEn: "Realtime PBX Event Pipeline (Redis & Kafka)",
+        labelVi: "Đường ống Sự kiện Tổng đài (Redis & Kafka)",
+        href: "/experience/idb",
+      },
+      {
+        labelEn: "Financial Multi-Agent Backend",
+        labelVi: "Hệ thống Phân tích Tài chính Đa Agent",
+        href: "/projects/finance-analysis",
+      },
+    ],
+  },
+  mobile: {
+    shortEn: "Mobile (Flutter / Native)",
+    shortVi: "Di động (Flutter / Native)",
+    icon: "fa-solid fa-mobile-screen",
+    color: "#06b6d4",
+    proofs: [
+      {
+        labelEn: "Between Us · Spatial Memory Canvas",
+        labelVi: "Between Us · Không gian Kỷ niệm Cặp đôi",
+        href: "/projects/between-us",
+      },
+      {
+        labelEn: "OmniMer Health · Wearable Biometrics",
+        labelVi: "OmniMer Health · Đồng bộ Sinh hiệu Đeo tay",
+        href: "/projects/omnimer-health",
+      },
+    ],
+  },
+  infra: {
+    shortEn: "Cloud, D1 & Linux",
+    shortVi: "Hạ tầng Cloud, D1 & Linux",
+    icon: "fa-brands fa-cloudflare",
+    color: "#f59e0b",
+    proofs: [
+      {
+        labelEn: "Cloudflare Workers & D1 Knowledge API",
+        labelVi: "Hệ thống API Tri thức trên Cloudflare D1",
+        href: "/docs/api",
+      },
+    ],
+  },
+  fe: {
+    shortEn: "Frontend & Astro",
+    shortVi: "Giao diện & Astro Islands",
+    icon: "fa-solid fa-layer-group",
+    color: "#ec4899",
+    proofs: [
+      {
+        labelEn: "Cyber-Arboretum Interactive Portfolio",
+        labelVi: "Kiến trúc Đảo Tương tác Cyber-Arboretum",
+        href: "/projects",
+      },
+    ],
+  },
+  pm_ba: {
+    shortEn: "Fintech BA & ERP",
+    shortVi: "Nghiệp vụ BA & ERP",
+    icon: "fa-solid fa-sitemap",
+    color: "#d9b36c",
+    proofs: [
+      {
+        labelEn: "Rita Võ ProdID · Odoo 18 PLM",
+        labelVi: "Rita Võ ProdID · Quản trị Vòng đời Sản phẩm",
+        href: "/projects/ritavo-prodid",
+      },
+      {
+        labelEn: "Enterprise Banking PoC & NOL Workflows",
+        labelVi: "Nghiệm thu PoC Ngân hàng & Tất toán Khoản vay",
+        href: "/experience/idb",
+      },
+    ],
+  },
+};
+
+/**
+ * Fallback human-readable titles for D1 article slugs if not present in kbItems.
+ */
+const ARTICLE_TITLE_FALLBACKS: Record<string, { en: string; vi: string; category: string }> = {
+  "asterisk-nen-tang-voip-sip-kien-truc": {
+    en: "Asterisk Part 1: VoIP Foundations, SIP/RTP & Core Architecture",
+    vi: "Asterisk Phần 1: Nền tảng VoIP, SIP/RTP & Kiến trúc Lõi",
+    category: "VoIP & Telephony",
+  },
+  "asterisk-cai-dat-thu-muc-cli": {
+    en: "Asterisk Part 2: Source Compilation, Directory Layout & Core CLI",
+    vi: "Asterisk Phần 2: Cài đặt từ Source, Cấu trúc Thư mục & Lệnh CLI",
+    category: "VoIP & Telephony",
+  },
+  "asterisk-pjsip-wizard-transport-nat": {
+    en: "Asterisk Part 3: PJSIP Wizard, Transport & NAT Traversal",
+    vi: "Asterisk Phần 3: Cấu hình PJSIP Wizard, Transport & Xuyên NAT",
+    category: "VoIP & Telephony",
+  },
+  "asterisk-dialplan-ivr-queue-voicemail": {
+    en: "Asterisk Part 4: Dialplan Programming, IVR, Queues & Voicemail",
+    vi: "Asterisk Phần 4: Lập trình Dialplan, Menu IVR, Hàng đợi & Voicemail",
+    category: "VoIP & Telephony",
+  },
+  "asterisk-trunk-pstn": {
+    en: "Asterisk Part 5: Carrier SIP Trunking & PSTN Interconnect",
+    vi: "Asterisk Phần 5: Đấu nối SIP Trunk Nhà mạng & PSTN",
+    category: "VoIP & Telephony",
+  },
+  "asterisk-webrtc-tls-srtp": {
+    en: "Asterisk Part 6: WebRTC Browser Telephony, TLS & SRTP Encryption",
+    vi: "Asterisk Phần 6: Tổng đài Trình duyệt WebRTC, Bảo mật TLS & SRTP",
+    category: "VoIP & Telephony",
+  },
+  "asterisk-cdr-cel-ami-ari": {
+    en: "Asterisk Part 7: Call Detail Records (CDR/CEL) & AMI/ARI Control",
+    vi: "Asterisk Phần 7: Bản ghi Cuộc gọi CDR/CEL & Điều khiển qua AMI/ARI",
+    category: "VoIP & Telephony",
+  },
+  "asterisk-van-hanh-debug-bao-mat": {
+    en: "Asterisk Part 8: SNGREP Packet Debugging, Fail2ban & SIP Security",
+    vi: "Asterisk Phần 8: Bắt gói tin SNGREP, Phòng thủ Fail2ban & Bảo mật SIP",
+    category: "VoIP & Telephony",
+  },
+  "asterisk-nang-cao-stasis-ha-voicebot": {
+    en: "Asterisk Part 9: Stasis App Engine, High Availability & AI Voicebots",
+    vi: "Asterisk Phần 9: Động cơ Stasis, High Availability & Tích hợp Voicebot AI",
+    category: "VoIP & Telephony",
+  },
+  "voicebot-asterisk-pipecat-elevenlabs-ollama": {
+    en: "Production AI Voicebot with Asterisk, Pipecat, ElevenLabs & Ollama",
+    vi: "Xây dựng AI Voicebot Thực chiến với Asterisk, Pipecat, ElevenLabs & Ollama",
+    category: "AI Voicebot",
+  },
+  "pipecat-voicebot-production-guide": {
+    en: "Pipecat Voicebot Production Guide: Sub-800ms Latency & Echo Gate",
+    vi: "Hướng dẫn Tối ưu Pipecat Voicebot: Độ trễ dưới 800ms & Khử vọng",
+    category: "AI Voicebot",
+  },
+  "kafka-core-concepts-and-architecture": {
+    en: "Apache Kafka Core Concepts: Append-Only Logs, Partitions & KRaft",
+    vi: "Kiến trúc Lõi Apache Kafka: Append-Only Log, Phân vùng & Đồng thuận KRaft",
+    category: "Distributed Systems",
+  },
+  "kafka-pbx-event-streaming-architecture": {
+    en: "High-Throughput PBX Call Event Streaming with Apache Kafka",
+    vi: "Kiến trúc Streaming Sự kiện Tổng đài Chịu tải cao với Apache Kafka",
+    category: "Distributed Systems",
+  },
+  "redis-stream-theory-and-best-practices": {
+    en: "Redis Streams in Production: Consumer Groups, PEL & XACK Recovery",
+    vi: "Redis Streams Thực chiến: Consumer Group, PEL & Khôi phục Sự cố XACK",
+    category: "Distributed Systems",
+  },
+  "building-omnimer-health": {
+    en: "Building OmniMer Health: GraphRAG & Apple HealthKit Wearable Telemetry",
+    vi: "Xây dựng OmniMer Health: Đồ thị Tri thức Y tế GraphRAG & Apple HealthKit",
+    category: "AI & Mobile Health",
+  },
+  "between-us-spatial-memory-canvas": {
+    en: "Between Us: Flutter Spatial Canvas & Battery-Safe Location Architecture",
+    vi: "Between Us: Kiến trúc Canvas Không gian Flutter & Định vị Tiết kiệm Pin",
+    category: "Mobile Engineering",
+  },
+  "finance-analysis": {
+    en: "Autonomous Multi-Agent Financial Analysis with LangGraph",
+    vi: "Hệ thống Đa Tác tử Phân tích Tài chính Tự hành với LangGraph",
+    category: "AI Agents",
+  },
+};
+
+/**
+ * Concise display labels for graph nodes so radial text never collides.
+ */
+const SHORT_NODE_LABELS: Record<string, { en: string; vi: string }> = {
+  "asterisk-core": { en: "ASTERISK PBX", vi: "ASTERISK PBX" },
+  "asterisk-webrtc": { en: "WebRTC / SRTP", vi: "WebRTC / SRTP" },
+  "asterisk-cdr-ami": { en: "CDR / AMI / ARI", vi: "CDR / AMI / ARI" },
+  "asterisk-stasis-voicebot": { en: "Stasis Voicebot", vi: "Stasis Voicebot" },
+  "asterisk-ops-security": { en: "SIP Debug & Sec", vi: "Bảo mật & SNGREP" },
+  "asterisk-pjsip-trunk": { en: "PJSIP & PSTN", vi: "PJSIP & PSTN" },
+  "asterisk-dialplan": { en: "Dialplan & IVR", vi: "Dialplan & IVR" },
+  "asterisk-cli-config": { en: "CLI & Daemon", vi: "CLI & Hệ thống" },
+  "telephony-3cx": { en: "3CX Telemetry", vi: "Tổng đài 3CX" },
+  "kafka-distributed": { en: "KAFKA & REDIS", vi: "KAFKA & REDIS" },
+  "kafka-partitions": { en: "Partitions / KRaft", vi: "Phân vùng KRaft" },
+  "kafka-consumer-groups": { en: "Consumer Group", vi: "Consumer Group" },
+  "redis-architecture": { en: "Redis Streams", vi: "Redis Streams" },
+  "redis-streams": { en: "XACK & Snapshot", vi: "XACK & Snapshot" },
+  "fastapi-backend": { en: "FastAPI Async", vi: "FastAPI Async" },
+  "dotnet-csharp": { en: ".NET / C# PBX", vi: ".NET / C# PBX" },
+  "voicebot-pipecat": { en: "PIPECAT AI", vi: "PIPECAT AI" },
+  "pipecat-stt-tts": { en: "ElevenLabs TTS", vi: "ElevenLabs TTS" },
+  "pipecat-barge-in": { en: "Echo Barge-in", vi: "Khử vọng Ngắt lời" },
+  "pipecat-vad-latency": { en: "Sub-800ms VAD", vi: "VAD < 800ms" },
+  "langgraph-rag": { en: "LangGraph RAG", vi: "LangGraph RAG" },
+  "graphrag-biometrics": { en: "GraphRAG Health", vi: "GraphRAG Y tế" },
+  "mobile-ecosystem": { en: "MOBILE STACK", vi: "DI ĐỘNG ĐA NỀN" },
+  "mobile-flutter": { en: "Flutter & Dart", vi: "Flutter & Dart" },
+  "mobile-react-native": { en: "React Native", vi: "React Native" },
+  "mobile-swift": { en: "Swift / iOS", vi: "Swift / iOS" },
+  "mobile-kotlin": { en: "Kotlin / Android", vi: "Kotlin / Android" },
+  "cloudflare-edge": { en: "CLOUD & INFRA", vi: "CLOUD & INFRA" },
+  "docker-containers": { en: "Docker Lab", vi: "Docker Lab" },
+  "linux-sysadmin": { en: "Linux & SIP Ops", vi: "Linux & Tường lửa" },
+  "astro-modern": { en: "Astro Islands", vi: "Astro Islands" },
+  "react-ecosystem": { en: "React 19 UI", vi: "React 19 UI" },
+  "telecom-ba": { en: "FINTECH BA", vi: "BA & NGHIỆP VỤ" },
+  "poc-validation": { en: "Banking PoC QA", vi: "Nghiệm thu PoC" },
+};
+
+function polarToCartesian(cx: number, cy: number, r: number, angleDeg: number) {
+  const rad = (angleDeg * Math.PI) / 180;
+  return {
+    x: Math.round((cx + r * Math.cos(rad)) * 10) / 10,
+    y: Math.round((cy + r * Math.sin(rad)) * 10) / 10,
+  };
+}
+
 export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
   language,
   onSelectSkill,
-  selectedSkillId,
+  kbItems = [],
+  activeRankFilter = "ALL",
 }) => {
-  const [activeBranchId, setActiveBranchId] = useState<string>("voice_ai");
-  const [activeNodeId, setActiveNodeId] = useState<string>("voice_ai");
+  const [activeDomainId, setActiveDomainId] = useState<string>("ALL");
+  const [selectedNodeId, setSelectedNodeId] = useState<string>("asterisk-core");
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const draggedNodeRef = useRef<string | null>(null);
   const dragOffsetRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const svgRef = useRef<SVGSVGElement | null>(null);
 
-  // Initial nodes configuration (Base 800x620 coordinate space)
-  const baseNodes: ConstellationNode[] = useMemo(
-    () => [
-      // 1. Central Core
-      {
-        id: "core",
-        labelEn: "CORE\nDSA & C++",
-        labelVi: "CỐT LÕI\nDSA & C++",
-        badge: "CORE",
-        hubId: "core",
-        originX: 400,
-        originY: 310,
-        color: "#38bdf8",
-        summaryEn: "Foundational Computer Science: Data Structures, Algorithms, Memory Management & High-Performance C++.",
-        summaryVi: "Nền tảng Khoa học Máy tính: Cấu trúc Dữ liệu & Giải thuật, Quản lý Bộ nhớ & C++ Hiệu năng cao.",
-        linkedSlugs: [],
-        runes: ["C++20", "Algorithms", "Memory", "POSIX"],
-        attributes: [
-          { labelEn: "Algorithm Optimization", labelVi: "Tối ưu Thuật toán", value: "Tier S", pct: 98, color: "#38bdf8" },
-          { labelEn: "Low-Level Systems", labelVi: "Hệ thống Cấp thấp", value: "MAX", pct: 95, color: "#38bdf8" },
-        ],
-        raidQuests: [
-          {
-            titleEn: "Core Computer Science Thesis",
-            titleVi: "Đồ án Cốt lõi Khoa học Máy tính",
-            descEn: "Advanced algorithmic modeling for real-time telemetry pipelines.",
-            descVi: "Mô hình hóa thuật toán nâng cao cho đường ống dữ liệu thời gian thực.",
-          },
-        ],
-      },
-
-      // 2. Hub 1: VOICE AI (Top-Left, Orange)
-      {
-        id: "voice_ai",
-        labelEn: "VOICE AI",
-        labelVi: "VOICE AI",
-        badge: "MAX",
-        hubId: "voice_ai",
-        originX: 270,
-        originY: 200,
-        color: "#f59e0b",
-        summaryEn: "End-to-end Telephony AI pipelines, Asterisk PBX, SIP trunking, WebSockets, and low-latency LLM Voicebots.",
-        summaryVi: "Hệ sinh thái Voice AI viễn thông, tổng đài Asterisk PBX, trung kế SIP, WebSocket và Voicebot LLM siêu tốc.",
-        linkedSlugs: [
-          "voicebot-asterisk-pipecat-elevenlabs-ollama",
-          "pipecat-voicebot-production-guide",
-          "asterisk-nang-cao-stasis-ha-voicebot",
-          "asterisk-webrtc-tls-srtp",
-        ],
-        runes: ["Pipecat WebRTC", "ElevenLabs V4", "Cisco PBX / SIP", "Qdrant + Neo4j"],
-        attributes: [
-          { labelEn: "Real-time Voice Latency", labelVi: "Độ trễ Giọng nói", value: "Sub-1s", pct: 94, color: "#10b981" },
-          { labelEn: "HybridRAG Accuracy", labelVi: "Độ chính xác HybridRAG", value: "Tier S", pct: 92, color: "#38bdf8" },
-          { labelEn: "PBX / SIP Integration", labelVi: "Tích hợp Tổng đài PBX/SIP", value: "Lv. 4/5", pct: 88, color: "#a855f7" },
-        ],
-        raidQuests: [
-          {
-            titleEn: "Sacombank HQ Voicebot",
-            titleVi: "Voicebot Ngân hàng Sacombank",
-            descEn: "Onsite CTI, SIP Trunking & Debt Collection Workflow Integration.",
-            descVi: "Tích hợp CTI, SIP Trunking và kịch bản nhắc nợ tự động Sacombank.",
-            slug: "voicebot-asterisk-pipecat-elevenlabs-ollama",
-          },
-          {
-            titleEn: "OmniMer Health (Solo Thesis)",
-            titleVi: "OmniMer Health (Khóa luận)",
-            descEn: "HybridRAG Medical Knowledge Graph & Apple HealthKit Wearable Sync.",
-            descVi: "Đồ thị tri thức y tế HybridRAG và đồng bộ sinh hiệu Apple HealthKit.",
-            slug: "building-omnimer-health",
-          },
-        ],
-      },
-      // Voice AI Leaves
-      {
-        id: "pipecat-elevenlabs",
-        labelEn: "PipeCat & ElevenLabs",
-        labelVi: "PipeCat & ElevenLabs",
-        badge: "MAX",
-        hubId: "voice_ai",
-        originX: 155,
-        originY: 110,
-        color: "#f59e0b",
-        summaryEn: "Sub-second speech synthesis with ElevenLabs V4 Turbo, custom SttEchoGate barge-in audio processing.",
-        summaryVi: "Tổng hợp giọng nói dưới 1 giây với ElevenLabs V4 Turbo, bộ xử lý SttEchoGate khử vọng ngắt lời.",
-        linkedSlugs: [
-          "voicebot-asterisk-pipecat-elevenlabs-ollama",
-          "pipecat-voicebot-production-guide",
-        ],
-      },
-      {
-        id: "asterisk-sip",
-        labelEn: "Cisco PBX / SIP",
-        labelVi: "Cisco PBX / SIP",
-        badge: "LV.4",
-        hubId: "voice_ai",
-        originX: 290,
-        originY: 85,
-        color: "#f59e0b",
-        summaryEn: "PJSIP channel drivers, WebRTC audio proxying, TLS/SRTP security, and enterprise Cisco trunking.",
-        summaryVi: "Driver kênh thoại PJSIP, proxy âm thanh WebRTC, mã hóa TLS/SRTP và kết nối trung kế Cisco doanh nghiệp.",
-        linkedSlugs: [
-          "asterisk-webrtc-tls-srtp",
-          "asterisk-cdr-cel-ami-ari",
-          "asterisk-van-hanh-debug-bao-mat",
-          "asterisk-trunk-pstn",
-          "asterisk-nen-tang-voip-sip-kien-truc",
-        ],
-      },
-      {
-        id: "hybrid-rag",
-        labelEn: "HybridRAG (Qdrant/Neo4j)",
-        labelVi: "HybridRAG (Qdrant/Neo4j)",
-        badge: "MAX",
-        hubId: "voice_ai",
-        originX: 130,
-        originY: 235,
-        color: "#f59e0b",
-        summaryEn: "Dual-retrieval vector and graph knowledge base, reciprocal rank fusion (RRF), and context reranking.",
-        summaryVi: "CSDL đồ thị kết hợp vector đa tầng, thuật toán hợp nhất điểm RRF và tinh chỉnh xếp hạng ngữ cảnh.",
-        linkedSlugs: [
-          "building-omnimer-health",
-          "voicebot-asterisk-pipecat-elevenlabs-ollama",
-        ],
-      },
-
-      // 3. Hub 2: BACKEND (Top-Right, Purple)
-      {
-        id: "backend",
-        labelEn: "BACKEND",
-        labelVi: "BACKEND",
-        badge: "MAX",
-        hubId: "backend",
-        originX: 530,
-        originY: 200,
-        color: "#a855f7",
-        summaryEn: "High-throughput asynchronous backends, event streaming with Kafka/Redis, and Cloudflare edge microservices.",
-        summaryVi: "Hệ thống backend bất đồng bộ chịu tải cao, event streaming với Kafka/Redis và vi dịch vụ điện toán biên Cloudflare.",
-        linkedSlugs: [
-          "kafka-core-concepts-and-architecture",
-          "kafka-pbx-event-streaming-architecture",
-          "redis-stream-theory-and-best-practices",
-          "asterisk-van-hanh-debug-bao-mat",
-        ],
-        runes: ["Python FastAPI", "Linux VPS", "Cloudflare D1", "Kafka / Redis"],
-        attributes: [
-          { labelEn: "Concurrent Request Throughput", labelVi: "Băng thông Xử lý Đồng thời", value: "Tier S", pct: 96, color: "#a855f7" },
-          { labelEn: "Zero-Downtime Deployment", labelVi: "Triển khai Không Gián đoạn", value: "MAX", pct: 93, color: "#38bdf8" },
-          { labelEn: "Stream Partitioning", labelVi: "Phân vùng Dòng Dữ liệu", value: "Lv. 4/5", pct: 90, color: "#10b981" },
-        ],
-        raidQuests: [
-          {
-            titleEn: "Redis Streams PBX Event Pipeline",
-            titleVi: "Đường Ống Sự Kiện PBX Qua Redis Stream",
-            descEn: "Zero event loss call event piping from 3CX to CRM agent dashboards.",
-            descVi: "Đường ống 3CX sang Redis cập nhật dashboard CSKH không thất thoát sự kiện.",
-            slug: "redis-stream-theory-and-best-practices",
-          },
-          {
-            titleEn: "Distributed Event Streaming Backbone",
-            titleVi: "Hạ tầng Event Streaming Phân tán",
-            descEn: "Kafka multi-partition consumer groups & commit storm mitigation.",
-            descVi: "Nhóm consumer Kafka đa phân vùng và giải pháp chống bão rebalance.",
-            slug: "kafka-pbx-event-streaming-architecture",
-          },
-        ],
-      },
-      // Backend Leaves
-      {
-        id: "python-microservices",
-        labelEn: "Python / Microservices",
-        labelVi: "Python / Microservices",
-        badge: "MAX",
-        hubId: "backend",
-        originX: 510,
-        originY: 85,
-        color: "#a855f7",
-        summaryEn: "FastAPI asynchronous endpoints, Pydantic validation, BackgroundWorkers, and Celery task execution.",
-        summaryVi: "FastAPI bất đồng bộ, xác thực dữ liệu Pydantic, background worker và hàng đợi Celery.",
-        linkedSlugs: ["finance-analysis", "building-omnimer-health"],
-      },
-      {
-        id: "linux-cloudflare",
-        labelEn: "Linux VPS / Cloudflare",
-        labelVi: "Linux VPS / Cloudflare",
-        badge: "LV.4",
-        hubId: "backend",
-        originX: 655,
-        originY: 115,
-        color: "#a855f7",
-        summaryEn: "Cloudflare Edge Workers, D1 global SQLite, R2 storage, kernel RTP networking, and systemd daemons.",
-        summaryVi: "Điện toán biên Cloudflare Workers, CSDL D1 toàn cầu, lưu trữ R2, tinh chỉnh kernel RTP và systemd.",
-        linkedSlugs: ["asterisk-van-hanh-debug-bao-mat"],
-      },
-      {
-        id: "webrtc-rest-sql",
-        labelEn: "WebRTC / REST / SQL",
-        labelVi: "WebRTC / REST / SQL",
-        badge: "LV.4",
-        hubId: "backend",
-        originX: 675,
-        originY: 235,
-        color: "#a855f7",
-        summaryEn: "Redis Streams with XACK consumer group recovery, Kafka commit logs, and WebSockets.",
-        summaryVi: "Redis Stream khôi phục sự cố consumer group, commit log Kafka và WebSocket hai chiều.",
-        linkedSlugs: [
-          "kafka-core-concepts-and-architecture",
-          "kafka-pbx-event-streaming-architecture",
-          "redis-stream-theory-and-best-practices",
-        ],
-      },
-
-      // 4. Hub 3: MOBILE (Bottom-Left, Cyan)
-      {
-        id: "mobile",
-        labelEn: "MOBILE",
-        labelVi: "MOBILE",
-        badge: "MAX",
-        hubId: "mobile",
-        originX: 270,
-        originY: 420,
-        color: "#06b6d4",
-        summaryEn: "Cross-platform mobile applications with Flutter, native iOS/Android bridge modules, and hardware SDK integration.",
-        summaryVi: "Ứng dụng di động đa nền tảng Flutter, cầu nối native iOS/Android và tích hợp phần cứng cảm biến.",
-        linkedSlugs: ["between-us-spatial-memory-canvas"],
-        runes: ["Flutter / BLoC", "HealthKit & BLE", "Swift / iOS", "Kotlin Native"],
-        attributes: [
-          { labelEn: "UI / 60 FPS Fluidity", labelVi: "Độ mượt mà 60 FPS", value: "Sub-16ms", pct: 96, color: "#06b6d4" },
-          { labelEn: "Cross-Platform Fidelity", labelVi: "Độ chuẩn xác Đa nền tảng", value: "Tier S", pct: 95, color: "#38bdf8" },
-          { labelEn: "Battery-Safe Background GPS", labelVi: "Định vị Nền Tiết kiệm Pin", value: "Lv. 4/5", pct: 90, color: "#10b981" },
-        ],
-        raidQuests: [
-          {
-            titleEn: "Between Us · Spatial Canvas",
-            titleVi: "Between Us · Thánh Địa Kỷ Niệm",
-            descEn: "Real-time canvas co-creation & battery-efficient location tracking.",
-            descVi: "Vùng vẽ tương tác thời gian thực và theo dõi vị trí tiết kiệm pin cho cặp đôi.",
-            slug: "between-us-spatial-memory-canvas",
-          },
-          {
-            titleEn: "OmniMer Health Biometrics",
-            titleVi: "Sinh Hiệu Sức Khỏe OmniMer Health",
-            descEn: "Realtime Apple HealthKit wearable biometric streams & sensor telemetry.",
-            descVi: "Truy xuất sinh hiệu Apple HealthKit và kết nối cảm biến wearable thời gian thực.",
-            slug: "building-omnimer-health",
-          },
-        ],
-      },
-      // Mobile Leaves
-      {
-        id: "flutter-bloc",
-        labelEn: "Flutter / BLoC / Clean",
-        labelVi: "Flutter / BLoC / Clean",
-        badge: "MAX",
-        hubId: "mobile",
-        originX: 135,
-        originY: 385,
-        color: "#06b6d4",
-        summaryEn: "Clean Architecture, BLoC reactive state management, custom Painter canvas, and responsive animations.",
-        summaryVi: "Kiến trúc Clean Architecture, quản lý trạng thái BLoC, CustomPainter canvas và hiệu ứng đồ họa.",
-        linkedSlugs: ["between-us-spatial-memory-canvas"],
-      },
-      {
-        id: "healthkit-ble",
-        labelEn: "HealthKit & BLE SDK",
-        labelVi: "HealthKit & BLE SDK",
-        badge: "LV.4",
-        hubId: "mobile",
-        originX: 165,
-        originY: 515,
-        color: "#06b6d4",
-        summaryEn: "Apple HealthKit biometric streams, Bluetooth Low Energy wearable syncing, and heart rate telemetry.",
-        summaryVi: "Truy xuất sinh hiệu Apple HealthKit, kết nối thiết bị đeo BLE và xử lý chuỗi nhịp tim thời gian thực.",
-        linkedSlugs: ["building-omnimer-health"],
-      },
-      {
-        id: "figma-blender",
-        labelEn: "Figma Bento / Blender",
-        labelVi: "Figma Bento / Blender",
-        badge: "LV.4",
-        hubId: "mobile",
-        originX: 290,
-        originY: 540,
-        color: "#06b6d4",
-        summaryEn: "Modern glassmorphism, Cyber-Arboretum UI tokens, Bento grid design systems, and micro-interactions.",
-        summaryVi: "Thiết kế giao diện Bento, kính mờ Cyber-Arboretum, hệ thống Design Tokens và vi tương tác mượt mà.",
-        linkedSlugs: ["between-us-spatial-memory-canvas"],
-      },
-
-      // 5. Hub 4: DOMAIN (Bottom-Right, Emerald)
-      {
-        id: "domain",
-        labelEn: "DOMAIN",
-        labelVi: "DOMAIN",
-        badge: "MAX",
-        hubId: "domain",
-        originX: 530,
-        originY: 420,
-        color: "#10b981",
-        summaryEn: "Commercial enterprise domains: Banking debt workflows, Odoo 18 PLM enterprise architectures, and digital health.",
-        summaryVi: "Nghiệp vụ doanh nghiệp trọng yếu: Tự động hóa tín dụng ngân hàng, Odoo 18 PLM và y tế số.",
-        linkedSlugs: ["finance-analysis"],
-        runes: ["Odoo 18 PLM", "Commercial Banking", "Digital Signatures", "Debt Recovery"],
-        attributes: [
-          { labelEn: "Enterprise Compliance", labelVi: "Tuân thủ Chuẩn Doanh nghiệp", value: "Tier S", pct: 96, color: "#10b981" },
-          { labelEn: "Automated Legal Workflows", labelVi: "Tự động hóa Pháp lý Tín dụng", value: "MAX", pct: 94, color: "#38bdf8" },
-          { labelEn: "Multi-Role Delegation", labelVi: "Phân quyền Nhiều Cấp", value: "Lv. 4/5", pct: 89, color: "#f59e0b" },
-        ],
-        raidQuests: [
-          {
-            titleEn: "Consumer Lending NOL Clearance",
-            titleVi: "Hệ thống Tất toán Khoản vay NOL",
-            descEn: "Automated debt clearance certificate export with digital seals and audit logs.",
-            descVi: "Xuất giấy tờ tất toán nợ tự động kèm con dấu số, phân quyền ký duyệt và audit log.",
-          },
-          {
-            titleEn: "Rita Võ ProdID (Odoo 18 PLM)",
-            titleVi: "ProdID Tập đoàn Rita Võ (Odoo 18)",
-            descEn: "10,000 product records & DFS cyclic BOM detection algorithm.",
-            descVi: "Quản trị 10.000 sản phẩm với thuật toán DFS phát hiện vòng lặp định mức vật liệu.",
-          },
-        ],
-      },
-      // Domain Leaves
-      {
-        id: "odoo-plm",
-        labelEn: "Odoo v18 PLM / ProdID",
-        labelVi: "Odoo v18 PLM / ProdID",
-        badge: "MAX",
-        hubId: "domain",
-        originX: 655,
-        originY: 385,
-        color: "#10b981",
-        summaryEn: "In-house enterprise PLM module, DFS cyclic BOM detection, and dynamic multi-level approval matrices.",
-        summaryVi: "Module PLM doanh nghiệp lớn, thuật toán DFS phát hiện chu trình BOM và ma trận phê duyệt động.",
-        linkedSlugs: [],
-      },
-      {
-        id: "banking-debt",
-        labelEn: "Banking Debt Workflow",
-        labelVi: "Banking Debt Workflow",
-        badge: "LV.4",
-        hubId: "domain",
-        originX: 645,
-        originY: 515,
-        color: "#10b981",
-        summaryEn: "Notice of Loan (NOL) automated generation, cryptographic signing, signatory delegation, and audit trails.",
-        summaryVi: "Tự động hóa hồ sơ tất toán nợ, chữ ký số, ủy quyền người ký và nhật ký kiểm toán bất biến.",
-        linkedSlugs: [],
-      },
-      {
-        id: "digital-health",
-        labelEn: "Digital Health PHR",
-        labelVi: "Digital Health PHR",
-        badge: "MAX",
-        hubId: "domain",
-        originX: 510,
-        originY: 540,
-        color: "#10b981",
-        summaryEn: "FHIR compliant personal health records, realtime telemetry anomaly detection, and patient data security.",
-        summaryVi: "Hồ sơ sức khỏe cá nhân chuẩn FHIR, cảnh báo bất thường thời gian thực và bảo mật dữ liệu y tế.",
-        linkedSlugs: ["building-omnimer-health"],
-      },
-    ],
-    []
-  );
-
-  // Dynamic positions map for living physics
-  const [positions, setPositions] = useState<Record<string, NodePosition>>(() => {
-    const initial: Record<string, NodePosition> = {};
-    for (const node of baseNodes) {
-      initial[node.id] = { x: node.originX, y: node.originY, vx: 0, vy: 0 };
+  // Map of slug -> article metadata
+  const articleBySlug = useMemo(() => {
+    const map = new Map<
+      string,
+      { slug: string; titleEn: string; titleVi: string; category: string; description: string }
+    >();
+    for (const [slug, fallback] of Object.entries(ARTICLE_TITLE_FALLBACKS)) {
+      map.set(slug, {
+        slug,
+        titleEn: fallback.en,
+        titleVi: fallback.vi,
+        category: fallback.category,
+        description: "",
+      });
     }
-    return initial;
-  });
-
-  // Stardust background particles
-  const stardust = useMemo(() => {
-    const stars = [];
-    const count = 48;
-    for (let i = 0; i < count; i++) {
-      const cx = (i * 37) % 780 + 10;
-      const cy = (i * 53) % 600 + 10;
-      const r = 0.8 + ((i * 7) % 15) / 10;
-      const delay = ((i * 13) % 30) / 10;
-      const dur = 2.5 + ((i * 17) % 25) / 10;
-      stars.push({ id: i, cx, cy, r, delay, dur });
+    for (const item of kbItems) {
+      const fb = ARTICLE_TITLE_FALLBACKS[item.slug];
+      map.set(item.slug, {
+        slug: item.slug,
+        titleEn: fb?.en ?? item.title,
+        titleVi: item.title,
+        category: item.category || fb?.category || "Knowledge Base",
+        description: item.description ?? "",
+      });
     }
-    return stars;
+    return map;
+  }, [kbItems]);
+
+  // Map of skill_node_id -> linked article slugs (including children if Hub)
+  const directLinksByNode = useMemo(() => {
+    const map = new Map<string, { slug: string; relationship: string }[]>();
+    for (const link of SEED_ARTICLE_LINKS) {
+      const list = map.get(link.skill_node_id) ?? [];
+      if (!list.some((item) => item.slug === link.article_slug)) {
+        list.push({ slug: link.article_slug, relationship: link.relationship });
+      }
+      map.set(link.skill_node_id, list);
+    }
+    return map;
   }, []);
 
-  // Active selected node or fallback to active branch
-  const activeNode = useMemo(() => {
-    return baseNodes.find((n) => n.id === activeNodeId) || baseNodes.find((n) => n.id === activeBranchId) || baseNodes[1];
-  }, [baseNodes, activeNodeId, activeBranchId]);
+  const childrenByParentId = useMemo(() => {
+    const map = new Map<string, SkillNodeSeed[]>();
+    for (const node of SEED_NODES) {
+      if (node.parent_id) {
+        const list = map.get(node.parent_id) ?? [];
+        list.push(node);
+        map.set(node.parent_id, list);
+      }
+    }
+    return map;
+  }, []);
 
-  // Active branch metadata for right HUD card
-  const activeBranch = useMemo(() => {
-    return baseNodes.find((n) => n.id === activeBranchId) || baseNodes[1];
-  }, [baseNodes, activeBranchId]);
+  const aggregatedLinksByNode = useMemo(() => {
+    const map = new Map<string, { slug: string; relationship: string }[]>();
+    for (const node of SEED_NODES) {
+      const combined = new Map<string, string>();
+      const direct = directLinksByNode.get(node.id) ?? [];
+      for (const item of direct) {
+        combined.set(item.slug, item.relationship);
+      }
+      const children = childrenByParentId.get(node.id) ?? [];
+      for (const child of children) {
+        const childLinks = directLinksByNode.get(child.id) ?? [];
+        for (const item of childLinks) {
+          if (!combined.has(item.slug)) {
+            combined.set(item.slug, item.relationship);
+          }
+        }
+      }
+      // Also if hub is kafka-distributed, include redis-architecture articles in overview cluster
+      if (node.id === "kafka-distributed") {
+        for (const extraId of ["redis-architecture", "redis-streams", "fastapi-backend"]) {
+          for (const item of directLinksByNode.get(extraId) ?? []) {
+            if (!combined.has(item.slug)) combined.set(item.slug, item.relationship);
+          }
+        }
+      }
+      if (node.id === "voicebot-pipecat") {
+        for (const extraId of ["langgraph-rag", "graphrag-biometrics"]) {
+          for (const item of directLinksByNode.get(extraId) ?? []) {
+            if (!combined.has(item.slug)) combined.set(item.slug, item.relationship);
+          }
+        }
+      }
+      map.set(
+        node.id,
+        Array.from(combined.entries()).map(([slug, relationship]) => ({ slug, relationship }))
+      );
+    }
+    return map;
+  }, [directLinksByNode, childrenByParentId]);
 
-  // Physics animation loop for smooth spring wobble
+  // Build radial nodes & edges depending on activeDomainId ("ALL" vs specific domain)
+  const { graphNodes, graphEdges } = useMemo(() => {
+    const cx = 400;
+    const cy = 300;
+    const nodes: PositionedGraphNode[] = [];
+    const edges: PositionedEdge[] = [];
+
+    if (activeDomainId === "ALL") {
+      // 1. Center Core Node
+      nodes.push({
+        id: "d1-core",
+        kind: "CORE",
+        labelEn: "D1 KNOWLEDGE CORE",
+        labelVi: "LÕI ĐỒ THỊ D1",
+        shortEn: "D1 GRAPH\n34 SKILLS",
+        shortVi: "ĐỒ THỊ D1\n34 KỸ NĂNG",
+        rank: "S",
+        level: 100,
+        domainId: "ALL",
+        parentId: null,
+        originX: cx,
+        originY: cy,
+        color: "#18c785",
+        articleCount: articleBySlug.size,
+      });
+
+      // 2. 6 Primary Orbital Hubs at r = 126
+      const overviewHubs: {
+        id: string;
+        angle: number;
+        color: string;
+        leaves: { id: string; angle: number }[];
+      }[] = [
+        {
+          id: "asterisk-core",
+          angle: 210,
+          color: "#18c785",
+          leaves: [
+            { id: "asterisk-webrtc", angle: 180 },
+            { id: "asterisk-stasis-voicebot", angle: 200 },
+            { id: "asterisk-cdr-ami", angle: 220 },
+            { id: "asterisk-pjsip-trunk", angle: 240 },
+          ],
+        },
+        {
+          id: "telecom-ba",
+          angle: 270,
+          color: "#d9b36c",
+          leaves: [
+            { id: "poc-validation", angle: 260 },
+            { id: "telephony-3cx", angle: 280 },
+          ],
+        },
+        {
+          id: "voicebot-pipecat",
+          angle: 330,
+          color: "#a855f7",
+          leaves: [
+            { id: "pipecat-stt-tts", angle: 300 },
+            { id: "pipecat-barge-in", angle: 320 },
+            { id: "pipecat-vad-latency", angle: 340 },
+            { id: "langgraph-rag", angle: 360 },
+          ],
+        },
+        {
+          id: "kafka-distributed",
+          angle: 30,
+          color: "#38bdf8",
+          leaves: [
+            { id: "kafka-partitions", angle: 20 },
+            { id: "kafka-consumer-groups", angle: 40 },
+            { id: "redis-architecture", angle: 60 },
+          ],
+        },
+        {
+          id: "cloudflare-edge",
+          angle: 90,
+          color: "#f59e0b",
+          leaves: [
+            { id: "linux-sysadmin", angle: 80 },
+            { id: "astro-modern", angle: 100 },
+          ],
+        },
+        {
+          id: "mobile-ecosystem",
+          angle: 150,
+          color: "#06b6d4",
+          leaves: [
+            { id: "mobile-flutter", angle: 120 },
+            { id: "mobile-react-native", angle: 134 },
+            { id: "mobile-swift", angle: 148 },
+            { id: "mobile-kotlin", angle: 162 },
+          ],
+        },
+      ];
+
+      for (const hubCfg of overviewHubs) {
+        const seed = SEED_NODES.find((n) => n.id === hubCfg.id);
+        if (!seed) continue;
+        const pos = polarToCartesian(cx, cy, 126, hubCfg.angle);
+        const short = SHORT_NODE_LABELS[seed.id] ?? { en: seed.name_en, vi: seed.name_vi };
+        const count = (aggregatedLinksByNode.get(seed.id) ?? []).length;
+
+        nodes.push({
+          id: seed.id,
+          kind: "HUB",
+          labelEn: seed.name_en,
+          labelVi: seed.name_vi,
+          shortEn: short.en,
+          shortVi: short.vi,
+          rank: seed.rank as SkillRank,
+          level: seed.level,
+          domainId: seed.domain_id,
+          parentId: "d1-core",
+          originX: pos.x,
+          originY: pos.y,
+          color: hubCfg.color,
+          articleCount: count,
+        });
+
+        edges.push({
+          id: `core-${seed.id}`,
+          from: "d1-core",
+          to: seed.id,
+          color: hubCfg.color,
+          isPrimary: true,
+        });
+
+        for (const leafCfg of hubCfg.leaves) {
+          const leafSeed = SEED_NODES.find((n) => n.id === leafCfg.id);
+          if (!leafSeed) continue;
+          const leafPos = polarToCartesian(cx, cy, 240, leafCfg.angle);
+          const leafShort = SHORT_NODE_LABELS[leafSeed.id] ?? {
+            en: leafSeed.name_en,
+            vi: leafSeed.name_vi,
+          };
+          const leafCount = (aggregatedLinksByNode.get(leafSeed.id) ?? []).length;
+
+          nodes.push({
+            id: leafSeed.id,
+            kind: "BRANCH",
+            labelEn: leafSeed.name_en,
+            labelVi: leafSeed.name_vi,
+            shortEn: leafShort.en,
+            shortVi: leafShort.vi,
+            rank: leafSeed.rank as SkillRank,
+            level: leafSeed.level,
+            domainId: leafSeed.domain_id,
+            parentId: seed.id,
+            originX: leafPos.x,
+            originY: leafPos.y,
+            color: hubCfg.color,
+            articleCount: leafCount,
+          });
+
+          edges.push({
+            id: `edge-${seed.id}-${leafSeed.id}`,
+            from: seed.id,
+            to: leafSeed.id,
+            color: hubCfg.color,
+            isPrimary: false,
+          });
+        }
+      }
+    } else {
+      // DOMAIN FOCUS MODE: Center is the Domain Core, Ring 1 = All Skill Nodes of Domain, Ring 2 = Connected D1 Articles
+      const domainMeta = DOMAIN_META[activeDomainId] ?? DOMAIN_META.voip;
+      const domainSkills = SEED_NODES.filter((n) => n.domain_id === activeDomainId);
+
+      nodes.push({
+        id: `domain-core-${activeDomainId}`,
+        kind: "CORE",
+        labelEn: domainMeta.shortEn.toUpperCase(),
+        labelVi: domainMeta.shortVi.toUpperCase(),
+        shortEn: `${activeDomainId.toUpperCase()}\n${domainSkills.length} NODES`,
+        shortVi: `${activeDomainId.toUpperCase()}\n${domainSkills.length} KỸ NĂNG`,
+        rank: "S",
+        level: 96,
+        domainId: activeDomainId,
+        parentId: null,
+        originX: cx,
+        originY: cy,
+        color: domainMeta.color,
+        articleCount: 0,
+      });
+
+      const skillCount = Math.max(domainSkills.length, 1);
+      const uniqueArticles = new Map<string, string[]>(); // slug -> connected skillIds
+
+      domainSkills.forEach((skill, idx) => {
+        const angle = -90 + (idx * 360) / skillCount;
+        const pos = polarToCartesian(cx, cy, 138, angle);
+        const short = SHORT_NODE_LABELS[skill.id] ?? { en: skill.name_en, vi: skill.name_vi };
+        const directLinks = directLinksByNode.get(skill.id) ?? [];
+
+        nodes.push({
+          id: skill.id,
+          kind: skill.node_type === "HUB" ? "HUB" : "BRANCH",
+          labelEn: skill.name_en,
+          labelVi: skill.name_vi,
+          shortEn: short.en,
+          shortVi: short.vi,
+          rank: skill.rank as SkillRank,
+          level: skill.level,
+          domainId: skill.domain_id,
+          parentId: `domain-core-${activeDomainId}`,
+          originX: pos.x,
+          originY: pos.y,
+          color: domainMeta.color,
+          articleCount: directLinks.length,
+        });
+
+        edges.push({
+          id: `dom-${skill.id}`,
+          from: `domain-core-${activeDomainId}`,
+          to: skill.id,
+          color: domainMeta.color,
+          isPrimary: true,
+        });
+
+        for (const link of directLinks) {
+          const list = uniqueArticles.get(link.slug) ?? [];
+          list.push(skill.id);
+          uniqueArticles.set(link.slug, list);
+        }
+      });
+
+      // Outer ring: Actual D1 Lesson Nodes
+      const articleEntries = Array.from(uniqueArticles.entries());
+      const artCount = Math.max(articleEntries.length, 1);
+      articleEntries.forEach(([slug, parentSkillIds], idx) => {
+        const angle = -75 + (idx * 360) / artCount;
+        const pos = polarToCartesian(cx, cy, 245, angle);
+        const artMeta = articleBySlug.get(slug);
+        const shortSlug = slug
+          .replace(/^asterisk-/, "ast-")
+          .replace(/^voicebot-/, "bot-")
+          .slice(0, 18);
+
+        const artNodeId = `art-${slug}`;
+        nodes.push({
+          id: artNodeId,
+          kind: "ARTICLE",
+          labelEn: artMeta?.titleEn ?? slug,
+          labelVi: artMeta?.titleVi ?? slug,
+          shortEn: `📄 ${shortSlug}`,
+          shortVi: `📄 ${shortSlug}`,
+          rank: "S",
+          level: 100,
+          domainId: activeDomainId,
+          parentId: parentSkillIds[0],
+          originX: pos.x,
+          originY: pos.y,
+          color: "#d9b36c",
+          articleCount: 1,
+          href: `/blog/${slug}`,
+        });
+
+        for (const pId of parentSkillIds) {
+          edges.push({
+            id: `art-edge-${pId}-${slug}`,
+            from: pId,
+            to: artNodeId,
+            color: "#d9b36c",
+            isPrimary: false,
+          });
+        }
+      });
+    }
+
+    return { graphNodes: nodes, graphEdges: edges };
+  }, [activeDomainId, aggregatedLinksByNode, directLinksByNode, articleBySlug]);
+
+  // Physics positions state synchronized with graphNodes
+  const [positions, setPositions] = useState<Record<string, NodePhysicsPos>>({});
+
+  useEffect(() => {
+    const next: Record<string, NodePhysicsPos> = {};
+    for (const n of graphNodes) {
+      next[n.id] = { x: n.originX, y: n.originY, vx: 0, vy: 0 };
+    }
+    setPositions(next);
+  }, [graphNodes]);
+
+  // Elastic spring animation loop when dragging/releasing
   useEffect(() => {
     let animId: number;
-    let isRunning = false;
+    let running = false;
 
-    const tick = () => {
+    const step = () => {
       setPositions((prev) => {
-        let hasMovement = false;
-        const next: Record<string, NodePosition> = {};
-        const k = 0.08; // Spring stiffness
-        const damping = 0.78; // Air resistance
+        let moving = false;
+        const next: Record<string, NodePhysicsPos> = {};
+        const k = 0.1;
+        const damping = 0.76;
 
-        for (const node of baseNodes) {
-          const current = prev[node.id] || { x: node.originX, y: node.originY, vx: 0, vy: 0 };
-
-          // If currently dragging this node, keep at cursor
-          if (draggedNodeRef.current === node.id) {
-            next[node.id] = current;
+        for (const n of graphNodes) {
+          const cur = prev[n.id] ?? { x: n.originX, y: n.originY, vx: 0, vy: 0 };
+          if (draggedNodeRef.current === n.id) {
+            next[n.id] = cur;
             continue;
           }
-
-          // Return force towards origin
-          const dx = node.originX - current.x;
-          const dy = node.originY - current.y;
-
-          if (Math.abs(dx) > 0.05 || Math.abs(dy) > 0.05 || Math.abs(current.vx) > 0.05 || Math.abs(current.vy) > 0.05) {
-            hasMovement = true;
-            const ax = dx * k;
-            const ay = dy * k;
-            const nvx = (current.vx + ax) * damping;
-            const nvy = (current.vy + ay) * damping;
-            next[node.id] = {
-              x: current.x + nvx,
-              y: current.y + nvy,
+          const dx = n.originX - cur.x;
+          const dy = n.originY - cur.y;
+          if (
+            Math.abs(dx) > 0.08 ||
+            Math.abs(dy) > 0.08 ||
+            Math.abs(cur.vx) > 0.08 ||
+            Math.abs(cur.vy) > 0.08
+          ) {
+            moving = true;
+            const nvx = (cur.vx + dx * k) * damping;
+            const nvy = (cur.vy + dy * k) * damping;
+            next[n.id] = {
+              x: cur.x + nvx,
+              y: cur.y + nvy,
               vx: nvx,
               vy: nvy,
             };
           } else {
-            next[node.id] = { x: node.originX, y: node.originY, vx: 0, vy: 0 };
+            next[n.id] = { x: n.originX, y: n.originY, vx: 0, vy: 0 };
           }
         }
 
-        if (hasMovement || draggedNodeRef.current) {
-          animId = requestAnimationFrame(tick);
-          isRunning = true;
+        if (moving || draggedNodeRef.current) {
+          animId = requestAnimationFrame(step);
+          running = true;
         } else {
-          isRunning = false;
+          running = false;
         }
-
         return next;
       });
     };
 
-    if (isDragging && !isRunning) {
-      animId = requestAnimationFrame(tick);
+    if (isDragging && !running) {
+      animId = requestAnimationFrame(step);
     }
-
     return () => cancelAnimationFrame(animId);
-  }, [isDragging, baseNodes]);
+  }, [isDragging, graphNodes]);
 
-  // Pointer drag event handlers
-  const handlePointerDown = useCallback((e: React.PointerEvent, nodeId: string) => {
-    e.stopPropagation();
-    (e.target as Element).setPointerCapture(e.pointerId);
-    draggedNodeRef.current = nodeId;
-    setIsDragging(true);
+  // Stardust spores in background
+  const bioSpores = useMemo(() => {
+    return Array.from({ length: 36 }, (_, i) => ({
+      id: i,
+      cx: ((i * 43) % 760) + 20,
+      cy: ((i * 61) % 560) + 20,
+      r: 0.9 + ((i * 7) % 14) / 10,
+      delay: ((i * 11) % 30) / 10,
+      dur: 2.8 + ((i * 13) % 20) / 10,
+    }));
+  }, []);
 
-    if (svgRef.current) {
-      const rect = svgRef.current.getBoundingClientRect();
-      const scaleX = 800 / rect.width;
-      const scaleY = 620 / rect.height;
-      const svgX = (e.clientX - rect.left) * scaleX;
-      const svgY = (e.clientY - rect.top) * scaleY;
-      const nodePos = positions[nodeId] || { x: 400, y: 310 };
-      dragOffsetRef.current = {
-        x: svgX - nodePos.x,
-        y: svgY - nodePos.y,
+  // Currently inspected skill seed from SEED_NODES
+  const inspectedSeed = useMemo(() => {
+    return (
+      SEED_NODES.find((n) => n.id === selectedNodeId) ??
+      SEED_NODES.find((n) => n.domain_id === activeDomainId) ??
+      SEED_NODES[0]
+    );
+  }, [selectedNodeId, activeDomainId]);
+
+  const inspectedDomainMeta = useMemo(() => {
+    return DOMAIN_META[inspectedSeed.domain_id] ?? DOMAIN_META.voip;
+  }, [inspectedSeed]);
+
+  // Sub-branches / related nodes in the same cluster
+  const clusterBranches = useMemo(() => {
+    const parentHubId = inspectedSeed.parent_id ?? inspectedSeed.id;
+    const children = SEED_NODES.filter(
+      (n) => n.parent_id === parentHubId || (n.domain_id === inspectedSeed.domain_id && n.id !== parentHubId)
+    );
+    return children;
+  }, [inspectedSeed]);
+
+  // Linked D1 articles for the currently inspected skill
+  const inspectedArticles = useMemo(() => {
+    const links = aggregatedLinksByNode.get(inspectedSeed.id) ?? [];
+    return links.map((item) => {
+      const meta = articleBySlug.get(item.slug);
+      return {
+        slug: item.slug,
+        relationship: item.relationship,
+        titleEn: meta?.titleEn ?? item.slug,
+        titleVi: meta?.titleVi ?? item.slug,
+        category: meta?.category ?? "Knowledge Base",
       };
-    }
-  }, [positions]);
+    });
+  }, [inspectedSeed, aggregatedLinksByNode, articleBySlug]);
+
+  // Select a skill node and broadcast to the D1 repository filter
+  const handleSelectSeedNode = useCallback(
+    (nodeId: string) => {
+      if (nodeId.startsWith("art-")) {
+        const slug = nodeId.replace(/^art-/, "");
+        window.location.href = `/blog/${slug}`;
+        return;
+      }
+      if (nodeId === "d1-core" || nodeId.startsWith("domain-core-")) {
+        onSelectSkill({
+          skillId: null,
+          skillNameEn: "All Knowledge Base Studies",
+          skillNameVi: "Tất cả Bài nghiên cứu D1",
+          rank: "S",
+          domain: null,
+          matchedSlugs: [],
+          proofs: [],
+        });
+        return;
+      }
+
+      const seed = SEED_NODES.find((n) => n.id === nodeId);
+      if (!seed) return;
+
+      setSelectedNodeId(seed.id);
+      const links = aggregatedLinksByNode.get(seed.id) ?? [];
+      const matchedSlugs = links.map((l) => l.slug);
+      const dMeta = DOMAIN_META[seed.domain_id] ?? DOMAIN_META.voip;
+
+      onSelectSkill({
+        skillId: seed.id,
+        skillNameEn: seed.name_en,
+        skillNameVi: seed.name_vi,
+        rank: seed.rank as SkillRank,
+        domain: seed.domain_id.toUpperCase(),
+        matchedSlugs,
+        proofs: dMeta.proofs,
+      });
+    },
+    [aggregatedLinksByNode, onSelectSkill]
+  );
+
+  // Switch domain filter tab
+  const handleSelectDomainTab = useCallback(
+    (domainId: string) => {
+      setActiveDomainId(domainId);
+      if (domainId === "ALL") {
+        setSelectedNodeId("asterisk-core");
+        onSelectSkill({
+          skillId: null,
+          skillNameEn: "",
+          skillNameVi: "",
+          rank: null,
+          domain: null,
+          matchedSlugs: [],
+          proofs: [],
+        });
+      } else {
+        const firstHub =
+          SEED_NODES.find((n) => n.domain_id === domainId && n.node_type === "HUB") ??
+          SEED_NODES.find((n) => n.domain_id === domainId);
+        if (firstHub) {
+          handleSelectSeedNode(firstHub.id);
+        }
+      }
+    },
+    [handleSelectSeedNode, onSelectSkill]
+  );
+
+  // Pointer drag handlers
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent, nodeId: string) => {
+      e.stopPropagation();
+      (e.currentTarget as Element).setPointerCapture(e.pointerId);
+      draggedNodeRef.current = nodeId;
+      setIsDragging(true);
+
+      if (svgRef.current) {
+        const rect = svgRef.current.getBoundingClientRect();
+        const scaleX = 800 / rect.width;
+        const scaleY = 600 / rect.height;
+        const svgX = (e.clientX - rect.left) * scaleX;
+        const svgY = (e.clientY - rect.top) * scaleY;
+        const curPos = positions[nodeId] ?? { x: 400, y: 300 };
+        dragOffsetRef.current = { x: svgX - curPos.x, y: svgY - curPos.y };
+      }
+    },
+    [positions]
+  );
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!draggedNodeRef.current || !svgRef.current) return;
-
     const rect = svgRef.current.getBoundingClientRect();
     const scaleX = 800 / rect.width;
-    const scaleY = 620 / rect.height;
+    const scaleY = 600 / rect.height;
     const svgX = (e.clientX - rect.left) * scaleX;
     const svgY = (e.clientY - rect.top) * scaleY;
-
-    const newX = Math.max(40, Math.min(760, svgX - dragOffsetRef.current.x));
-    const newY = Math.max(40, Math.min(580, svgY - dragOffsetRef.current.y));
-
-    const nodeId = draggedNodeRef.current;
+    const nx = Math.max(48, Math.min(752, svgX - dragOffsetRef.current.x));
+    const ny = Math.max(42, Math.min(558, svgY - dragOffsetRef.current.y));
+    const id = draggedNodeRef.current;
 
     setPositions((prev) => ({
       ...prev,
-      [nodeId]: {
-        ...(prev[nodeId] || { vx: 0, vy: 0 }),
-        x: newX,
-        y: newY,
-        vx: 0,
-        vy: 0,
-      },
+      [id]: { x: nx, y: ny, vx: 0, vy: 0 },
     }));
   }, []);
 
   const handlePointerUp = useCallback((e: React.PointerEvent) => {
     if (draggedNodeRef.current) {
       try {
-        (e.target as Element).releasePointerCapture(e.pointerId);
+        (e.currentTarget as Element).releasePointerCapture(e.pointerId);
       } catch {
-        // Safe catch
+        // Ignore if not captured
       }
       draggedNodeRef.current = null;
       setIsDragging(false);
     }
   }, []);
 
-  // Reset positions button
-  const handleResetPositions = useCallback(() => {
-    const reset: Record<string, NodePosition> = {};
-    for (const node of baseNodes) {
-      reset[node.id] = { x: node.originX, y: node.originY, vx: 0, vy: 0 };
+  const handleResetGraph = useCallback(() => {
+    const reset: Record<string, NodePhysicsPos> = {};
+    for (const n of graphNodes) {
+      reset[n.id] = { x: n.originX, y: n.originY, vx: 0, vy: 0 };
     }
     setPositions(reset);
-  }, [baseNodes]);
+  }, [graphNodes]);
 
-  // Edges connecting hubs to leaf nodes with dynamic coordinates
-  const leafEdges = useMemo(() => {
-    return baseNodes
-      .filter((n) => n.hubId !== "core" && n.id !== n.hubId)
-      .map((n) => {
-        const parentPos = positions[n.hubId] || { x: 400, y: 310 };
-        const myPos = positions[n.id] || { x: n.originX, y: n.originY };
-        return {
-          from: n.hubId,
-          to: n.id,
-          x1: parentPos.x,
-          y1: parentPos.y,
-          x2: myPos.x,
-          y2: myPos.y,
-          color: n.color,
-        };
-      });
-  }, [baseNodes, positions]);
-
-  // Core spokes connecting center to hubs
-  const coreSpokes = useMemo(() => {
-    const centerPos = positions["core"] || { x: 400, y: 310 };
-    return [
-      { hubId: "voice_ai", color: "#f59e0b" },
-      { hubId: "backend", color: "#a855f7" },
-      { hubId: "mobile", color: "#06b6d4" },
-      { hubId: "domain", color: "#10b981" },
-    ].map((spoke) => {
-      const hubPos = positions[spoke.hubId] || { x: 400, y: 310 };
-      return {
-        ...spoke,
-        x1: centerPos.x,
-        y1: centerPos.y,
-        x2: hubPos.x,
-        y2: hubPos.y,
-      };
-    });
-  }, [positions]);
-
-  const handleSelectNode = useCallback(
-    (node: ConstellationNode) => {
-      setActiveNodeId(node.id);
-      if (node.hubId !== "core") {
-        setActiveBranchId(node.hubId);
-      }
-
-      const matchedSlugs = node.linkedSlugs || [];
-      onSelectSkill({
-        skillId: node.id,
-        skillNameEn: node.labelEn.replace("\n", " "),
-        skillNameVi: node.labelVi.replace("\n", " "),
-        rank: (node.badge === "MAX" ? "S" : node.badge === "LV.4" ? "A" : "S") as SkillRank,
-        domain: node.hubId,
-        matchedSlugs,
-        proofs: [
-          {
-            labelEn: `Skill Knowledge Base / ${node.labelEn.replace("\n", " ")}`,
-            labelVi: `Kho Tri thức Kỹ năng / ${node.labelVi.replace("\n", " ")}`,
-            href: `/blog/${matchedSlugs[0] || ""}`,
-          },
-        ],
-      });
-    },
-    [onSelectSkill]
-  );
-
-  const handleScrollToD1 = useCallback(() => {
-    const target = document.querySelector("[data-kb-results-anchor]");
-    if (target) {
-      target.scrollIntoView({ behavior: "smooth" });
+  const handleScrollToD1Cards = useCallback(() => {
+    const anchor = document.querySelector("[data-kb-results-anchor]");
+    if (anchor) {
+      anchor.scrollIntoView({ behavior: "smooth" });
     }
   }, []);
 
   return (
-    <div className="constellation-arena" data-skill-constellation>
-      {/* Top Gaming Telemetry Header (Seamless Floating Bar) */}
-      <div className="constellation-arena__topbar">
-        <div className="arena-user-profile">
-          <div className="arena-lvl-badge">
-            <span className="arena-lvl-tag">LVL</span>
-            <strong className="arena-lvl-val">22</strong>
-          </div>
-          <div className="arena-user-text">
-            <h3 className="arena-user-name">HUỲNH MINH TRÍ</h3>
-            <span className="arena-user-class">
-              {language === "vi"
-                ? "CHUYÊN NGÀNH: KIẾN TRÚC SƯ FULL-STACK AI & VIỄN THÔNG"
-                : "CLASS: FULL-STACK AI & TELECOM ARCHITECT"}
-            </span>
-          </div>
-        </div>
-
-        {/* Academic & Field Mastery Progress Bar */}
-        <div className="arena-mastery-progress">
-          <div className="arena-mastery-labels">
-            <span className="arena-mastery-title">
-              {language === "vi"
-                ? "NĂNG LỰC HỌC THUẬT & THỰC CHIẾN (GPA 3.61/4.0)"
-                : "ACADEMIC & FIELD MASTERY (GPA 3.61/4.0)"}
-            </span>
-            <strong className="arena-mastery-credits">135 / 135 CREDITS</strong>
-          </div>
-          <div className="arena-mastery-track" aria-hidden="true">
-            <div className="arena-mastery-fill" style={{ width: "100%" }} />
-          </div>
-        </div>
-
-        {/* Action pills & Reset positions button */}
-        <div className="arena-top-actions">
-          <span className="arena-honor-pill">
-            <i className="fa-solid fa-trophy" aria-hidden="true" />
-            <span>{language === "vi" ? "THÀNH TỰU ĐỒNG" : "OLYMPIC & HONORS"}</span>
-          </span>
+    <div className="arboretum-graph-shell" data-skill-constellation>
+      {/* Unified Domain Branch Selector Bar (Cohesive with Cyber-Arboretum Matrix) */}
+      <div className="arboretum-graph__domain-bar" role="tablist" aria-label="Skill graph domains">
+        <div className="arboretum-graph__tabs">
           <button
             type="button"
-            className="arena-ctrl-btn"
-            title={language === "vi" ? "Đặt lại vị trí chòm sao" : "Reset star positions"}
-            onClick={handleResetPositions}
+            role="tab"
+            aria-selected={activeDomainId === "ALL"}
+            className={`domain-tab ${activeDomainId === "ALL" ? "is-active" : ""}`}
+            onClick={() => handleSelectDomainTab("ALL")}
           >
-            <i className="fa-solid fa-arrows-rotate" aria-hidden="true" />
-            <span>{language === "vi" ? "Đặt lại" : "Reset"}</span>
+            <i className="fa-solid fa-circle-nodes" aria-hidden="true" />
+            <span className="domain-tab__label">
+              {language === "vi" ? "Toàn cảnh Đồ thị" : "All Domains"}
+            </span>
+            <span className="domain-tab__count">{SEED_NODES.length}</span>
           </button>
+
+          {SEED_DOMAINS.map((dom) => {
+            const meta = DOMAIN_META[dom.id] ?? DOMAIN_META.voip;
+            const count = SEED_NODES.filter((n) => n.domain_id === dom.id).length;
+            const isSelected = activeDomainId === dom.id;
+            return (
+              <button
+                key={dom.id}
+                type="button"
+                role="tab"
+                aria-selected={isSelected}
+                className={`domain-tab ${isSelected ? "is-active" : ""}`}
+                style={
+                  {
+                    "--tab-accent": meta.color,
+                    "--tab-soft": meta.color,
+                    "--tab-glow": `${meta.color}33`,
+                  } as React.CSSProperties
+                }
+                onClick={() => handleSelectDomainTab(dom.id)}
+              >
+                <i className={meta.icon} aria-hidden="true" />
+                <span className="domain-tab__label">
+                  {language === "vi" ? meta.shortVi : meta.shortEn}
+                </span>
+                <span className="domain-tab__count">{count}</span>
+              </button>
+            );
+          })}
         </div>
+
+        <button
+          type="button"
+          className="arboretum-reset-btn"
+          onClick={handleResetGraph}
+          title={language === "vi" ? "Đặt lại tọa độ các nút" : "Reset node coordinates"}
+        >
+          <i className="fa-solid fa-arrows-rotate" aria-hidden="true" />
+          <span>{language === "vi" ? "Cân bằng" : "Reset"}</span>
+        </button>
       </div>
 
-      {/* Main Viewport: Left Living Constellation Canvas + Right Floating HUD */}
-      <div className="constellation-arena__stage">
-        {/* SVG Living Constellation Visualizer */}
-        <div className="constellation-canvas-wrap">
+      {/* Equal-Height 2-Column Workspace: Left Radial Synaptic Map + Right Node Dossier */}
+      <div className="arboretum-graph__workspace">
+        {/* LEFT COLUMN: Interactive Radial Synaptic Graph */}
+        <div className="arboretum-canvas-panel">
+          <div className="arboretum-canvas-topbar">
+            <span className="canvas-telemetry-tag">
+              <span className="canvas-telemetry-dot" />
+              {activeDomainId === "ALL"
+                ? language === "vi"
+                  ? "CHẾ ĐỘ TOÀN CẢNH // 6 CỤM TRỤ CỘT & 18 NHÁNH TIÊU BIỂU"
+                  : "OVERVIEW TOPOLOGY // 6 PRIMARY HUBS & 18 SUB-BRANCHES"
+                : language === "vi"
+                  ? `CHẾ ĐỘ PHÓNG TO NHÁNH // ${inspectedDomainMeta.shortVi.toUpperCase()}`
+                  : `CLUSTER FOCUS // ${inspectedDomainMeta.shortEn.toUpperCase()}`}
+            </span>
+
+            {activeDomainId !== "ALL" && (
+              <button
+                type="button"
+                className="canvas-back-overview-btn"
+                onClick={() => handleSelectDomainTab("ALL")}
+              >
+                <i className="fa-solid fa-compress" aria-hidden="true" />
+                <span>{language === "vi" ? "Xem toàn bộ 34 kỹ năng" : "Back to Full Graph"}</span>
+              </button>
+            )}
+          </div>
+
           <svg
             ref={svgRef}
-            className="constellation-svg"
-            viewBox="0 0 800 620"
+            className="arboretum-svg"
+            viewBox="0 0 800 600"
             preserveAspectRatio="xMidYMid meet"
             xmlns="http://www.w3.org/2000/svg"
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
           >
             <defs>
-              {/* Soft quadrant nebulas */}
-              <radialGradient id="nebulaOrange" cx="20%" cy="20%" r="40%">
-                <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.14" />
-                <stop offset="100%" stopColor="#f59e0b" stopOpacity="0" />
+              <radialGradient id="arboretumCenterGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#18c785" stopOpacity="0.22" />
+                <stop offset="65%" stopColor="#18c785" stopOpacity="0.04" />
+                <stop offset="100%" stopColor="#18c785" stopOpacity="0" />
               </radialGradient>
-              <radialGradient id="nebulaPurple" cx="80%" cy="20%" r="40%">
-                <stop offset="0%" stopColor="#a855f7" stopOpacity="0.14" />
-                <stop offset="100%" stopColor="#a855f7" stopOpacity="0" />
+              <radialGradient id="activeNodeHalo" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#18c785" stopOpacity="0.45" />
+                <stop offset="100%" stopColor="#18c785" stopOpacity="0" />
               </radialGradient>
-              <radialGradient id="nebulaCyan" cx="20%" cy="80%" r="40%">
-                <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.14" />
-                <stop offset="100%" stopColor="#06b6d4" stopOpacity="0" />
-              </radialGradient>
-              <radialGradient id="nebulaEmerald" cx="80%" cy="80%" r="40%">
-                <stop offset="0%" stopColor="#10b981" stopOpacity="0.14" />
-                <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
-              </radialGradient>
-
-              {/* Hub active glowing filters */}
-              <radialGradient id="hubGlowOrange" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.5" />
-                <stop offset="100%" stopColor="#f59e0b" stopOpacity="0" />
-              </radialGradient>
-              <radialGradient id="hubGlowPurple" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#a855f7" stopOpacity="0.5" />
-                <stop offset="100%" stopColor="#a855f7" stopOpacity="0" />
-              </radialGradient>
-              <radialGradient id="hubGlowCyan" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.5" />
-                <stop offset="100%" stopColor="#06b6d4" stopOpacity="0" />
-              </radialGradient>
-              <radialGradient id="hubGlowEmerald" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#10b981" stopOpacity="0.5" />
-                <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
-              </radialGradient>
-
-              {/* Hexagon Core Clip */}
-              <polygon id="hexShape" points="0,-32 28,-16 28,16 0,32 -28,16 -28,-16" />
             </defs>
 
-            {/* Quadrant Nebulas */}
-            <rect x="0" y="0" width="400" height="310" fill="url(#nebulaOrange)" />
-            <rect x="400" y="0" width="400" height="310" fill="url(#nebulaPurple)" />
-            <rect x="0" y="310" width="400" height="310" fill="url(#nebulaCyan)" />
-            <rect x="400" y="310" width="400" height="310" fill="url(#nebulaEmerald)" />
+            {/* Bioluminescent Forest Center Glow */}
+            <circle cx="400" cy="300" r="275" fill="url(#arboretumCenterGlow)" />
 
-            {/* Twinkling Stardust Field */}
-            {stardust.map((s) => (
+            {/* Bioluminescent Spores */}
+            {bioSpores.map((s) => (
               <circle
                 key={s.id}
                 cx={s.cx}
                 cy={s.cy}
                 r={s.r}
-                fill="rgba(255, 255, 255, 0.65)"
+                fill="rgba(110, 231, 183, 0.45)"
                 className="stardust-particle"
                 style={{
                   animationDelay: `${s.delay}s`,
@@ -789,376 +1095,454 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
               />
             ))}
 
-            {/* Concentric Celestial Orbit Rings */}
-            <circle cx="400" cy="310" r="105" fill="none" stroke="rgba(255,255,255,0.08)" strokeDasharray="3 4" />
-            <circle cx="400" cy="310" r="195" fill="none" stroke="rgba(255,255,255,0.07)" strokeDasharray="4 5" />
-            <circle cx="400" cy="310" r="285" fill="none" stroke="rgba(255,255,255,0.05)" strokeDasharray="4 6" />
+            {/* Concentric Cyber-Arboretum Radar Rings */}
+            <circle
+              cx="400"
+              cy="300"
+              r="128"
+              fill="none"
+              stroke="rgba(24, 199, 133, 0.16)"
+              strokeDasharray="4 5"
+            />
+            <circle
+              cx="400"
+              cy="300"
+              r="240"
+              fill="none"
+              stroke="rgba(217, 179, 108, 0.14)"
+              strokeDasharray="3 6"
+            />
+            <line
+              x1="400"
+              y1="25"
+              x2="400"
+              y2="575"
+              stroke="rgba(24, 199, 133, 0.05)"
+              strokeDasharray="2 6"
+            />
+            <line
+              x1="80"
+              y1="300"
+              x2="720"
+              y2="300"
+              stroke="rgba(24, 199, 133, 0.05)"
+              strokeDasharray="2 6"
+            />
 
-            {/* Core Spokes (Center -> 4 Hubs) with Energy Pulses */}
-            {coreSpokes.map((spoke) => {
-              const pathD = `M ${spoke.x1} ${spoke.y1} L ${spoke.x2} ${spoke.y2}`;
-              return (
-                <g key={spoke.hubId}>
-                  <line
-                    x1={spoke.x1}
-                    y1={spoke.y1}
-                    x2={spoke.x2}
-                    y2={spoke.y2}
-                    stroke={spoke.color}
-                    strokeWidth="2.5"
-                    strokeOpacity="0.85"
-                  />
-                  {/* Flowing Photon Pulse */}
-                  <circle r="3.5" fill="#ffffff" filter="drop-shadow(0 0 4px #ffffff)">
-                    <animateMotion path={pathD} dur="2.2s" repeatCount="indefinite" />
-                  </circle>
-                </g>
-              );
-            })}
+            {/* Synaptic Edges */}
+            {graphEdges.map((edge) => {
+              const p1 = positions[edge.from];
+              const p2 = positions[edge.to];
+              if (!p1 || !p2) return null;
 
-            {/* Leaf Edges (Hub -> Leaves) with Energy Pulses */}
-            {leafEdges.map((e) => {
-              const isHighlighted = activeNode.id === e.to || activeBranch.id === e.from;
-              const pathD = `M ${e.x1} ${e.y1} L ${e.x2} ${e.y2}`;
+              const isHighlighted =
+                selectedNodeId === edge.from ||
+                selectedNodeId === edge.to ||
+                (inspectedSeed.parent_id === edge.from && inspectedSeed.id === edge.to);
+
+              const pathD = `M ${p1.x} ${p1.y} L ${p2.x} ${p2.y}`;
+
               return (
-                <g key={e.to}>
+                <g key={edge.id}>
                   <line
-                    x1={e.x1}
-                    y1={e.y1}
-                    x2={e.x2}
-                    y2={e.y2}
-                    stroke={e.color}
-                    strokeWidth={isHighlighted ? "2" : "1.2"}
-                    strokeOpacity={isHighlighted ? "0.9" : "0.45"}
-                    strokeDasharray={isHighlighted ? undefined : "3 3"}
+                    x1={p1.x}
+                    y1={p1.y}
+                    x2={p2.x}
+                    y2={p2.y}
+                    stroke={edge.color}
+                    strokeWidth={edge.isPrimary ? (isHighlighted ? "2.6" : "1.8") : isHighlighted ? "2.2" : "1.2"}
+                    strokeOpacity={isHighlighted ? "0.95" : edge.isPrimary ? "0.65" : "0.38"}
+                    strokeDasharray={edge.isPrimary || isHighlighted ? undefined : "3 3"}
                   />
-                  {isHighlighted && (
-                    <circle r="2.5" fill="#ffffff" filter="drop-shadow(0 0 3px #ffffff)">
-                      <animateMotion path={pathD} dur="2.8s" repeatCount="indefinite" />
+                  {(edge.isPrimary || isHighlighted) && (
+                    <circle r={edge.isPrimary ? "3" : "2.2"} fill="#a7f3d0">
+                      <animateMotion
+                        path={pathD}
+                        dur={edge.isPrimary ? "2.4s" : "2.9s"}
+                        repeatCount="indefinite"
+                      />
                     </circle>
                   )}
                 </g>
               );
             })}
 
-            {/* Render 4 Primary Orbital Hubs */}
-            {baseNodes
-              .filter((n) => n.id === n.hubId && n.id !== "core")
-              .map((hub) => {
-                const isActive = activeBranch.id === hub.id;
-                const pos = positions[hub.id] || { x: hub.originX, y: hub.originY };
+            {/* Render Graph Nodes */}
+            {graphNodes.map((node) => {
+              const pos = positions[node.id] ?? { x: node.originX, y: node.originY };
+              const isSelected =
+                selectedNodeId === node.id ||
+                (node.kind === "HUB" && inspectedSeed.parent_id === node.id);
+              const isDimmed =
+                activeRankFilter !== "ALL" &&
+                node.kind !== "CORE" &&
+                node.kind !== "ARTICLE" &&
+                node.rank !== activeRankFilter;
 
-                let glowUrl = "url(#hubGlowOrange)";
-                if (hub.id === "backend") glowUrl = "url(#hubGlowPurple)";
-                if (hub.id === "mobile") glowUrl = "url(#hubGlowCyan)";
-                if (hub.id === "domain") glowUrl = "url(#hubGlowEmerald)";
-
+              if (node.kind === "CORE") {
+                const lines = (language === "vi" ? node.shortVi : node.shortEn).split("\n");
                 return (
                   <g
-                    key={hub.id}
-                    className="constellation-hub-node"
+                    key={node.id}
+                    className="constellation-core-node"
                     transform={`translate(${pos.x}, ${pos.y})`}
                     style={{ cursor: isDragging ? "grabbing" : "grab" }}
-                    onPointerDown={(e) => handlePointerDown(e, hub.id)}
-                    onClick={() => handleSelectNode(hub)}
+                    onPointerDown={(e) => handlePointerDown(e, node.id)}
+                    onClick={() => handleSelectSeedNode(node.id)}
                   >
-                    {/* Glowing Aura if Active */}
-                    {isActive && (
-                      <circle cx="0" cy="0" r="46" fill={glowUrl} className="hub-pulse-aura" />
-                    )}
-
-                    {/* Orbital Dashed Ring */}
-                    <circle
-                      cx="0"
-                      cy="0"
-                      r="33"
-                      fill="#060c14"
-                      stroke={hub.color}
-                      strokeWidth={isActive ? "2.5" : "1.8"}
-                      strokeDasharray={isActive ? "4 3" : undefined}
+                    <polygon
+                      points="0,-38 33,-19 33,19 0,38 -33,19 -33,-19"
+                      fill="none"
+                      stroke="#18c785"
+                      strokeWidth="2"
+                      className="core-beacon-ring"
                     />
-
-                    {/* Inner Badge Fill */}
-                    <circle cx="0" cy="0" r="26" fill={hub.color} fillOpacity={isActive ? "0.32" : "0.18"} />
-
-                    {/* Hub Text */}
+                    <polygon
+                      points="0,-31 27,-15.5 27,15.5 0,31 -27,15.5 -27,-15.5"
+                      fill="#05130e"
+                      stroke="#d9b36c"
+                      strokeWidth="1.4"
+                    />
                     <text
                       x="0"
-                      y="4"
+                      y="-3"
                       textAnchor="middle"
                       fill="#ffffff"
-                      fontSize="10"
-                      fontWeight="700"
-                      fontFamily="IBM Plex Mono, monospace"
-                      letterSpacing="0.04em"
-                    >
-                      {hub.labelEn}
-                    </text>
-                  </g>
-                );
-              })}
-
-            {/* Render Leaf Nodes (Stars) */}
-            {baseNodes
-              .filter((n) => n.hubId !== "core" && n.id !== n.hubId)
-              .map((leaf) => {
-                const isSelected = activeNode.id === leaf.id;
-                const pos = positions[leaf.id] || { x: leaf.originX, y: leaf.originY };
-
-                return (
-                  <g
-                    key={leaf.id}
-                    className="constellation-leaf-node"
-                    transform={`translate(${pos.x}, ${pos.y})`}
-                    style={{ cursor: isDragging ? "grabbing" : "grab" }}
-                    onPointerDown={(e) => handlePointerDown(e, leaf.id)}
-                    onClick={() => handleSelectNode(leaf)}
-                  >
-                    {/* Star Halo */}
-                    <circle
-                      cx="0"
-                      cy="0"
-                      r={isSelected ? "18" : "14"}
-                      fill="#060c14"
-                      stroke={leaf.color}
-                      strokeWidth={isSelected ? "2.5" : "1.5"}
-                    />
-
-                    {/* Star Badge text (MAX / LV.4) */}
-                    <text
-                      x="0"
-                      y="3"
-                      textAnchor="middle"
-                      fill={leaf.color}
-                      fontSize="7.5"
+                      fontSize="9.5"
                       fontWeight="800"
                       fontFamily="IBM Plex Mono, monospace"
                     >
-                      {leaf.badge}
+                      {lines[0]}
                     </text>
-
-                    {/* Node Label underneath/above */}
                     <text
                       x="0"
-                      y="26"
+                      y="11"
                       textAnchor="middle"
-                      fill={isSelected ? "#ffffff" : "rgba(255, 255, 255, 0.85)"}
-                      fontSize="9"
-                      fontWeight={isSelected ? "700" : "500"}
-                      fontFamily="Be Vietnam Pro, sans-serif"
+                      fill="#6ee7b7"
+                      fontSize="8"
+                      fontWeight="600"
+                      fontFamily="IBM Plex Mono, monospace"
                     >
-                      {language === "vi" ? leaf.labelVi : leaf.labelEn}
+                      {lines[1] ?? ""}
                     </text>
                   </g>
                 );
-              })}
+              }
 
-            {/* Render Central Hexagon: CORE (DSA & C++) */}
-            {(() => {
-              const corePos = positions["core"] || { x: 400, y: 310 };
-              const isSelected = activeNode.id === "core";
+              if (node.kind === "HUB") {
+                const rankColor = RANK_COLOR_MAP[node.rank] ?? "#18c785";
+                return (
+                  <g
+                    key={node.id}
+                    className="constellation-hub-node"
+                    transform={`translate(${pos.x}, ${pos.y})`}
+                    style={{
+                      cursor: isDragging ? "grabbing" : "grab",
+                      opacity: isDimmed ? 0.3 : 1,
+                    }}
+                    onPointerDown={(e) => handlePointerDown(e, node.id)}
+                    onClick={() => handleSelectSeedNode(node.id)}
+                  >
+                    {isSelected && (
+                      <circle cx="0" cy="0" r="42" fill="url(#activeNodeHalo)" className="hub-pulse-aura" />
+                    )}
+                    <circle
+                      cx="0"
+                      cy="0"
+                      r="30"
+                      fill="#06130e"
+                      stroke={node.color}
+                      strokeWidth={isSelected ? "2.6" : "1.8"}
+                      strokeDasharray={isSelected ? "4 3" : undefined}
+                    />
+                    <circle
+                      cx="0"
+                      cy="0"
+                      r="23"
+                      fill={node.color}
+                      fillOpacity={isSelected ? "0.28" : "0.14"}
+                    />
+                    <text
+                      x="0"
+                      y="-2"
+                      textAnchor="middle"
+                      fill="#ffffff"
+                      fontSize="8.5"
+                      fontWeight="800"
+                      fontFamily="IBM Plex Mono, monospace"
+                    >
+                      {language === "vi" ? node.shortVi : node.shortEn}
+                    </text>
+                    <text
+                      x="0"
+                      y="10"
+                      textAnchor="middle"
+                      fill={rankColor}
+                      fontSize="7.5"
+                      fontWeight="700"
+                      fontFamily="IBM Plex Mono, monospace"
+                    >
+                      RANK {node.rank} · {node.articleCount} D1
+                    </text>
+                  </g>
+                );
+              }
+
+              // BRANCH or ARTICLE node on outer orbit
+              const isArticle = node.kind === "ARTICLE";
+              const rankColor = isArticle ? "#d9b36c" : RANK_COLOR_MAP[node.rank] ?? node.color;
+              const isTopHalf = pos.y < 300;
+
               return (
                 <g
-                  className="constellation-core-node"
-                  transform={`translate(${corePos.x}, ${corePos.y})`}
-                  style={{ cursor: isDragging ? "grabbing" : "grab" }}
-                  onPointerDown={(e) => handlePointerDown(e, "core")}
-                  onClick={() => handleSelectNode(baseNodes[0])}
+                  key={node.id}
+                  className="constellation-leaf-node"
+                  transform={`translate(${pos.x}, ${pos.y})`}
+                  style={{
+                    cursor: isDragging ? "grabbing" : "pointer",
+                    opacity: isDimmed ? 0.25 : 1,
+                  }}
+                  onPointerDown={(e) => handlePointerDown(e, node.id)}
+                  onClick={() => handleSelectSeedNode(node.id)}
                 >
-                  {/* Hexagon Outer Glow */}
-                  <polygon
-                    points="0,-36 32,-18 32,18 0,36 -32,18 -32,-18"
-                    fill="none"
-                    stroke="#00e5ff"
-                    strokeWidth={isSelected ? "3" : "1.8"}
-                    strokeOpacity="0.8"
-                    className="core-beacon-ring"
-                  />
-                  <polygon
-                    points="0,-30 26,-15 26,15 0,30 -26,15 -26,-15"
-                    fill="#04121a"
-                    stroke="#38bdf8"
-                    strokeWidth="1.2"
+                  <circle
+                    cx="0"
+                    cy="0"
+                    r={isSelected ? "17" : "14"}
+                    fill="#05110d"
+                    stroke={isSelected ? "#ffffff" : node.color}
+                    strokeWidth={isSelected ? "2.4" : "1.5"}
                   />
                   <text
                     x="0"
-                    y="-4"
+                    y="3"
                     textAnchor="middle"
-                    fill="#ffffff"
-                    fontSize="11"
+                    fill={rankColor}
+                    fontSize="7.5"
                     fontWeight="800"
                     fontFamily="IBM Plex Mono, monospace"
-                    letterSpacing="0.08em"
                   >
-                    CORE
+                    {isArticle ? "D1" : `R-${node.rank}`}
                   </text>
                   <text
                     x="0"
-                    y="12"
+                    y={isTopHalf ? "-20" : "26"}
                     textAnchor="middle"
-                    fill="#38bdf8"
-                    fontSize="8.5"
-                    fontWeight="600"
-                    fontFamily="IBM Plex Mono, monospace"
+                    fill={isSelected ? "#ffffff" : "#d8ebe1"}
+                    fontSize="8.8"
+                    fontWeight={isSelected ? "700" : "600"}
+                    fontFamily="Be Vietnam Pro, sans-serif"
                   >
-                    DSA &amp; C++
+                    {language === "vi" ? node.shortVi : node.shortEn}
                   </text>
                 </g>
               );
-            })()}
+            })}
           </svg>
 
-          {/* Bottom Interactive Legend Bar & Quick Branch Filter */}
-          <div className="constellation-legend-bar" role="group" aria-label="Branch selector">
-            <button
-              type="button"
-              className={`legend-pill ${activeBranch.id === "voice_ai" ? "is-active" : ""}`}
-              onClick={() => handleSelectNode(baseNodes.find((n) => n.id === "voice_ai")!)}
-            >
-              <span className="legend-dot" style={{ background: "#f59e0b" }} />
-              <span>{language === "vi" ? "AI & Viễn Thông" : "AI & Telecom"}</span>
-            </button>
-            <button
-              type="button"
-              className={`legend-pill ${activeBranch.id === "mobile" ? "is-active" : ""}`}
-              onClick={() => handleSelectNode(baseNodes.find((n) => n.id === "mobile")!)}
-            >
-              <span className="legend-dot" style={{ background: "#06b6d4" }} />
-              <span>{language === "vi" ? "Di Động & UI" : "Mobile & UI"}</span>
-            </button>
-            <button
-              type="button"
-              className={`legend-pill ${activeBranch.id === "backend" ? "is-active" : ""}`}
-              onClick={() => handleSelectNode(baseNodes.find((n) => n.id === "backend")!)}
-            >
-              <span className="legend-dot" style={{ background: "#a855f7" }} />
-              <span>{language === "vi" ? "Hệ Thống Phân Tán" : "Backend/Cloud"}</span>
-            </button>
-            <button
-              type="button"
-              className={`legend-pill ${activeBranch.id === "domain" ? "is-active" : ""}`}
-              onClick={() => handleSelectNode(baseNodes.find((n) => n.id === "domain")!)}
-            >
-              <span className="legend-dot" style={{ background: "#10b981" }} />
-              <span>{language === "vi" ? "ERP & Doanh Nghiệp" : "ERP/Business"}</span>
-            </button>
+          {/* Bottom Canvas Legend & Interaction Guide */}
+          <div className="arboretum-canvas-footer">
+            <div className="arboretum-rank-pills">
+              <span className="arboretum-rank-chip">
+                <i className="fa-solid fa-circle" style={{ color: "#18c785" }} />
+                <span>RANK S · Core Mastery</span>
+              </span>
+              <span className="arboretum-rank-chip">
+                <i className="fa-solid fa-circle" style={{ color: "#38bdf8" }} />
+                <span>RANK A · Production Advanced</span>
+              </span>
+              <span className="arboretum-rank-chip">
+                <i className="fa-solid fa-circle" style={{ color: "#a855f7" }} />
+                <span>RANK B · Applied</span>
+              </span>
+            </div>
+            <span className="arboretum-drag-hint">
+              <i className="fa-solid fa-hand-pointer" aria-hidden="true" />
+              <span>
+                {language === "vi"
+                  ? "Kéo thả các nút · Nhấp vào kỹ năng để xem bài học D1"
+                  : "Drag nodes freely · Click any skill to inspect D1 lessons"}
+              </span>
+            </span>
           </div>
         </div>
 
-        {/* Right Floating Tactical HUD Card */}
-        <aside className="constellation-hud-card">
-          <div className="hud-header">
-            <span className="hud-kicker">SELECTED BRANCH [ACTIVE]</span>
-            <h4 className="hud-branch-title" style={{ color: activeBranch.color }}>
-              {activeBranch.id === "voice_ai" && (language === "vi" ? "AI & Giải Pháp Viễn Thông" : "AI & Telecom Solutions")}
-              {activeBranch.id === "backend" && (language === "vi" ? "Hệ Thống Phân Tán & Đám Mây" : "Distributed Backend & Cloud")}
-              {activeBranch.id === "mobile" && (language === "vi" ? "Kỹ Thuật Ứng Dụng Di Động" : "Mobile Systems & UI Architecture")}
-              {activeBranch.id === "domain" && (language === "vi" ? "Giải Pháp Nghiệp Vụ Doanh Nghiệp" : "Enterprise ERP & Domain Systems")}
+        {/* RIGHT COLUMN: Equal-Height Synaptic Node Dossier */}
+        <aside className="arboretum-dossier-panel">
+          {/* 1. Node Identity Header */}
+          <div className="dossier-node-header">
+            <div className="dossier-node-topline">
+              <span className="dossier-domain-badge" style={{ color: inspectedDomainMeta.color }}>
+                <i className={inspectedDomainMeta.icon} aria-hidden="true" />
+                <span>
+                  {language === "vi" ? inspectedDomainMeta.shortVi : inspectedDomainMeta.shortEn}
+                </span>
+              </span>
+              <span
+                className="dossier-rank-pill"
+                style={{
+                  borderColor: RANK_COLOR_MAP[inspectedSeed.rank as SkillRank],
+                  color: RANK_COLOR_MAP[inspectedSeed.rank as SkillRank],
+                }}
+              >
+                RANK {inspectedSeed.rank} · {inspectedSeed.level}%
+              </span>
+            </div>
+
+            <h4 className="dossier-node-title">
+              {language === "vi" ? inspectedSeed.name_vi : inspectedSeed.name_en}
             </h4>
-          </div>
 
-          {/* Branch Attributes with Bars */}
-          <div className="hud-section">
-            <span className="hud-section-label">BRANCH ATTRIBUTES</span>
-            <div className="hud-attributes-list">
-              {(activeBranch.attributes || []).map((attr, idx) => (
-                <div key={idx} className="hud-attr-row">
-                  <div className="hud-attr-header">
-                    <span>{language === "vi" ? attr.labelVi : attr.labelEn}</span>
-                    <strong style={{ color: attr.color }}>{attr.value}</strong>
-                  </div>
-                  <div className="hud-attr-track">
-                    <div
-                      className="hud-attr-fill"
-                      style={{ width: `${attr.pct}%`, background: attr.color }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+            <p className="dossier-node-summary">
+              {language === "vi" ? inspectedSeed.summary_vi : inspectedSeed.summary_en}
+            </p>
 
-          {/* Equipped Runes (Tech Stack) */}
-          <div className="hud-section">
-            <span className="hud-section-label">EQUIPPED RUNES (TECH STACK)</span>
-            <div className="hud-runes-grid">
-              {(activeBranch.runes || []).map((rune, idx) => (
-                <span key={idx} className="hud-rune-pill">
-                  {rune}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Completed Raid Quests & Verified D1 Case Studies */}
-          <div className="hud-section">
-            <span className="hud-section-label">
-              {language === "vi" ? "BÀI HỌC D1 & THỰC CHIẾN LIÊN KẾT" : "COMPLETED RAID QUESTS & D1 LESSONS"}
-            </span>
-            <div className="hud-quests-list">
-              {(activeBranch.raidQuests || []).map((quest, idx) => (
-                <div key={idx} className="hud-quest-item">
-                  <div className="hud-quest-head">
-                    <i className="fa-solid fa-star" />
-                    <strong>{language === "vi" ? quest.titleVi : quest.titleEn}</strong>
-                  </div>
-                  <p className="hud-quest-desc">
-                    {language === "vi" ? quest.descVi : quest.descEn}
-                  </p>
-                  {quest.slug && (
-                    <a href={`/blog/${quest.slug}`} className="hud-quest-link" title={quest.titleEn}>
-                      <span>{language === "vi" ? "📖 Đọc bài nghiên cứu D1" : "📖 Read Case Study"}</span>
-                      <i className="fa-solid fa-arrow-up-right-from-square" />
-                    </a>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Active Skill Node Inspector if specific leaf clicked */}
-          {activeNode && activeNode.id !== activeBranch.id && (
-            <div className="hud-leaf-inspect">
-              <div className="hud-leaf-header">
-                <span className="hud-leaf-badge" style={{ color: activeNode.color, borderColor: activeNode.color }}>
-                  {activeNode.badge}
-                </span>
-                <strong>{language === "vi" ? activeNode.labelVi : activeNode.labelEn}</strong>
-              </div>
-              <p className="hud-leaf-desc">
-                {language === "vi" ? activeNode.summaryVi : activeNode.summaryEn}
-              </p>
-              {activeNode.linkedSlugs && activeNode.linkedSlugs.length > 0 && (
-                <div className="hud-leaf-links">
-                  {activeNode.linkedSlugs.map((slug) => (
-                    <a key={slug} href={`/blog/${slug}`} className="hud-leaf-link">
-                      <i className="fa-solid fa-file-code" />
-                      <span>{slug}</span>
-                    </a>
-                  ))}
-                </div>
+            {/* Focus / Expand Cluster Button */}
+            <div className="dossier-focus-actions">
+              {activeDomainId !== inspectedSeed.domain_id ? (
+                <button
+                  type="button"
+                  className="dossier-focus-btn"
+                  onClick={() => handleSelectDomainTab(inspectedSeed.domain_id)}
+                >
+                  <i className="fa-solid fa-magnifying-glass-plus" aria-hidden="true" />
+                  <span>
+                    {language === "vi"
+                      ? `Mở rộng toàn bộ nhánh ${inspectedDomainMeta.shortVi}`
+                      : `Focus all ${inspectedDomainMeta.shortEn} branches`}
+                  </span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="dossier-focus-btn dossier-focus-btn--active"
+                  onClick={() => handleSelectDomainTab("ALL")}
+                >
+                  <i className="fa-solid fa-table-cells" aria-hidden="true" />
+                  <span>
+                    {language === "vi"
+                      ? "Đang phóng to nhánh này · Quay lại Toàn cảnh"
+                      : "Cluster Focused · Return to Full Constellation"}
+                  </span>
+                </button>
               )}
+            </div>
+          </div>
+
+          {/* 2. Connected Sub-Branches in this Cluster */}
+          {clusterBranches.length > 0 && (
+            <div className="dossier-section">
+              <span className="dossier-section-label">
+                {language === "vi"
+                  ? `NHÁNH KỸ NĂNG CON TRONG CỤM (${clusterBranches.length})`
+                  : `CONNECTED SUB-BRANCHES (${clusterBranches.length})`}
+              </span>
+              <div className="dossier-subbranches-grid">
+                {clusterBranches.map((branch) => {
+                  const isCurrent = selectedNodeId === branch.id;
+                  const short = SHORT_NODE_LABELS[branch.id] ?? {
+                    en: branch.name_en,
+                    vi: branch.name_vi,
+                  };
+                  const bCount = (directLinksByNode.get(branch.id) ?? []).length;
+                  return (
+                    <button
+                      key={branch.id}
+                      type="button"
+                      className={`dossier-branch-chip ${isCurrent ? "is-selected" : ""}`}
+                      onClick={() => handleSelectSeedNode(branch.id)}
+                    >
+                      <span
+                        className="chip-rank-dot"
+                        style={{ background: RANK_COLOR_MAP[branch.rank as SkillRank] }}
+                      />
+                      <span className="chip-name">
+                        {language === "vi" ? short.vi : short.en}
+                      </span>
+                      {bCount > 0 && <span className="chip-count">{bCount}</span>}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
 
-          {/* Streamlined Contextual D1 Footer (Replaced bloated button) */}
-          <div className="hud-footer-indicator">
-            <div className="hud-indicator-info">
-              <i className="fa-solid fa-circle-nodes" style={{ color: activeBranch.color }} />
-              <span>
+          {/* 3. Scrollable Linked Cloudflare D1 Lessons & Case Studies */}
+          <div className="dossier-section dossier-section--grow">
+            <div className="dossier-section-head">
+              <span className="dossier-section-label">
                 {language === "vi"
-                  ? `${activeBranch.linkedSlugs.length} bài phân tích liên kết từ D1`
-                  : `${activeBranch.linkedSlugs.length} studies indexed in Cloudflare D1`}
+                  ? `BÀI HỌC & NGHIÊN CỨU TRONG D1 (${inspectedArticles.length})`
+                  : `LINKED D1 KNOWLEDGE STUDIES (${inspectedArticles.length})`}
               </span>
             </div>
+
+            {inspectedArticles.length > 0 ? (
+              <div className="dossier-lessons-scroll">
+                {inspectedArticles.map((art) => (
+                  <a
+                    key={art.slug}
+                    href={`/blog/${art.slug}`}
+                    className="dossier-lesson-card"
+                  >
+                    <div className="lesson-card-top">
+                      <span className="lesson-rel-tag">{art.relationship.replace(/_/g, " ")}</span>
+                      <span className="lesson-cat-tag">{art.category}</span>
+                    </div>
+                    <strong className="lesson-card-title">
+                      {language === "vi" ? art.titleVi : art.titleEn}
+                    </strong>
+                    <span className="lesson-card-cta">
+                      <span>{language === "vi" ? "Đọc bài phân tích" : "Read technical study"}</span>
+                      <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+                    </span>
+                  </a>
+                ))}
+              </div>
+            ) : (
+              <div className="dossier-empty-lessons">
+                <p>
+                  {language === "vi"
+                    ? "Kỹ năng này được chứng thực trực tiếp qua các hồ sơ dự án thực tế bên dưới."
+                    : "This capability is verified directly through the production project dossiers below."}
+                </p>
+              </div>
+            )}
+
+            {/* Verified Production Dossiers */}
+            <div className="dossier-proofs-wrap">
+              <span className="dossier-section-label">
+                {language === "vi" ? "HỒ SƠ DỰ ÁN THỰC CHIẾN" : "VERIFIED PRODUCTION DOSSIERS"}
+              </span>
+              <div className="dossier-proofs-list">
+                {inspectedDomainMeta.proofs.map((proof, idx) => (
+                  <a key={idx} href={proof.href} className="dossier-proof-link">
+                    <i className="fa-solid fa-shield-halved" aria-hidden="true" />
+                    <span>{language === "vi" ? proof.labelVi : proof.labelEn}</span>
+                    <i className="fa-solid fa-arrow-up-right-from-square" aria-hidden="true" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* 4. Synchronized D1 Repository Footer */}
+          <div className="dossier-footer-bar">
+            <span className="dossier-footer-status">
+              <i className="fa-solid fa-database" aria-hidden="true" />
+              <span>
+                {language === "vi"
+                  ? `Đồng bộ lọc ${inspectedArticles.length} bài dưới Kho D1`
+                  : `Synced ${inspectedArticles.length} studies in D1 Repo`}
+              </span>
+            </span>
             <button
               type="button"
-              className="hud-filter-scroll-btn"
-              onClick={handleScrollToD1}
-              title={language === "vi" ? "Cuộn xuống xem kho bài viết D1" : "Scroll to filtered D1 studies"}
+              className="dossier-scroll-repo-btn"
+              onClick={handleScrollToD1Cards}
             >
-              <span>{language === "vi" ? "Xem kho D1" : "View D1 Repo"}</span>
-              <i className="fa-solid fa-arrow-down" />
+              <span>{language === "vi" ? "Cuộn xuống Kho D1" : "View D1 Cards"}</span>
+              <i className="fa-solid fa-arrow-down" aria-hidden="true" />
             </button>
           </div>
         </aside>

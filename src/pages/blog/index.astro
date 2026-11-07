@@ -38,13 +38,22 @@ try {
   console.warn("[blog/index.astro] Error loading D1 KB articles:", err);
 }
 
-const kbSummaryItems: KbIndexSummaryItem[] = kbArticlesWithProblems.map((art) => ({
-  slug: art.slug,
-  title: art.title,
-  category: art.kb_category ?? "",
-  hashtags: Array.isArray(art.hashtags) ? art.hashtags : [],
-  description: `${art.summary_for_agents ?? ""} ${art.description ?? ""}`.trim(),
-}));
+const kbSummaryItems: KbIndexSummaryItem[] = [
+  ...kbArticlesWithProblems.map((art) => ({
+    slug: art.slug,
+    title: art.title,
+    category: art.kb_category ?? "Knowledge Base",
+    hashtags: Array.isArray(art.hashtags) ? art.hashtags : [],
+    description: `${art.description ?? ""} ${art.summary_for_agents ?? ""}`.trim(),
+  })),
+  ...showcasePosts.map((post) => ({
+    slug: post.id,
+    title: post.data.title,
+    category: "Product Case Study",
+    hashtags: Array.isArray(post.data.hashtags) ? post.data.hashtags : [],
+    description: post.data.description ?? "",
+  })),
+];
 
 const formatDate = (date: Date | string) => {
   const d = typeof date === "string" ? new Date(date) : date;
