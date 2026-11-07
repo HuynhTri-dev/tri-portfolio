@@ -1,9 +1,10 @@
 /**
  * @name SkillGraphNetwork.tsx
- * @description Cohesive Cyber-Arboretum Synaptic Skill Graph (GraphDB) connected to the
- *              34-node skill taxonomy and 18 Cloudflare D1 Knowledge Base studies.
- *              Features two-level radial constellation geometry (Overview + Domain Focus),
- *              elastic spring drag physics, and an equal-height Synaptic Node Dossier.
+ * @description Living Cyber-Arboretum Root & Canopy Tree (GraphDB):
+ *              - Tapered Cubic-Bezier organic boughs, root tendrils, and flowing bioluminescent sap veins.
+ *              - Botanical node morphologies: Heartwood Core, Bough Knots, Crystal Leaf Pods, and Golden D1 Spores.
+ *              - Hover Sap Surge (lineage path illumination), On-Canvas Floating Bio-Tooltip,
+ *                Ambient Forest Breeze Sway, Interactive Zoom, and Elastic Branch Bending Physics.
  */
 
 import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
@@ -12,7 +13,6 @@ import type { KbIndexSummaryItem } from "./SkillTreeMatrix";
 import {
   SEED_DOMAINS,
   SEED_NODES,
-  SEED_EDGES,
   SEED_ARTICLE_LINKS,
   type SkillNodeSeed,
 } from "../../lib/data/skill-graph-seed";
@@ -40,12 +40,15 @@ interface PositionedGraphNode {
   labelVi: string;
   shortEn: string;
   shortVi: string;
+  summaryEn: string;
+  summaryVi: string;
   rank: SkillRank;
   level: number;
   domainId: string;
   parentId: string | null;
   originX: number;
   originY: number;
+  angleDeg: number;
   color: string;
   articleCount: number;
   href?: string;
@@ -57,6 +60,7 @@ interface PositionedEdge {
   to: string;
   color: string;
   isPrimary: boolean;
+  curveBend: number;
 }
 
 interface NodePhysicsPos {
@@ -199,9 +203,6 @@ const DOMAIN_META: Record<
   },
 };
 
-/**
- * Fallback human-readable titles for D1 article slugs if not present in kbItems.
- */
 const ARTICLE_TITLE_FALLBACKS: Record<string, { en: string; vi: string; category: string }> = {
   "asterisk-nen-tang-voip-sip-kien-truc": {
     en: "Asterisk Part 1: VoIP Foundations, SIP/RTP & Core Architecture",
@@ -290,9 +291,6 @@ const ARTICLE_TITLE_FALLBACKS: Record<string, { en: string; vi: string; category
   },
 };
 
-/**
- * Concise display labels for graph nodes so radial text never collides.
- */
 const SHORT_NODE_LABELS: Record<string, { en: string; vi: string }> = {
   "asterisk-core": { en: "ASTERISK PBX", vi: "ASTERISK PBX" },
   "asterisk-webrtc": { en: "WebRTC / SRTP", vi: "WebRTC / SRTP" },
@@ -338,6 +336,49 @@ function polarToCartesian(cx: number, cy: number, r: number, angleDeg: number) {
   };
 }
 
+/**
+ * Generates an organic Cubic-Bezier bough/root path between two points,
+ * plus optional lateral root offshoot tendrils for authentic botanical morphology.
+ */
+function buildOrganicBoughGeometry(
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  bendFactor: number,
+  isPrimary: boolean
+) {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const len = Math.hypot(dx, dy) || 1;
+  const nx = -dy / len;
+  const ny = dx / len;
+
+  const offset1 = len * 0.16 * bendFactor;
+  const offset2 = -len * 0.08 * bendFactor;
+
+  const c1x = Math.round((x1 + dx * 0.34 + nx * offset1) * 10) / 10;
+  const c1y = Math.round((y1 + dy * 0.34 + ny * offset1) * 10) / 10;
+  const c2x = Math.round((x1 + dx * 0.68 + nx * offset2) * 10) / 10;
+  const c2y = Math.round((y1 + dy * 0.68 + ny * offset2) * 10) / 10;
+
+  const mainPath = `M ${x1} ${y1} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${x2} ${y2}`;
+
+  // Lateral micro-root offshoot sprouting near mid-bough
+  const midX = Math.round((x1 + dx * 0.52 + nx * (offset1 * 0.5)) * 10) / 10;
+  const midY = Math.round((y1 + dy * 0.52 + ny * (offset1 * 0.5)) * 10) / 10;
+  const sideSign = bendFactor >= 0 ? 1 : -1;
+  const twigLen = isPrimary ? 22 : 14;
+  const twigEndX = Math.round((midX + (dx / len) * twigLen * 0.7 + nx * twigLen * sideSign) * 10) / 10;
+  const twigEndY = Math.round((midY + (dy / len) * twigLen * 0.7 + ny * twigLen * sideSign) * 10) / 10;
+  const twigCtrlX = Math.round((midX + nx * twigLen * 0.6 * sideSign) * 10) / 10;
+  const twigCtrlY = Math.round((midY + ny * twigLen * 0.6 * sideSign) * 10) / 10;
+
+  const tendrilPath = `M ${midX} ${midY} Q ${twigCtrlX} ${twigCtrlY}, ${twigEndX} ${twigEndY}`;
+
+  return { mainPath, tendrilPath, twigEndX, twigEndY };
+}
+
 export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
   language,
   onSelectSkill,
@@ -346,7 +387,11 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
 }) => {
   const [activeDomainId, setActiveDomainId] = useState<string>("ALL");
   const [selectedNodeId, setSelectedNodeId] = useState<string>("asterisk-core");
+  const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
+  const [zoom, setZoom] = useState<number>(1);
+  const [breezeEnabled, setBreezeEnabled] = useState<boolean>(true);
   const [isDragging, setIsDragging] = useState<boolean>(false);
+
   const draggedNodeRef = useRef<string | null>(null);
   const dragOffsetRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -379,7 +424,6 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
     return map;
   }, [kbItems]);
 
-  // Map of skill_node_id -> linked article slugs (including children if Hub)
   const directLinksByNode = useMemo(() => {
     const map = new Map<string, { slug: string; relationship: string }[]>();
     for (const link of SEED_ARTICLE_LINKS) {
@@ -408,20 +452,16 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
     const map = new Map<string, { slug: string; relationship: string }[]>();
     for (const node of SEED_NODES) {
       const combined = new Map<string, string>();
-      const direct = directLinksByNode.get(node.id) ?? [];
-      for (const item of direct) {
+      for (const item of directLinksByNode.get(node.id) ?? []) {
         combined.set(item.slug, item.relationship);
       }
-      const children = childrenByParentId.get(node.id) ?? [];
-      for (const child of children) {
-        const childLinks = directLinksByNode.get(child.id) ?? [];
-        for (const item of childLinks) {
+      for (const child of childrenByParentId.get(node.id) ?? []) {
+        for (const item of directLinksByNode.get(child.id) ?? []) {
           if (!combined.has(item.slug)) {
             combined.set(item.slug, item.relationship);
           }
         }
       }
-      // Also if hub is kafka-distributed, include redis-architecture articles in overview cluster
       if (node.id === "kafka-distributed") {
         for (const extraId of ["redis-architecture", "redis-streams", "fastapi-backend"]) {
           for (const item of directLinksByNode.get(extraId) ?? []) {
@@ -444,7 +484,7 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
     return map;
   }, [directLinksByNode, childrenByParentId]);
 
-  // Build radial nodes & edges depending on activeDomainId ("ALL" vs specific domain)
+  // Build organic root & canopy tree topology
   const { graphNodes, graphEdges } = useMemo(() => {
     const cx = 400;
     const cy = 300;
@@ -452,90 +492,98 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
     const edges: PositionedEdge[] = [];
 
     if (activeDomainId === "ALL") {
-      // 1. Center Core Node
       nodes.push({
         id: "d1-core",
         kind: "CORE",
-        labelEn: "D1 KNOWLEDGE CORE",
-        labelVi: "LÕI ĐỒ THỊ D1",
-        shortEn: "D1 GRAPH\n34 SKILLS",
-        shortVi: "ĐỒ THỊ D1\n34 KỸ NĂNG",
+        labelEn: "HEARTWOOD ROOT CORE",
+        labelVi: "CỘI RỄ TRI THỨC D1",
+        shortEn: "ROOT CORE\n34 SKILLS",
+        shortVi: "CỘI RỄ D1\n34 KỸ NĂNG",
+        summaryEn: "Central symbiotic root nexus connecting 34 engineering capabilities to 18 verified Cloudflare D1 studies.",
+        summaryVi: "Lõi rễ đại thụ trung tâm kết nối 34 nhánh kỹ năng kỹ thuật với 18 bài nghiên cứu thực chiến trong Cloudflare D1.",
         rank: "S",
         level: 100,
         domainId: "ALL",
         parentId: null,
         originX: cx,
         originY: cy,
+        angleDeg: 0,
         color: "#18c785",
         articleCount: articleBySlug.size,
       });
 
-      // 2. 6 Primary Orbital Hubs at r = 126
       const overviewHubs: {
         id: string;
         angle: number;
         color: string;
-        leaves: { id: string; angle: number }[];
+        bend: number;
+        leaves: { id: string; angle: number; bend: number }[];
       }[] = [
         {
           id: "asterisk-core",
           angle: 210,
           color: "#18c785",
+          bend: 0.9,
           leaves: [
-            { id: "asterisk-webrtc", angle: 180 },
-            { id: "asterisk-stasis-voicebot", angle: 200 },
-            { id: "asterisk-cdr-ami", angle: 220 },
-            { id: "asterisk-pjsip-trunk", angle: 240 },
+            { id: "asterisk-webrtc", angle: 180, bend: -0.8 },
+            { id: "asterisk-stasis-voicebot", angle: 200, bend: -0.4 },
+            { id: "asterisk-cdr-ami", angle: 220, bend: 0.5 },
+            { id: "asterisk-pjsip-trunk", angle: 240, bend: 0.9 },
           ],
         },
         {
           id: "telecom-ba",
           angle: 270,
           color: "#d9b36c",
+          bend: -0.7,
           leaves: [
-            { id: "poc-validation", angle: 260 },
-            { id: "telephony-3cx", angle: 280 },
+            { id: "poc-validation", angle: 260, bend: -0.6 },
+            { id: "telephony-3cx", angle: 280, bend: 0.6 },
           ],
         },
         {
           id: "voicebot-pipecat",
           angle: 330,
           color: "#a855f7",
+          bend: -0.9,
           leaves: [
-            { id: "pipecat-stt-tts", angle: 300 },
-            { id: "pipecat-barge-in", angle: 320 },
-            { id: "pipecat-vad-latency", angle: 340 },
-            { id: "langgraph-rag", angle: 360 },
+            { id: "pipecat-stt-tts", angle: 300, bend: -0.85 },
+            { id: "pipecat-barge-in", angle: 320, bend: -0.4 },
+            { id: "pipecat-vad-latency", angle: 340, bend: 0.45 },
+            { id: "langgraph-rag", angle: 360, bend: 0.85 },
           ],
         },
         {
           id: "kafka-distributed",
           angle: 30,
           color: "#38bdf8",
+          bend: 0.85,
           leaves: [
-            { id: "kafka-partitions", angle: 20 },
-            { id: "kafka-consumer-groups", angle: 40 },
-            { id: "redis-architecture", angle: 60 },
+            { id: "kafka-partitions", angle: 20, bend: -0.7 },
+            { id: "kafka-consumer-groups", angle: 40, bend: 0.35 },
+            { id: "redis-architecture", angle: 60, bend: 0.85 },
           ],
         },
         {
           id: "cloudflare-edge",
           angle: 90,
           color: "#f59e0b",
+          bend: 0.7,
           leaves: [
-            { id: "linux-sysadmin", angle: 80 },
-            { id: "astro-modern", angle: 100 },
+            { id: "linux-sysadmin", angle: 80, bend: -0.65 },
+            { id: "astro-modern", angle: 100, bend: 0.65 },
           ],
         },
         {
           id: "mobile-ecosystem",
           angle: 150,
           color: "#06b6d4",
+          bend: -0.85,
           leaves: [
-            { id: "mobile-flutter", angle: 120 },
-            { id: "mobile-react-native", angle: 134 },
-            { id: "mobile-swift", angle: 148 },
-            { id: "mobile-kotlin", angle: 162 },
+            { id: "mobile-flutter", angle: 120, bend: -0.85 },
+            { id: "mobile-react-native", angle: 134, bend: -0.4 },
+            { id: "mobile-swift", angle: 148, bend: 0.4 },
+            { id: "mobile-kotlin", angle: 162, bend: 0.85 },
           ],
         },
       ];
@@ -543,7 +591,7 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
       for (const hubCfg of overviewHubs) {
         const seed = SEED_NODES.find((n) => n.id === hubCfg.id);
         if (!seed) continue;
-        const pos = polarToCartesian(cx, cy, 126, hubCfg.angle);
+        const pos = polarToCartesian(cx, cy, 128, hubCfg.angle);
         const short = SHORT_NODE_LABELS[seed.id] ?? { en: seed.name_en, vi: seed.name_vi };
         const count = (aggregatedLinksByNode.get(seed.id) ?? []).length;
 
@@ -554,12 +602,15 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
           labelVi: seed.name_vi,
           shortEn: short.en,
           shortVi: short.vi,
+          summaryEn: seed.summary_en,
+          summaryVi: seed.summary_vi,
           rank: seed.rank as SkillRank,
           level: seed.level,
           domainId: seed.domain_id,
           parentId: "d1-core",
           originX: pos.x,
           originY: pos.y,
+          angleDeg: hubCfg.angle,
           color: hubCfg.color,
           articleCount: count,
         });
@@ -570,12 +621,13 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
           to: seed.id,
           color: hubCfg.color,
           isPrimary: true,
+          curveBend: hubCfg.bend,
         });
 
         for (const leafCfg of hubCfg.leaves) {
           const leafSeed = SEED_NODES.find((n) => n.id === leafCfg.id);
           if (!leafSeed) continue;
-          const leafPos = polarToCartesian(cx, cy, 240, leafCfg.angle);
+          const leafPos = polarToCartesian(cx, cy, 242, leafCfg.angle);
           const leafShort = SHORT_NODE_LABELS[leafSeed.id] ?? {
             en: leafSeed.name_en,
             vi: leafSeed.name_vi,
@@ -589,12 +641,15 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
             labelVi: leafSeed.name_vi,
             shortEn: leafShort.en,
             shortVi: leafShort.vi,
+            summaryEn: leafSeed.summary_en,
+            summaryVi: leafSeed.summary_vi,
             rank: leafSeed.rank as SkillRank,
             level: leafSeed.level,
             domainId: leafSeed.domain_id,
             parentId: seed.id,
             originX: leafPos.x,
             originY: leafPos.y,
+            angleDeg: leafCfg.angle,
             color: hubCfg.color,
             articleCount: leafCount,
           });
@@ -605,11 +660,12 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
             to: leafSeed.id,
             color: hubCfg.color,
             isPrimary: false,
+            curveBend: leafCfg.bend,
           });
         }
       }
     } else {
-      // DOMAIN FOCUS MODE: Center is the Domain Core, Ring 1 = All Skill Nodes of Domain, Ring 2 = Connected D1 Articles
+      // DOMAIN FOCUS MODE: Center is Domain Root, Ring 1 = All Skill Branches, Ring 2 = Sprouting D1 Knowledge Fruits
       const domainMeta = DOMAIN_META[activeDomainId] ?? DOMAIN_META.voip;
       const domainSkills = SEED_NODES.filter((n) => n.domain_id === activeDomainId);
 
@@ -618,26 +674,30 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
         kind: "CORE",
         labelEn: domainMeta.shortEn.toUpperCase(),
         labelVi: domainMeta.shortVi.toUpperCase(),
-        shortEn: `${activeDomainId.toUpperCase()}\n${domainSkills.length} NODES`,
-        shortVi: `${activeDomainId.toUpperCase()}\n${domainSkills.length} KỸ NĂNG`,
+        shortEn: `${activeDomainId.toUpperCase()}\n${domainSkills.length} ROOTS`,
+        shortVi: `${activeDomainId.toUpperCase()}\n${domainSkills.length} NHÁNH`,
+        summaryEn: `Focused botanical canopy for ${domainMeta.shortEn} and its connected Cloudflare D1 lessons.`,
+        summaryVi: `Tán cây chuyên sâu của nhánh ${domainMeta.shortVi} cùng các bài học thực tế nối từ Cloudflare D1.`,
         rank: "S",
         level: 96,
         domainId: activeDomainId,
         parentId: null,
         originX: cx,
         originY: cy,
+        angleDeg: 0,
         color: domainMeta.color,
         articleCount: 0,
       });
 
       const skillCount = Math.max(domainSkills.length, 1);
-      const uniqueArticles = new Map<string, string[]>(); // slug -> connected skillIds
+      const uniqueArticles = new Map<string, string[]>();
 
       domainSkills.forEach((skill, idx) => {
         const angle = -90 + (idx * 360) / skillCount;
         const pos = polarToCartesian(cx, cy, 138, angle);
         const short = SHORT_NODE_LABELS[skill.id] ?? { en: skill.name_en, vi: skill.name_vi };
         const directLinks = directLinksByNode.get(skill.id) ?? [];
+        const bend = idx % 2 === 0 ? 0.75 : -0.75;
 
         nodes.push({
           id: skill.id,
@@ -646,12 +706,15 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
           labelVi: skill.name_vi,
           shortEn: short.en,
           shortVi: short.vi,
+          summaryEn: skill.summary_en,
+          summaryVi: skill.summary_vi,
           rank: skill.rank as SkillRank,
           level: skill.level,
           domainId: skill.domain_id,
           parentId: `domain-core-${activeDomainId}`,
           originX: pos.x,
           originY: pos.y,
+          angleDeg: angle,
           color: domainMeta.color,
           articleCount: directLinks.length,
         });
@@ -662,6 +725,7 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
           to: skill.id,
           color: domainMeta.color,
           isPrimary: true,
+          curveBend: bend,
         });
 
         for (const link of directLinks) {
@@ -671,17 +735,16 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
         }
       });
 
-      // Outer ring: Actual D1 Lesson Nodes
       const articleEntries = Array.from(uniqueArticles.entries());
       const artCount = Math.max(articleEntries.length, 1);
       articleEntries.forEach(([slug, parentSkillIds], idx) => {
         const angle = -75 + (idx * 360) / artCount;
-        const pos = polarToCartesian(cx, cy, 245, angle);
+        const pos = polarToCartesian(cx, cy, 244, angle);
         const artMeta = articleBySlug.get(slug);
         const shortSlug = slug
           .replace(/^asterisk-/, "ast-")
           .replace(/^voicebot-/, "bot-")
-          .slice(0, 18);
+          .slice(0, 16);
 
         const artNodeId = `art-${slug}`;
         nodes.push({
@@ -689,14 +752,17 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
           kind: "ARTICLE",
           labelEn: artMeta?.titleEn ?? slug,
           labelVi: artMeta?.titleVi ?? slug,
-          shortEn: `📄 ${shortSlug}`,
-          shortVi: `📄 ${shortSlug}`,
+          shortEn: `✦ ${shortSlug}`,
+          shortVi: `✦ ${shortSlug}`,
+          summaryEn: artMeta?.description || "Verified Cloudflare D1 engineering study.",
+          summaryVi: artMeta?.description || "Bài nghiên cứu kỹ thuật thực chiến lưu trữ trên Cloudflare D1.",
           rank: "S",
           level: 100,
           domainId: activeDomainId,
           parentId: parentSkillIds[0],
           originX: pos.x,
           originY: pos.y,
+          angleDeg: angle,
           color: "#d9b36c",
           articleCount: 1,
           href: `/blog/${slug}`,
@@ -709,6 +775,7 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
             to: artNodeId,
             color: "#d9b36c",
             isPrimary: false,
+            curveBend: idx % 2 === 0 ? -0.55 : 0.55,
           });
         }
       });
@@ -717,7 +784,6 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
     return { graphNodes: nodes, graphEdges: edges };
   }, [activeDomainId, aggregatedLinksByNode, directLinksByNode, articleBySlug]);
 
-  // Physics positions state synchronized with graphNodes
   const [positions, setPositions] = useState<Record<string, NodePhysicsPos>>({});
 
   useEffect(() => {
@@ -728,7 +794,7 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
     setPositions(next);
   }, [graphNodes]);
 
-  // Elastic spring animation loop when dragging/releasing
+  // Elastic branch physics loop
   useEffect(() => {
     let animId: number;
     let running = false;
@@ -737,8 +803,8 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
       setPositions((prev) => {
         let moving = false;
         const next: Record<string, NodePhysicsPos> = {};
-        const k = 0.1;
-        const damping = 0.76;
+        const k = 0.09;
+        const damping = 0.78;
 
         for (const n of graphNodes) {
           const cur = prev[n.id] ?? { x: n.originX, y: n.originY, vx: 0, vy: 0 };
@@ -784,19 +850,49 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
     return () => cancelAnimationFrame(animId);
   }, [isDragging, graphNodes]);
 
-  // Stardust spores in background
+  // Bioluminescent forest spores & fireflies
   const bioSpores = useMemo(() => {
-    return Array.from({ length: 36 }, (_, i) => ({
+    return Array.from({ length: 42 }, (_, i) => ({
       id: i,
       cx: ((i * 43) % 760) + 20,
       cy: ((i * 61) % 560) + 20,
-      r: 0.9 + ((i * 7) % 14) / 10,
+      r: 0.9 + ((i * 7) % 15) / 10,
+      isGold: i % 3 === 0,
       delay: ((i * 11) % 30) / 10,
-      dur: 2.8 + ((i * 13) % 20) / 10,
+      dur: 2.6 + ((i * 13) % 22) / 10,
     }));
   }, []);
 
-  // Currently inspected skill seed from SEED_NODES
+  // Compute active lineage set for Hover Sap Surge & Selection
+  const activeFocusId = hoveredNodeId ?? selectedNodeId;
+  const activeLineageSet = useMemo(() => {
+    const set = new Set<string>();
+    if (!activeFocusId) return set;
+    set.add(activeFocusId);
+
+    const targetNode = graphNodes.find((n) => n.id === activeFocusId);
+    if (targetNode) {
+      // Trace upward to root core
+      let curr: PositionedGraphNode | undefined = targetNode;
+      while (curr && curr.parentId) {
+        set.add(curr.parentId);
+        curr = graphNodes.find((n) => n.id === curr?.parentId);
+      }
+      // Trace downward to immediate children
+      for (const child of graphNodes) {
+        if (child.parentId === targetNode.id) {
+          set.add(child.id);
+        }
+      }
+    }
+    return set;
+  }, [activeFocusId, graphNodes]);
+
+  const hoveredGraphNode = useMemo(() => {
+    if (!hoveredNodeId) return null;
+    return graphNodes.find((n) => n.id === hoveredNodeId) ?? null;
+  }, [hoveredNodeId, graphNodes]);
+
   const inspectedSeed = useMemo(() => {
     return (
       SEED_NODES.find((n) => n.id === selectedNodeId) ??
@@ -809,16 +905,15 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
     return DOMAIN_META[inspectedSeed.domain_id] ?? DOMAIN_META.voip;
   }, [inspectedSeed]);
 
-  // Sub-branches / related nodes in the same cluster
   const clusterBranches = useMemo(() => {
     const parentHubId = inspectedSeed.parent_id ?? inspectedSeed.id;
-    const children = SEED_NODES.filter(
-      (n) => n.parent_id === parentHubId || (n.domain_id === inspectedSeed.domain_id && n.id !== parentHubId)
+    return SEED_NODES.filter(
+      (n) =>
+        n.parent_id === parentHubId ||
+        (n.domain_id === inspectedSeed.domain_id && n.id !== parentHubId)
     );
-    return children;
   }, [inspectedSeed]);
 
-  // Linked D1 articles for the currently inspected skill
   const inspectedArticles = useMemo(() => {
     const links = aggregatedLinksByNode.get(inspectedSeed.id) ?? [];
     return links.map((item) => {
@@ -833,7 +928,6 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
     });
   }, [inspectedSeed, aggregatedLinksByNode, articleBySlug]);
 
-  // Select a skill node and broadcast to the D1 repository filter
   const handleSelectSeedNode = useCallback(
     (nodeId: string) => {
       if (nodeId.startsWith("art-")) {
@@ -875,10 +969,10 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
     [aggregatedLinksByNode, onSelectSkill]
   );
 
-  // Switch domain filter tab
   const handleSelectDomainTab = useCallback(
     (domainId: string) => {
       setActiveDomainId(domainId);
+      setZoom(1);
       if (domainId === "ALL") {
         setSelectedNodeId("asterisk-core");
         onSelectSkill({
@@ -945,7 +1039,7 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
       try {
         (e.currentTarget as Element).releasePointerCapture(e.pointerId);
       } catch {
-        // Ignore if not captured
+        // Ignore
       }
       draggedNodeRef.current = null;
       setIsDragging(false);
@@ -953,6 +1047,7 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
   }, []);
 
   const handleResetGraph = useCallback(() => {
+    setZoom(1);
     const reset: Record<string, NodePhysicsPos> = {};
     for (const n of graphNodes) {
       reset[n.id] = { x: n.originX, y: n.originY, vx: 0, vy: 0 };
@@ -967,9 +1062,18 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
     }
   }, []);
 
+  // Compute dynamic SVG viewBox based on zoom level
+  const viewBoxStr = useMemo(() => {
+    const w = Math.round(800 / zoom);
+    const h = Math.round(600 / zoom);
+    const x = Math.round(400 - w / 2);
+    const y = Math.round(300 - h / 2);
+    return `${x} ${y} ${w} ${h}`;
+  }, [zoom]);
+
   return (
     <div className="arboretum-graph-shell" data-skill-constellation>
-      {/* Unified Domain Branch Selector Bar (Cohesive with Cyber-Arboretum Matrix) */}
+      {/* Unified Domain Branch Selector Bar */}
       <div className="arboretum-graph__domain-bar" role="tablist" aria-label="Skill graph domains">
         <div className="arboretum-graph__tabs">
           <button
@@ -979,9 +1083,9 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
             className={`domain-tab ${activeDomainId === "ALL" ? "is-active" : ""}`}
             onClick={() => handleSelectDomainTab("ALL")}
           >
-            <i className="fa-solid fa-circle-nodes" aria-hidden="true" />
+            <i className="fa-solid fa-tree" aria-hidden="true" />
             <span className="domain-tab__label">
-              {language === "vi" ? "Toàn cảnh Đồ thị" : "All Domains"}
+              {language === "vi" ? "Toàn cảnh Đại thụ" : "Full Canopy Tree"}
             </span>
             <span className="domain-tab__count">{SEED_NODES.length}</span>
           </button>
@@ -1020,73 +1124,170 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
           type="button"
           className="arboretum-reset-btn"
           onClick={handleResetGraph}
-          title={language === "vi" ? "Đặt lại tọa độ các nút" : "Reset node coordinates"}
+          title={language === "vi" ? "Đặt lại cành & góc nhìn" : "Reset tree boughs & zoom"}
         >
-          <i className="fa-solid fa-arrows-rotate" aria-hidden="true" />
-          <span>{language === "vi" ? "Cân bằng" : "Reset"}</span>
+          <i className="fa-solid fa-seedling" aria-hidden="true" />
+          <span>{language === "vi" ? "Cân bằng rễ" : "Reset Tree"}</span>
         </button>
       </div>
 
-      {/* Equal-Height 2-Column Workspace: Left Radial Synaptic Map + Right Node Dossier */}
+      {/* Equal-Height 2-Column Workspace: Left Organic Tree + Right Synaptic Dossier */}
       <div className="arboretum-graph__workspace">
-        {/* LEFT COLUMN: Interactive Radial Synaptic Graph */}
+        {/* LEFT COLUMN: Living Cyber-Arboretum Root & Canopy Canvas */}
         <div className="arboretum-canvas-panel">
           <div className="arboretum-canvas-topbar">
             <span className="canvas-telemetry-tag">
               <span className="canvas-telemetry-dot" />
               {activeDomainId === "ALL"
                 ? language === "vi"
-                  ? "CHẾ ĐỘ TOÀN CẢNH // 6 CỤM TRỤ CỘT & 18 NHÁNH TIÊU BIỂU"
-                  : "OVERVIEW TOPOLOGY // 6 PRIMARY HUBS & 18 SUB-BRANCHES"
+                  ? "BỘ RỄ & TÁN CÂY ĐẠI THỤ // 6 CÀNH LỚN & 18 NHÁNH LÁ"
+                  : "BIO-BANYAN CANOPY & ROOTS // 6 MAJOR BOUGHS & 18 LEAF PODS"
                 : language === "vi"
-                  ? `CHẾ ĐỘ PHÓNG TO NHÁNH // ${inspectedDomainMeta.shortVi.toUpperCase()}`
-                  : `CLUSTER FOCUS // ${inspectedDomainMeta.shortEn.toUpperCase()}`}
+                  ? `TÁN CÂY CHUYÊN SÂU // ${inspectedDomainMeta.shortVi.toUpperCase()}`
+                  : `BOUGH CANOPY FOCUS // ${inspectedDomainMeta.shortEn.toUpperCase()}`}
             </span>
 
-            {activeDomainId !== "ALL" && (
+            {/* Interactive Zoom & Breeze Controls */}
+            <div className="arboretum-canvas-controls">
               <button
                 type="button"
-                className="canvas-back-overview-btn"
-                onClick={() => handleSelectDomainTab("ALL")}
+                className={`canvas-ctrl-pill ${breezeEnabled ? "is-active" : ""}`}
+                onClick={() => setBreezeEnabled((v) => !v)}
+                title={language === "vi" ? "Bật/tắt hiệu ứng gió rừng" : "Toggle forest breeze sway"}
               >
-                <i className="fa-solid fa-compress" aria-hidden="true" />
-                <span>{language === "vi" ? "Xem toàn bộ 34 kỹ năng" : "Back to Full Graph"}</span>
+                <i className="fa-solid fa-wind" aria-hidden="true" />
+                <span>{language === "vi" ? "Gió rừng" : "Breeze"}</span>
               </button>
-            )}
+
+              <div className="canvas-zoom-group" role="group" aria-label="Zoom controls">
+                <button
+                  type="button"
+                  className="canvas-zoom-btn"
+                  onClick={() => setZoom((z) => Math.max(0.85, Math.round((z - 0.15) * 100) / 100))}
+                  title="Zoom out"
+                >
+                  −
+                </button>
+                <span className="canvas-zoom-val">{Math.round(zoom * 100)}%</span>
+                <button
+                  type="button"
+                  className="canvas-zoom-btn"
+                  onClick={() => setZoom((z) => Math.min(1.45, Math.round((z + 0.15) * 100) / 100))}
+                  title="Zoom in"
+                >
+                  +
+                </button>
+              </div>
+
+              {activeDomainId !== "ALL" && (
+                <button
+                  type="button"
+                  className="canvas-back-overview-btn"
+                  onClick={() => handleSelectDomainTab("ALL")}
+                >
+                  <i className="fa-solid fa-compress" aria-hidden="true" />
+                  <span>{language === "vi" ? "Toàn cảnh" : "Full Tree"}</span>
+                </button>
+              )}
+            </div>
           </div>
+
+          {/* On-Canvas Floating Bio-Tooltip when hovering any skill node */}
+          {hoveredGraphNode && hoveredGraphNode.kind !== "CORE" && (
+            <div
+              className="arboretum-floating-tooltip"
+              style={{ borderColor: hoveredGraphNode.color }}
+            >
+              <div className="tooltip-top">
+                <span className="tooltip-rank" style={{ color: hoveredGraphNode.color }}>
+                  {hoveredGraphNode.kind === "ARTICLE"
+                    ? "D1 STUDY"
+                    : `RANK ${hoveredGraphNode.rank} · ${hoveredGraphNode.level}%`}
+                </span>
+                <span className="tooltip-spores">
+                  ✦ {hoveredGraphNode.articleCount}{" "}
+                  {language === "vi" ? "bài học D1" : "D1 studies"}
+                </span>
+              </div>
+              <strong className="tooltip-title">
+                {language === "vi" ? hoveredGraphNode.labelVi : hoveredGraphNode.labelEn}
+              </strong>
+              <p className="tooltip-desc">
+                {language === "vi" ? hoveredGraphNode.summaryVi : hoveredGraphNode.summaryEn}
+              </p>
+            </div>
+          )}
 
           <svg
             ref={svgRef}
-            className="arboretum-svg"
-            viewBox="0 0 800 600"
+            className={`arboretum-svg ${breezeEnabled ? "is-breeze-active" : ""}`}
+            viewBox={viewBoxStr}
             preserveAspectRatio="xMidYMid meet"
             xmlns="http://www.w3.org/2000/svg"
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
           >
             <defs>
-              <radialGradient id="arboretumCenterGlow" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#18c785" stopOpacity="0.22" />
-                <stop offset="65%" stopColor="#18c785" stopOpacity="0.04" />
-                <stop offset="100%" stopColor="#18c785" stopOpacity="0" />
+              <radialGradient id="arboretumSoilGlow" cx="50%" cy="50%" r="52%">
+                <stop offset="0%" stopColor="#18c785" stopOpacity="0.24" />
+                <stop offset="45%" stopColor="#7d553d" stopOpacity="0.1" />
+                <stop offset="100%" stopColor="#040c09" stopOpacity="0" />
               </radialGradient>
               <radialGradient id="activeNodeHalo" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#18c785" stopOpacity="0.45" />
+                <stop offset="0%" stopColor="#18c785" stopOpacity="0.5" />
+                <stop offset="60%" stopColor="#d9b36c" stopOpacity="0.2" />
                 <stop offset="100%" stopColor="#18c785" stopOpacity="0" />
               </radialGradient>
+              <linearGradient id="barkWoodGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#9c6b49" stopOpacity="0.85" />
+                <stop offset="50%" stopColor="#d9b36c" stopOpacity="0.7" />
+                <stop offset="100%" stopColor="#18c785" stopOpacity="0.8" />
+              </linearGradient>
             </defs>
 
-            {/* Bioluminescent Forest Center Glow */}
-            <circle cx="400" cy="300" r="275" fill="url(#arboretumCenterGlow)" />
+            {/* Ambient Forest Soil & Heartwood Growth Rings */}
+            <circle cx="400" cy="300" r="285" fill="url(#arboretumSoilGlow)" />
+            <circle
+              cx="400"
+              cy="300"
+              r="72"
+              fill="none"
+              stroke="rgba(217, 179, 108, 0.14)"
+              strokeDasharray="6 4"
+            />
+            <circle
+              cx="400"
+              cy="300"
+              r="128"
+              fill="none"
+              stroke="rgba(24, 199, 133, 0.14)"
+              strokeDasharray="3 6"
+            />
+            <circle
+              cx="400"
+              cy="300"
+              r="242"
+              fill="none"
+              stroke="rgba(217, 179, 108, 0.11)"
+              strokeDasharray="2 8"
+            />
 
-            {/* Bioluminescent Spores */}
+            {/* Decorative Background Root Mycelium Filaments */}
+            <g opacity="0.22" stroke="#7d553d" fill="none">
+              <path d="M 400 300 Q 330 350, 250 340 T 120 390" strokeWidth="1.2" />
+              <path d="M 400 300 Q 470 250, 560 260 T 690 210" strokeWidth="1.2" />
+              <path d="M 400 300 Q 360 210, 310 130 T 230 50" strokeWidth="1.1" />
+              <path d="M 400 300 Q 440 390, 490 470 T 570 550" strokeWidth="1.1" />
+            </g>
+
+            {/* Bioluminescent Forest Spores & Fireflies */}
             {bioSpores.map((s) => (
               <circle
                 key={s.id}
                 cx={s.cx}
                 cy={s.cy}
                 r={s.r}
-                fill="rgba(110, 231, 183, 0.45)"
+                fill={s.isGold ? "rgba(230, 198, 135, 0.65)" : "rgba(110, 231, 183, 0.55)"}
                 className="stardust-particle"
                 style={{
                   animationDelay: `${s.delay}s`,
@@ -1095,70 +1296,80 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
               />
             ))}
 
-            {/* Concentric Cyber-Arboretum Radar Rings */}
-            <circle
-              cx="400"
-              cy="300"
-              r="128"
-              fill="none"
-              stroke="rgba(24, 199, 133, 0.16)"
-              strokeDasharray="4 5"
-            />
-            <circle
-              cx="400"
-              cy="300"
-              r="240"
-              fill="none"
-              stroke="rgba(217, 179, 108, 0.14)"
-              strokeDasharray="3 6"
-            />
-            <line
-              x1="400"
-              y1="25"
-              x2="400"
-              y2="575"
-              stroke="rgba(24, 199, 133, 0.05)"
-              strokeDasharray="2 6"
-            />
-            <line
-              x1="80"
-              y1="300"
-              x2="720"
-              y2="300"
-              stroke="rgba(24, 199, 133, 0.05)"
-              strokeDasharray="2 6"
-            />
-
-            {/* Synaptic Edges */}
+            {/* Organic Cubic-Bezier Tree Boughs, Bark Conduits & Flowing Sap Veins */}
             {graphEdges.map((edge) => {
               const p1 = positions[edge.from];
               const p2 = positions[edge.to];
               if (!p1 || !p2) return null;
 
-              const isHighlighted =
-                selectedNodeId === edge.from ||
-                selectedNodeId === edge.to ||
-                (inspectedSeed.parent_id === edge.from && inspectedSeed.id === edge.to);
+              const isLineageActive =
+                activeLineageSet.has(edge.from) && activeLineageSet.has(edge.to);
+              const isDimmed = hoveredNodeId !== null && !isLineageActive;
 
-              const pathD = `M ${p1.x} ${p1.y} L ${p2.x} ${p2.y}`;
+              const { mainPath, tendrilPath, twigEndX, twigEndY } = buildOrganicBoughGeometry(
+                p1.x,
+                p1.y,
+                p2.x,
+                p2.y,
+                edge.curveBend,
+                edge.isPrimary
+              );
 
               return (
-                <g key={edge.id}>
-                  <line
-                    x1={p1.x}
-                    y1={p1.y}
-                    x2={p2.x}
-                    y2={p2.y}
-                    stroke={edge.color}
-                    strokeWidth={edge.isPrimary ? (isHighlighted ? "2.6" : "1.8") : isHighlighted ? "2.2" : "1.2"}
-                    strokeOpacity={isHighlighted ? "0.95" : edge.isPrimary ? "0.65" : "0.38"}
-                    strokeDasharray={edge.isPrimary || isHighlighted ? undefined : "3 3"}
+                <g
+                  key={edge.id}
+                  style={{
+                    opacity: isDimmed ? 0.22 : 1,
+                    transition: "opacity 220ms ease",
+                  }}
+                >
+                  {/* 1. Lateral Root Tendril Offshoot */}
+                  <path
+                    d={tendrilPath}
+                    fill="none"
+                    stroke={edge.isPrimary ? "#9c6b49" : edge.color}
+                    strokeWidth="1.1"
+                    strokeOpacity="0.42"
+                    strokeLinecap="round"
                   />
-                  {(edge.isPrimary || isHighlighted) && (
-                    <circle r={edge.isPrimary ? "3" : "2.2"} fill="#a7f3d0">
+                  <circle
+                    cx={twigEndX}
+                    cy={twigEndY}
+                    r="1.8"
+                    fill={edge.color}
+                    fillOpacity="0.65"
+                  />
+
+                  {/* 2. Outer Woody Bark Conduit (Thick & Tapered) */}
+                  <path
+                    d={mainPath}
+                    fill="none"
+                    stroke="url(#barkWoodGrad)"
+                    strokeWidth={edge.isPrimary ? (isLineageActive ? "5.8" : "4.4") : isLineageActive ? "3.4" : "2.2"}
+                    strokeOpacity={isLineageActive ? "0.9" : "0.52"}
+                    strokeLinecap="round"
+                  />
+
+                  {/* 3. Inner Bioluminescent Sap Vein */}
+                  <path
+                    d={mainPath}
+                    fill="none"
+                    stroke={edge.color}
+                    strokeWidth={edge.isPrimary ? (isLineageActive ? "2.6" : "1.8") : isLineageActive ? "2" : "1.2"}
+                    strokeOpacity={isLineageActive ? "1" : "0.78"}
+                    strokeLinecap="round"
+                    className={isLineageActive ? "bough-sap-surge" : "bough-sap-vein"}
+                  />
+
+                  {/* 4. Flowing Sap Droplets along the curved bough */}
+                  {(edge.isPrimary || isLineageActive) && (
+                    <circle
+                      r={isLineageActive ? "3.4" : "2.4"}
+                      fill={isLineageActive ? "#fde68a" : "#a7f3d0"}
+                    >
                       <animateMotion
-                        path={pathD}
-                        dur={edge.isPrimary ? "2.4s" : "2.9s"}
+                        path={mainPath}
+                        dur={isLineageActive ? "1.35s" : edge.isPrimary ? "2.6s" : "3.1s"}
                         repeatCount="indefinite"
                       />
                     </circle>
@@ -1167,18 +1378,23 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
               );
             })}
 
-            {/* Render Graph Nodes */}
-            {graphNodes.map((node) => {
+            {/* Render Botanical Nodes: Heartwood Core, Bough Knots, Crystal Leaf Pods & D1 Spores */}
+            {graphNodes.map((node, nodeIdx) => {
               const pos = positions[node.id] ?? { x: node.originX, y: node.originY };
               const isSelected =
                 selectedNodeId === node.id ||
                 (node.kind === "HUB" && inspectedSeed.parent_id === node.id);
-              const isDimmed =
+              const isHovered = hoveredNodeId === node.id;
+              const isLineage = activeLineageSet.has(node.id);
+
+              const isRankFilteredOut =
                 activeRankFilter !== "ALL" &&
                 node.kind !== "CORE" &&
                 node.kind !== "ARTICLE" &&
                 node.rank !== activeRankFilter;
+              const isHoverDimmed = hoveredNodeId !== null && !isLineage;
 
+              // 1. HEARTWOOD ROOT CORE
               if (node.kind === "CORE") {
                 const lines = (language === "vi" ? node.shortVi : node.shortEn).split("\n");
                 return (
@@ -1188,27 +1404,47 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
                     transform={`translate(${pos.x}, ${pos.y})`}
                     style={{ cursor: isDragging ? "grabbing" : "grab" }}
                     onPointerDown={(e) => handlePointerDown(e, node.id)}
+                    onPointerEnter={() => setHoveredNodeId(node.id)}
+                    onPointerLeave={() => setHoveredNodeId(null)}
                     onClick={() => handleSelectSeedNode(node.id)}
                   >
-                    <polygon
-                      points="0,-38 33,-19 33,19 0,38 -33,19 -33,-19"
+                    {/* Root Anchor Spurs */}
+                    <circle
+                      cx="0"
+                      cy="0"
+                      r="46"
                       fill="none"
+                      stroke="rgba(217, 179, 108, 0.35)"
+                      strokeWidth="1.2"
+                      strokeDasharray="5 4"
+                    />
+                    <polygon
+                      points="0,-41 35.5,-20.5 35.5,20.5 0,41 -35.5,20.5 -35.5,-20.5"
+                      fill="rgba(125, 85, 61, 0.22)"
                       stroke="#18c785"
-                      strokeWidth="2"
+                      strokeWidth="2.2"
                       className="core-beacon-ring"
                     />
                     <polygon
-                      points="0,-31 27,-15.5 27,15.5 0,31 -27,15.5 -27,-15.5"
-                      fill="#05130e"
+                      points="0,-33 28.5,-16.5 28.5,16.5 0,33 -28.5,16.5 -28.5,-16.5"
+                      fill="#05140e"
                       stroke="#d9b36c"
-                      strokeWidth="1.4"
+                      strokeWidth="1.6"
+                    />
+                    <circle
+                      cx="0"
+                      cy="0"
+                      r="22"
+                      fill="none"
+                      stroke="rgba(24, 199, 133, 0.25)"
+                      strokeDasharray="2 3"
                     />
                     <text
                       x="0"
                       y="-3"
                       textAnchor="middle"
                       fill="#ffffff"
-                      fontSize="9.5"
+                      fontSize="9.2"
                       fontWeight="800"
                       fontFamily="IBM Plex Mono, monospace"
                     >
@@ -1216,11 +1452,11 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
                     </text>
                     <text
                       x="0"
-                      y="11"
+                      y="10"
                       textAnchor="middle"
-                      fill="#6ee7b7"
-                      fontSize="8"
-                      fontWeight="600"
+                      fill="#e6c687"
+                      fontSize="7.8"
+                      fontWeight="700"
                       fontFamily="IBM Plex Mono, monospace"
                     >
                       {lines[1] ?? ""}
@@ -1229,8 +1465,10 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
                 );
               }
 
+              // 2. PRIMARY BOUGH KNOTS (HUB NODES)
               if (node.kind === "HUB") {
                 const rankColor = RANK_COLOR_MAP[node.rank] ?? "#18c785";
+                const sporeDots = Math.min(node.articleCount, 7);
                 return (
                   <g
                     key={node.id}
@@ -1238,36 +1476,68 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
                     transform={`translate(${pos.x}, ${pos.y})`}
                     style={{
                       cursor: isDragging ? "grabbing" : "grab",
-                      opacity: isDimmed ? 0.3 : 1,
+                      opacity: isRankFilteredOut || isHoverDimmed ? 0.26 : 1,
                     }}
                     onPointerDown={(e) => handlePointerDown(e, node.id)}
+                    onPointerEnter={() => setHoveredNodeId(node.id)}
+                    onPointerLeave={() => setHoveredNodeId(null)}
                     onClick={() => handleSelectSeedNode(node.id)}
                   >
-                    {isSelected && (
-                      <circle cx="0" cy="0" r="42" fill="url(#activeNodeHalo)" className="hub-pulse-aura" />
+                    {(isSelected || isHovered) && (
+                      <circle cx="0" cy="0" r="46" fill="url(#activeNodeHalo)" className="hub-pulse-aura" />
                     )}
+
+                    {/* Outer Wooden Bark Growth Ring */}
                     <circle
                       cx="0"
                       cy="0"
-                      r="30"
-                      fill="#06130e"
+                      r="34"
+                      fill="#06140f"
+                      stroke="#d9b36c"
+                      strokeWidth={isSelected || isHovered ? "2.2" : "1.4"}
+                      strokeDasharray="6 3"
+                    />
+
+                    {/* Inner Bio-Vascular Ring */}
+                    <circle
+                      cx="0"
+                      cy="0"
+                      r="28"
+                      fill="#04100b"
                       stroke={node.color}
-                      strokeWidth={isSelected ? "2.6" : "1.8"}
-                      strokeDasharray={isSelected ? "4 3" : undefined}
+                      strokeWidth={isSelected || isHovered ? "2.6" : "1.8"}
                     />
                     <circle
                       cx="0"
                       cy="0"
-                      r="23"
+                      r="22"
                       fill={node.color}
-                      fillOpacity={isSelected ? "0.28" : "0.14"}
+                      fillOpacity={isSelected || isHovered ? "0.28" : "0.14"}
                     />
+
+                    {/* Sprouting D1 Spore Buds along top arc of Bough Knot */}
+                    {Array.from({ length: sporeDots }, (_, sIdx) => {
+                      const sAngle = -140 + (sIdx * 100) / Math.max(sporeDots - 1, 1);
+                      const sPos = polarToCartesian(0, 0, 38, sAngle);
+                      return (
+                        <circle
+                          key={sIdx}
+                          cx={sPos.x}
+                          cy={sPos.y}
+                          r="2.4"
+                          fill="#fbbf24"
+                          stroke="#04100b"
+                          strokeWidth="0.8"
+                        />
+                      );
+                    })}
+
                     <text
                       x="0"
                       y="-2"
                       textAnchor="middle"
                       fill="#ffffff"
-                      fontSize="8.5"
+                      fontSize="8.4"
                       fontWeight="800"
                       fontFamily="IBM Plex Mono, monospace"
                     >
@@ -1278,20 +1548,24 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
                       y="10"
                       textAnchor="middle"
                       fill={rankColor}
-                      fontSize="7.5"
+                      fontSize="7.2"
                       fontWeight="700"
                       fontFamily="IBM Plex Mono, monospace"
                     >
-                      RANK {node.rank} · {node.articleCount} D1
+                      RANK {node.rank} · {node.articleCount}✦
                     </text>
                   </g>
                 );
               }
 
-              // BRANCH or ARTICLE node on outer orbit
+              // 3. CRYSTAL LEAF PODS & GOLDEN D1 SPORE FRUITS (OUTER CANOPY)
               const isArticle = node.kind === "ARTICLE";
-              const rankColor = isArticle ? "#d9b36c" : RANK_COLOR_MAP[node.rank] ?? node.color;
+              const rankColor = isArticle ? "#fbbf24" : RANK_COLOR_MAP[node.rank] ?? node.color;
               const isTopHalf = pos.y < 300;
+              const labelText = language === "vi" ? node.shortVi : node.shortEn;
+              const pillWidth = Math.max(76, labelText.length * 5.6 + 16);
+              const pillY = isTopHalf ? -36 : 20;
+              const textY = isTopHalf ? -24 : 32;
 
               return (
                 <g
@@ -1300,68 +1574,110 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
                   transform={`translate(${pos.x}, ${pos.y})`}
                   style={{
                     cursor: isDragging ? "grabbing" : "pointer",
-                    opacity: isDimmed ? 0.25 : 1,
+                    opacity: isRankFilteredOut || isHoverDimmed ? 0.25 : 1,
                   }}
                   onPointerDown={(e) => handlePointerDown(e, node.id)}
+                  onPointerEnter={() => setHoveredNodeId(node.id)}
+                  onPointerLeave={() => setHoveredNodeId(null)}
                   onClick={() => handleSelectSeedNode(node.id)}
                 >
-                  <circle
-                    cx="0"
-                    cy="0"
-                    r={isSelected ? "17" : "14"}
-                    fill="#05110d"
-                    stroke={isSelected ? "#ffffff" : node.color}
-                    strokeWidth={isSelected ? "2.4" : "1.5"}
-                  />
-                  <text
-                    x="0"
-                    y="3"
-                    textAnchor="middle"
-                    fill={rankColor}
-                    fontSize="7.5"
-                    fontWeight="800"
-                    fontFamily="IBM Plex Mono, monospace"
+                  <g
+                    className="leaf-breeze-wrapper"
+                    style={{ animationDelay: `${(nodeIdx % 7) * 0.35}s` }}
                   >
-                    {isArticle ? "D1" : `R-${node.rank}`}
-                  </text>
-                  <text
-                    x="0"
-                    y={isTopHalf ? "-20" : "26"}
-                    textAnchor="middle"
-                    fill={isSelected ? "#ffffff" : "#d8ebe1"}
-                    fontSize="8.8"
-                    fontWeight={isSelected ? "700" : "600"}
-                    fontFamily="Be Vietnam Pro, sans-serif"
-                  >
-                    {language === "vi" ? node.shortVi : node.shortEn}
-                  </text>
+                    {/* Botanical Crystal Leaf Silhouette */}
+                    <path
+                      d="M 0,-18 C 14,-12 16,4 0,18 C -16,4 -14,-12 0,-18 Z"
+                      fill="#05140e"
+                      stroke={isSelected || isHovered ? "#ffffff" : node.color}
+                      strokeWidth={isSelected || isHovered ? "2.4" : "1.6"}
+                    />
+                    {/* Inner Leaf Vein */}
+                    <path
+                      d="M 0,-13 L 0,13 M 0,-3 L -6,-8 M 0,3 L 6,-2"
+                      stroke={node.color}
+                      strokeWidth="1"
+                      strokeOpacity="0.42"
+                      fill="none"
+                    />
+
+                    {/* Golden Spore Bud at Leaf Tip if linked to D1 articles */}
+                    {node.articleCount > 0 && (
+                      <circle
+                        cx="12"
+                        cy="-12"
+                        r="4.2"
+                        fill="#d9b36c"
+                        stroke="#04100b"
+                        strokeWidth="1"
+                      />
+                    )}
+
+                    {/* Rank / D1 Code inside Leaf */}
+                    <text
+                      x="0"
+                      y="3"
+                      textAnchor="middle"
+                      fill={rankColor}
+                      fontSize="7.4"
+                      fontWeight="800"
+                      fontFamily="IBM Plex Mono, monospace"
+                    >
+                      {isArticle ? "D1" : node.rank}
+                    </text>
+
+                    {/* High-Contrast Glass Pill Label for 100% Readability */}
+                    <rect
+                      x={-pillWidth / 2}
+                      y={pillY}
+                      width={pillWidth}
+                      height="17"
+                      rx="6"
+                      fill="rgba(4, 13, 9, 0.88)"
+                      stroke={isSelected || isHovered ? node.color : "rgba(24, 199, 133, 0.22)"}
+                      strokeWidth={isSelected || isHovered ? "1.3" : "0.8"}
+                    />
+                    <text
+                      x="0"
+                      y={textY}
+                      textAnchor="middle"
+                      fill={isSelected || isHovered ? "#ffffff" : "#d8ebe1"}
+                      fontSize="8.5"
+                      fontWeight={isSelected || isHovered ? "700" : "600"}
+                      fontFamily="Be Vietnam Pro, sans-serif"
+                    >
+                      {labelText}
+                    </text>
+                  </g>
                 </g>
               );
             })}
           </svg>
 
-          {/* Bottom Canvas Legend & Interaction Guide */}
+          {/* Bottom Canvas Legend & Botanical Guide */}
           <div className="arboretum-canvas-footer">
             <div className="arboretum-rank-pills">
               <span className="arboretum-rank-chip">
-                <i className="fa-solid fa-circle" style={{ color: "#18c785" }} />
+                <i className="fa-solid fa-leaf" style={{ color: "#18c785" }} />
                 <span>RANK S · Core Mastery</span>
               </span>
               <span className="arboretum-rank-chip">
-                <i className="fa-solid fa-circle" style={{ color: "#38bdf8" }} />
+                <i className="fa-solid fa-leaf" style={{ color: "#38bdf8" }} />
                 <span>RANK A · Production Advanced</span>
               </span>
               <span className="arboretum-rank-chip">
-                <i className="fa-solid fa-circle" style={{ color: "#a855f7" }} />
-                <span>RANK B · Applied</span>
+                <i className="fa-solid fa-seedling" style={{ color: "#d9b36c" }} />
+                <span>
+                  ✦ {language === "vi" ? "Nụ bào tử bài học D1" : "D1 Lesson Spore"}
+                </span>
               </span>
             </div>
             <span className="arboretum-drag-hint">
-              <i className="fa-solid fa-hand-pointer" aria-hidden="true" />
+              <i className="fa-solid fa-hand-sparkles" aria-hidden="true" />
               <span>
                 {language === "vi"
-                  ? "Kéo thả các nút · Nhấp vào kỹ năng để xem bài học D1"
-                  : "Drag nodes freely · Click any skill to inspect D1 lessons"}
+                  ? "Rê chuột dẫn nhựa · Kéo uốn cành cây · Nhấp lá xem bài học"
+                  : "Hover for sap surge · Drag to bend boughs · Click leaves for D1 studies"}
               </span>
             </span>
           </div>
@@ -1397,7 +1713,7 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
               {language === "vi" ? inspectedSeed.summary_vi : inspectedSeed.summary_en}
             </p>
 
-            {/* Focus / Expand Cluster Button */}
+            {/* Focus / Expand Bough Button */}
             <div className="dossier-focus-actions">
               {activeDomainId !== inspectedSeed.domain_id ? (
                 <button
@@ -1405,11 +1721,11 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
                   className="dossier-focus-btn"
                   onClick={() => handleSelectDomainTab(inspectedSeed.domain_id)}
                 >
-                  <i className="fa-solid fa-magnifying-glass-plus" aria-hidden="true" />
+                  <i className="fa-solid fa-tree" aria-hidden="true" />
                   <span>
                     {language === "vi"
-                      ? `Mở rộng toàn bộ nhánh ${inspectedDomainMeta.shortVi}`
-                      : `Focus all ${inspectedDomainMeta.shortEn} branches`}
+                      ? `Tách riêng tán cây ${inspectedDomainMeta.shortVi}`
+                      : `Isolate ${inspectedDomainMeta.shortEn} Canopy`}
                   </span>
                 </button>
               ) : (
@@ -1418,24 +1734,24 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
                   className="dossier-focus-btn dossier-focus-btn--active"
                   onClick={() => handleSelectDomainTab("ALL")}
                 >
-                  <i className="fa-solid fa-table-cells" aria-hidden="true" />
+                  <i className="fa-solid fa-arrows-to-circle" aria-hidden="true" />
                   <span>
                     {language === "vi"
-                      ? "Đang phóng to nhánh này · Quay lại Toàn cảnh"
-                      : "Cluster Focused · Return to Full Constellation"}
+                      ? "Đang xem riêng nhánh này · Về Đại thụ 34 kỹ năng"
+                      : "Canopy Isolated · Return to Full 34-Skill Tree"}
                   </span>
                 </button>
               )}
             </div>
           </div>
 
-          {/* 2. Connected Sub-Branches in this Cluster */}
+          {/* 2. Connected Sub-Branches (Leaves on this Bough) */}
           {clusterBranches.length > 0 && (
             <div className="dossier-section">
               <span className="dossier-section-label">
                 {language === "vi"
-                  ? `NHÁNH KỸ NĂNG CON TRONG CỤM (${clusterBranches.length})`
-                  : `CONNECTED SUB-BRANCHES (${clusterBranches.length})`}
+                  ? `CÁC NHÁNH LÁ TRÊN CÀNH NÀY (${clusterBranches.length})`
+                  : `CONNECTED LEAF BRANCHES (${clusterBranches.length})`}
               </span>
               <div className="dossier-subbranches-grid">
                 {clusterBranches.map((branch) => {
@@ -1450,6 +1766,8 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
                       key={branch.id}
                       type="button"
                       className={`dossier-branch-chip ${isCurrent ? "is-selected" : ""}`}
+                      onMouseEnter={() => setHoveredNodeId(branch.id)}
+                      onMouseLeave={() => setHoveredNodeId(null)}
                       onClick={() => handleSelectSeedNode(branch.id)}
                     >
                       <span
@@ -1459,7 +1777,7 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
                       <span className="chip-name">
                         {language === "vi" ? short.vi : short.en}
                       </span>
-                      {bCount > 0 && <span className="chip-count">{bCount}</span>}
+                      {bCount > 0 && <span className="chip-count">✦{bCount}</span>}
                     </button>
                   );
                 })}
@@ -1472,8 +1790,8 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
             <div className="dossier-section-head">
               <span className="dossier-section-label">
                 {language === "vi"
-                  ? `BÀI HỌC & NGHIÊN CỨU TRONG D1 (${inspectedArticles.length})`
-                  : `LINKED D1 KNOWLEDGE STUDIES (${inspectedArticles.length})`}
+                  ? `QUẢ TRI THỨC & BÀI HỌC D1 (${inspectedArticles.length})`
+                  : `SPROUTED D1 KNOWLEDGE STUDIES (${inspectedArticles.length})`}
               </span>
             </div>
 
@@ -1486,7 +1804,7 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
                     className="dossier-lesson-card"
                   >
                     <div className="lesson-card-top">
-                      <span className="lesson-rel-tag">{art.relationship.replace(/_/g, " ")}</span>
+                      <span className="lesson-rel-tag">✦ {art.relationship.replace(/_/g, " ")}</span>
                       <span className="lesson-cat-tag">{art.category}</span>
                     </div>
                     <strong className="lesson-card-title">
@@ -1503,8 +1821,8 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
               <div className="dossier-empty-lessons">
                 <p>
                   {language === "vi"
-                    ? "Kỹ năng này được chứng thực trực tiếp qua các hồ sơ dự án thực tế bên dưới."
-                    : "This capability is verified directly through the production project dossiers below."}
+                    ? "Nhánh kỹ năng này được chứng thực trực tiếp qua các hồ sơ dự án thực tế bên dưới."
+                    : "This branch is verified directly through the production project dossiers below."}
                 </p>
               </div>
             )}
@@ -1529,11 +1847,11 @@ export const SkillGraphNetwork: React.FC<SkillGraphNetworkProps> = ({
           {/* 4. Synchronized D1 Repository Footer */}
           <div className="dossier-footer-bar">
             <span className="dossier-footer-status">
-              <i className="fa-solid fa-database" aria-hidden="true" />
+              <i className="fa-solid fa-seedling" aria-hidden="true" />
               <span>
                 {language === "vi"
-                  ? `Đồng bộ lọc ${inspectedArticles.length} bài dưới Kho D1`
-                  : `Synced ${inspectedArticles.length} studies in D1 Repo`}
+                  ? `Đang lọc ${inspectedArticles.length} bài dưới Kho D1`
+                  : `Filtering ${inspectedArticles.length} studies in D1 Repo`}
               </span>
             </span>
             <button

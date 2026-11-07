@@ -793,7 +793,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  z-index: 2;
+  z-index: 4;
+  flex-wrap: wrap;
 }
 
 .canvas-telemetry-tag {
@@ -813,6 +814,74 @@
   border-radius: 50%;
   background: #18c785;
   box-shadow: 0 0 8px #18c785;
+}
+
+.arboretum-canvas-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.canvas-ctrl-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.63rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.canvas-ctrl-pill.is-active {
+  background: rgba(24, 199, 133, 0.14);
+  border-color: rgba(24, 199, 133, 0.35);
+  color: #6ee7b7;
+}
+
+.canvas-zoom-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 4px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(217, 179, 108, 0.25);
+}
+
+.canvas-zoom-btn {
+  width: 22px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #e6c687;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.canvas-zoom-btn:hover {
+  background: rgba(217, 179, 108, 0.2);
+  color: #ffffff;
+}
+
+.canvas-zoom-val {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  min-width: 34px;
+  text-align: center;
 }
 
 .canvas-back-overview-btn {
@@ -836,6 +905,54 @@
   color: #ffffff;
 }
 
+/* On-Canvas Floating Bio-Tooltip */
+.arboretum-floating-tooltip {
+  position: absolute;
+  top: 48px;
+  left: 16px;
+  z-index: 6;
+  max-width: 280px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(4, 13, 9, 0.92);
+  border: 1px solid #18c785;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tooltip-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 800;
+}
+
+.tooltip-spores {
+  color: #fbbf24;
+}
+
+.tooltip-title {
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.25;
+}
+
+.tooltip-desc {
+  margin: 0;
+  font-size: 0.72rem;
+  color: #cbd5e1;
+  line-height: 1.4;
+}
+
 .arboretum-svg {
   width: 100%;
   flex: 1;
@@ -844,7 +961,40 @@
   touch-action: none;
 }
 
-/* Celestial & Bioluminescent Spore Animations */
+/* Sap Flow, Forest Breeze Sway & Bioluminescent Spore Animations */
+@keyframes sapStreamFlow {
+  from {
+    stroke-dashoffset: 36;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.bough-sap-vein {
+  stroke-dasharray: 8 10;
+  animation: sapStreamFlow 2.6s linear infinite;
+}
+
+.bough-sap-surge {
+  stroke-dasharray: 10 6;
+  animation: sapStreamFlow 1.1s linear infinite;
+  filter: drop-shadow(0 0 6px currentColor);
+}
+
+@keyframes forestLeafSway {
+  0%, 100% {
+    transform: translate(0px, 0px) rotate(0deg);
+  }
+  50% {
+    transform: translate(1.8px, -2.2px) rotate(1.6deg);
+  }
+}
+
+.arboretum-svg.is-breeze-active .leaf-breeze-wrapper {
+  animation: forestLeafSway 4.2s ease-in-out infinite;
+}
+
 @keyframes stardustTwinkle {
   0%, 100% {
     opacity: 0.2;
@@ -901,8 +1051,8 @@
 }
 
 .constellation-hub-node:hover circle,
-.constellation-leaf-node:hover circle {
-  filter: brightness(1.25) drop-shadow(0 0 8px rgba(24, 199, 133, 0.5));
+.constellation-leaf-node:hover path {
+  filter: brightness(1.25) drop-shadow(0 0 8px rgba(24, 199, 133, 0.55));
 }
 
 .arboretum-canvas-footer {
