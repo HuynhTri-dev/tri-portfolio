@@ -628,3 +628,4 @@ export const SEED_ARTICLE_LINKS: ArticleSkillLinkSeed[] = [
   // Mobile Flutter
   { article_slug: "between-us-spatial-memory-canvas", skill_node_id: "mobile-flutter", relationship: "PROVES_PRODUCTION" },
 ];
+
