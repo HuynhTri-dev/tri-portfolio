@@ -74,6 +74,14 @@ const socialImageURL = new URL(image, Astro.site);
       />
     )}
     <script is:inline define:vars={{ enableHomeMotion: isHome }}>
+      try {
+        const savedLang = localStorage.getItem("portfolio-language");
+        if (savedLang === "vi" || savedLang === "en") {
+          document.documentElement.lang = savedLang;
+        }
+      } catch {
+        // Ignore storage errors
+      }
       if (
         enableHomeMotion &&
         !window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -82,7 +90,7 @@ const socialImageURL = new URL(image, Astro.site);
       }
     </script>
   </head>
-  <body class:list={{ "home-page": isHome }}>
+  <body class:list={{ "home-page": isHome, "reading-page": !isHome }}>
     <a class="skip-link" href="#main-content">Skip to content</a>
 
     <div class="ambient-layer" aria-hidden="true">
@@ -91,19 +99,23 @@ const socialImageURL = new URL(image, Astro.site);
         <span class="haze haze-right"></span>
       </div>
 
-      <div class="far-forest-layer">
-        <span class="far-canopy far-canopy-left"></span>
-        <span class="far-canopy far-canopy-right"></span>
-      </div>
+      {isHome && (
+        <>
+          <div class="far-forest-layer">
+            <span class="far-canopy far-canopy-left"></span>
+            <span class="far-canopy far-canopy-right"></span>
+          </div>
 
-      <div class="forest-tech-layer">
-        <span class="scan-ring scan-ring-left"></span>
-        <span class="signal-path signal-path-left"></span>
-        <span class="signal-path signal-path-right"></span>
-      </div>
+          <div class="forest-tech-layer">
+            <span class="scan-ring scan-ring-left"></span>
+            <span class="signal-path signal-path-left"></span>
+            <span class="signal-path signal-path-right"></span>
+          </div>
+        </>
+      )}
     </div>
 
-    <SystemDepthBackground isHome={isHome} />
+    {isHome && <SystemDepthBackground isHome={isHome} />}
     <CyberForestHud isHome={isHome} />
 
     <Header isHome={isHome} />

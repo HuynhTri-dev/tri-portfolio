@@ -68,7 +68,7 @@
   color: var(--text-secondary);
   text-align: left;
   cursor: pointer;
-  opacity: 0.65;
+  opacity: 0.82;
   transition:
     border-color var(--duration-fast) ease,
     background var(--duration-fast) ease,

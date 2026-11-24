@@ -1,0 +1,186 @@
+---
+title: "Nhật ký thực chiến dự án Sacombank: 5 bài học xương máu khi tích hợp hệ thống ngân hàng"
+description: "Hệ thống hóa 5 bài học thực tế từ dự án Sacombank: đọc và chất vấn tài liệu sớm, tư duy tổng quan thay vì làm theo task, khoảng cách DEV/UAT/Production (bài học API Kibana), hỏi sâu nghiệp vụ trước khi xây móng, và quản trị độ phức tạp đa bên trong hệ thống ngân hàng."
+pubDate: 2026-11-22
+thumbnail: "/images/blog/default.png"
+thumbnailAlt: "Nhật ký thực chiến và 5 bài học tích hợp hệ thống ngân hàng Sacombank"
+hashtags:
+  - Engineering
+  - Banking
+  - SystemIntegration
+  - Postmortem
+  - Guidelines
+seoKeywords:
+  - kinh nghiệm làm dự án ngân hàng
+  - tích hợp hệ thống Sacombank
+  - UAT khác Production Kibana API
+  - thu thập yêu cầu nghiệp vụ khách hàng
+  - quản trị rủi ro tích hợp đa bên
+draft: true
+isKnowledgeBase: true
+kbCategory: "guidelines"
+targetAgents:
+  - claude
+  - cursor
+  - codex
+  - anti
+summaryForAgents: "Five non-negotiable engineering guardrails from the Sacombank integration project: (1) Never defer reading integration docs or blindly trust AI to interpret undocumented API drift—verify ambiguities immediately; (2) Map end-to-end architecture and blast radius instead of executing isolated tasks; (3) Treat DEV/UAT/PROD parity as false by default (Kibana API passed UAT but failed silently in PROD)—enforce environment diff tables and fail-fast smoke checks; (4) Complete business discovery before coding because clients speak business, not code dependencies; (5) Estimate timelines around multi-team banking stakeholders, infra/security gates, and approval workflows."
+---
+
+## Bối cảnh: Vì sao phải viết lại bài này để "lưu truyền"
+
+Làm dự án cho ngân hàng không giống làm một sản phẩm nội bộ hay một ứng dụng web thông thường. Ở đó, mỗi dòng code bạn viết ra không đứng một mình — nó nằm giữa mê cung của tài liệu tích hợp, hạ tầng bảo mật nhiều lớp, dữ liệu thật khổng lồ, và hàng loạt phòng ban phối hợp.
+
+Những cú vấp trong dự án **Sacombank** không phải vì không biết code. Phần lớn đến từ **tâm lý chủ quan** và **thiếu quy trình kiểm soát đầu vào — đầu ra**. Nếu không hệ thống hóa thành nguyên tắc cứng, rất dễ tự ru ngủ bản thân bằng những câu quen thuộc kiểu *"có doc rồi"*, *"chạy UAT ổn rồi"*, hay *"làm tới đâu hỏi tới đó"* — rồi lại lặp đúng vết xe đổ ở dự án tiếp theo.
+
+Bài viết này là bản **kim chỉ nam bắt buộc** cho chính mình trong mọi dự án enterprise và banking về sau.
+
+---
+
+## Bài học 1: Dẹp bỏ ngay câu *"Có tài liệu của họ rồi, nào làm đọc theo là ổn"*
+
+### Cái bẫy thực tế
+
+Đây là câu nói nguy hiểm nhất ở giai đoạn khởi động dự án. Khi nhận được một tập PDF, Word hoặc Confluence từ đối tác, ta thường có xu hướng cất vào thư mục và tự nhủ: *"Đến sprint tích hợp hẵng đọc."*
+
+Thực tế phũ phàng ở dự án ngân hàng cho thấy 3 sự thật:
+
+1. **Tài liệu luôn đi sau code thực tế:** Trong quá trình vận hành, đội ngũ phía đối tác có thể chỉnh sửa một field API, đổi định dạng payload, thêm header bắt buộc, hoặc thay đổi một nhánh logic nghiệp vụ nhỏ — và **không phải lúc nào tài liệu cũng được cập nhật kịp thời**.
+2. **Tài liệu được viết theo góc nhìn của người đã hiểu sẵn hệ thống:** Tác giả tài liệu mặc định người đọc đã biết bối cảnh nội bộ, các quy ước ngầm, mã lỗi đặc thù, hay trình tự gọi API trước — sau. Người ngoài đọc lướt sẽ thấy "có vẻ hợp lý", nhưng khi bắt tay ghép vào luồng thật mới vỡ lẽ hàng tá chỗ mơ hồ.
+3. **Cái bẫy "đã có AI đọc giùm":** Đừng bao giờ nghĩ *"thời đại AI rồi, quăng doc cho AI đọc là xong, mình không cần hiểu kỹ"*. AI rất giỏi tóm tắt văn bản trước mắt, nhưng **AI không biết lịch sử dự án trước đó đã đổi những gì**, không biết chỗ nào trên doc đã lỗi thời so với thực tế, và cũng không tự nhận ra những ngữ cảnh ngầm mà tài liệu viết thiếu. Nếu bạn không tự hiểu mà phó mặc cho AI bám sát 100% vào một bộ tài liệu lệch chuẩn, code sinh ra có thể sai ngay từ cấu trúc nền.
+
+### Nguyên tắc hành động bắt buộc
+
+- **Nhận tài liệu là đọc và đối chiếu ngay**, tuyệt đối không để "tới lúc làm mới mở".
+- **Đọc chủ động để tìm lỗ hổng**, không đọc để cho qua: đánh dấu ngay mọi điểm thiếu ví dụ request/response thực tế, thiếu danh sách error code, thiếu điều kiện biên (edge cases), hoặc chưa rõ luồng xác thực.
+- **Mơ hồ ở đâu, hỏi liền ở đó:** Phải làm rõ cho đến khi tự mình vẽ lại được sơ đồ luồng chạy bằng ngôn ngữ của mình trước khi viết dòng code đầu tiên.
+- **Dùng AI như trợ lý phản biện, không phải người hiểu thay:** Dùng AI để rà soát mâu thuẫn, liệt kê câu hỏi cần chất vấn đối tác, chứ không dùng AI để lấp liếm sự thiếu hiểu biết của chính mình về tài liệu.
+
+---
+
+## Bài học 2: Làm rõ kế hoạch và bức tranh tổng quan — Từ bỏ tư duy *"giao gì làm nấy"*
+
+### Khi chỉ nhìn thấy cái cây mà không thấy khu rừng
+
+Tư duy *"giao task nào code gọn task đó"* tưởng là chăm chỉ, nhưng trong một hệ thống lớn lại là công thức dẫn đến bị động. Khi không nắm bức tranh tổng quan:
+
+- Bạn không biết module mình đang sửa nằm ở mắt xích nào trong toàn bộ kiến trúc.
+- Khi khách hàng hoặc PM trao đổi một yêu cầu phát sinh hoặc báo một lỗi trên luồng nghiệp vụ, bạn **không hình dung được cần chạm vào phần nào**, service nào bị ảnh hưởng dây chuyền, dẫn đến việc tới sát lúc phải triển khai mới quay sang hỏi những câu lẽ ra phải biết từ tuần đầu.
+- Nguy hiểm hơn, những thay đổi cục bộ rất dễ phá vỡ các giả định ngầm của những phần khác trong hệ thống.
+
+### Nguyên tắc hành động bắt buộc
+
+Trước khi nhận hoặc triển khai bất kỳ hạng mục nào, phải trả lời trọn vẹn **4 câu hỏi tổng quan**:
+
+1. **Mục tiêu giai đoạn (Milestone Goal):** Đợt này giải quyết bài toán gì cho người dùng cuối và cho nghiệp vụ?
+2. **Kiến trúc end-to-end:** Dữ liệu đi từ đâu đến đâu, qua những service/queue/database nào, ai là nguồn chân lý (source of truth)?
+3. **Bản đồ phụ thuộc (Dependency Map):** Phần việc của mình phụ thuộc vào đầu ra của ai, và đầu ra của mình nuôi phần nào phía sau?
+4. **Phạm vi ảnh hưởng (Blast Radius):** Nếu logic này đổi hoặc lỗi, những luồng đang chạy nào sẽ bị kéo theo?
+
+---
+
+## Bài học 3: Khoảng cách giữa DEV, UAT và Production lớn hơn bạn nghĩ
+
+### Cú vấp thực tế: Câu chuyện API Kibana
+
+Trong dự án, có trường hợp tích hợp **API Kibana** được kiểm thử trên **UAT thành công mỹ mãn**. Mọi kịch bản test đều xanh, không báo lỗi. Nhưng khi đưa lên **Production**, API lại **gặp lỗi**, và nghiêm trọng hơn là **phát hiện chậm trễ**.
+
+Bài học này đánh sập một ngộ nhận kinh điển của kỹ sư: *"UAT đã pass rồi thì Production chắc chắn chạy y chang."*
+
+### Vì sao UAT "xanh" nhưng Production vẫn "đỏ"?
+
+Đặc biệt trong môi trường ngân hàng, **DEV — UAT — Production** gần như là ba thế giới khác nhau về mặt vận hành và bảo mật:
+
+| Khía cạnh | DEV / UAT | Production (Ngân hàng) | Rủi ro thường gặp |
+| :--- | :--- | :--- | :--- |
+| **Mạng & Firewall** | Mở thoáng hơn để tiện test | Whitelist IP nghiêm ngặt, đi qua nhiều lớp proxy/DMZ | Timeout, `403`, bị chặn kết nối ngầm |
+| **Xác thực & Phân quyền** | Token/role test rộng quyền | Role siết chặt theo nguyên tắc tối thiểu, token ngắn hạn | Thiếu quyền đọc index/endpoint cụ thể |
+| **Chứng chỉ & TLS** | Có thể dùng self-signed hoặc CA nội bộ | Chính sách TLS/mTLS khắt khe, cert khác biệt | Lỗi handshake, verify SSL |
+| **Cấu hình & Phiên bản** | Dữ liệu ít, index/config đôi khi lệch chuẩn | Index rotation, alias, sharding, version hoặc rate limit chặt | Query hợp lệ trên UAT nhưng fail hoặc quá tải trên PROD |
+| **Giám sát (Observability)** | Nhìn log trực tiếp dễ dàng | Log phân tán, thiếu cảnh báo chủ động thì lỗi âm thầm trôi qua | **Phát hiện sự cố chậm trễ** sau go-live |
+
+### Nguyên tắc hành động bắt buộc
+
+- **Không bao giờ mặc định 3 môi trường giống nhau.** Với mọi tích hợp ngoài (đặc biệt là logging, monitoring, gateway, core API như Kibana), phải có bảng đối chiếu cấu hình `DEV` vs `UAT` vs `PROD`.
+- **Thiết kế cơ chế Fail-Fast & Alert-Fast trên Production:** Ngay khi go-live hoặc chạy job tích hợp trên Production, phải có **Smoke Test có kiểm soát** và **cảnh báo tức thì** (alert khi HTTP status khác `2xx`, timeout, hoặc dữ liệu trả về rỗng bất thường). Không để hệ thống chết âm thầm cho đến khi khách hàng hay team vận hành phát hiện.
+
+---
+
+## Bài học 4: Hỏi chi tiết *trước* khi làm — Hiểu nghiệp vụ để đổ móng, không "vừa làm vừa hỏi"
+
+### Vòng lặp tốn kém của kiểu "tới đâu hay tới đó"
+
+Rất nhiều lần trong dự án xảy ra kịch bản:
+
+- Ngày 1: Khách hàng nói cần làm tính năng **A**. Ta bắt tay vào thiết kế và code ngay **A**.
+- Ngày 4: Khách hàng nói tiếp tới phần **B**. Lúc này đào sâu vào **B** mới phát hiện **A và B liên quan chặt chẽ với nhau**, hoặc yêu cầu của **B** làm lộ ra rằng cách triển khai **A** hôm trước **đụng chạm và phá vỡ logic hiện hữu**.
+- Kết quả: Đập **A** đi sửa lại, vá chằng vá đụp vào logic cũ, vừa mất thời gian vừa sinh thêm bug hồi quy.
+
+### Ranh giới quan trọng: Khách hàng nói Nghiệp vụ, Kỹ sư chịu trách nhiệm Kiến trúc
+
+Phải luôn nhớ một điều cốt lõi: **Khách hàng hỏi và trả lời dựa trên hiểu biết nghiệp vụ của họ, không phải dựa trên logic code của bạn.** Họ không thể tự biết yêu cầu hôm nay có xung đột với state machine, schema database, hay API nào bạn đã viết hôm qua.
+
+> **Ẩn dụ xây nhà:**
+> Nếu đi xây nhà cho khách, đừng chỉ hỏi một câu chung chung *"Anh/chị thích phong cách hiện đại hay cổ điển?"* rồi mang xi măng ra trộn liền.
+> Bạn phải hỏi chi tiết ngay từ đầu: **Xây mấy tầng? Sau này có lên tầng nữa không? Mặt bằng công năng từng tầng thế nào? Có trang trí, lắp thiết bị nặng hay kết cấu đặc biệt gì không? Cần bao nhiêu trụ chịu lực?**
+> Phải hỏi hết những thứ đó để **tính toán và đổ cái móng cho đúng ngay từ đầu** — chứ không thể xây lên tầng hai rồi mới hỏi *"À nhà mình có cần thêm hầm hay đổi vị trí cầu thang không?"*.
+
+### Nguyên tắc hành động bắt buộc
+
+- **Chuẩn bị Discovery Checklist trước mọi buổi làm việc với khách hàng:** Không đi họp tay không rồi đợi khách hàng kể tới đâu nghe tới đó.
+- **Khai thác đủ 5 chiều trước khi chốt thiết kế:**
+  1. **Luồng chính (Happy Path):** Ai làm gì, theo thứ tự nào, kết quả cuối cùng mong muốn là gì?
+  2. **Liên thông nghiệp vụ (A ↔ B):** Nghiệp vụ này có dữ liệu đầu vào/đầu ra nối với nghiệp vụ nào khác (đã có hoặc sắp làm trong tương lai gần) không?
+  3. **Ngoại lệ & Hủy/Sửa (Edge Cases & Reversal):** Nếu giao dịch lỗi giữa chừng, khách hủy ngang, timeout, hoặc dữ liệu bị sửa lại thì xử lý thế nào?
+  4. **Va chạm hiện hữu (Backward Compatibility):** Có dữ liệu cũ, kịch bản cũ, hay người dùng hiện tại nào bị ảnh hưởng khi bật logic mới không?
+  5. **Tầm nhìn mở rộng ("Xây mấy tầng?"):** Trong 3–6 tháng tới, nghiệp vụ này có biến thể nào dự kiến sẽ thêm vào không, để thiết kế phần "móng" đủ linh hoạt mà không cần over-engineering.
+
+---
+
+## Bài học 5: Hệ thống ngân hàng rắc rối hơn bạn nghĩ — Luôn tính bài toán Đa Bên khi ước lượng
+
+### Ảo tưởng về "thời gian gõ code"
+
+Khi nhận một yêu cầu tích hợp từ ngân hàng, sai lầm phổ biến nhất của kỹ sư là ước lượng tiến độ chỉ dựa trên thời gian bản thân mình viết code và test local.
+
+Thực tế, một thay đổi trong hệ thống ngân hàng hiếm khi là câu chuyện của riêng 1–2 dev. Đằng sau một đầu API là cả một mạng lưới các bên liên quan:
+
+- **Team Nghiệp vụ / BA:** Chốt rule, xác nhận ngoại lệ, nghiệm thu kịch bản.
+- **Team Core / Backend đối tác:** Cung cấp, chỉnh sửa API, mở quyền truy cập dữ liệu.
+- **Team Hạ tầng / Network:** Mở firewall, cấu hình VPN/leased line, routing, load balancer.
+- **Team An toàn thông tin (Security / InfoSec):** Rà soát bảo mật, cấp chứng chỉ, duyệt lỗ hổng trước go-live.
+- **Team Vận hành / Ops & QA/UAT:** Cấp tài khoản/dữ liệu test, duyệt lịch deploy (Change Management), trực theo dõi khi lên Production.
+- **Các đối tác thứ ba khác (nếu có):** Nhà mạng, hệ thống tổng đài, nền tảng AI/logging bên ngoài...
+
+Chỉ cần một khâu như *"chờ mở firewall UAT"* hoặc *"chờ lịch duyệt change lên Production"* bị bỏ sót khỏi kế hoạch, toàn bộ timeline sẽ trượt dây chuyền dù code của bạn đã xong từ lâu.
+
+### Nguyên tắc hành động bắt buộc
+
+- **Lập Stakeholder & Gate Map ngay đầu dự án:** Xác định rõ mọi bên liên quan cần phối hợp và từng "cổng" phê duyệt phải đi qua (Security review, Infra/Firewall, UAT sign-off, Change Request lên Production).
+- **Ước lượng thời gian theo Critical Path thực tế:** Tách bạch giữa **Dev Effort** (thời gian làm kỹ thuật) và **Lead Time / Dependency Wait** (thời gian chờ các bên). Không bao giờ cam kết ngày go-live chỉ dựa trên Dev Effort.
+
+---
+
+## Tổng kết: Checklist 5 Cổng ("Không bao giờ mắc lại")
+
+Trước khi bắt đầu bất kỳ dự án hoặc tính năng tích hợp nào mới, tự kiểm tra qua **5 cổng bắt buộc** dưới đây. Nếu bất kỳ cổng nào chưa xanh, **dừng lại làm rõ trước khi mở IDE**:
+
+```text
+[1. TÀI LIỆU]    Đã đọc kỹ toàn bộ doc ngay khi nhận? Đã liệt kê & hỏi hết điểm mơ hồ? (Không phó mặc cho AI)
+       │
+       ▼
+[2. TỔNG QUAN]   Đã nắm kiến trúc end-to-end, milestone và phạm vi ảnh hưởng? (Không làm kiểu giao gì code nấy)
+       │
+       ▼
+[3. NGHIỆP VỤ]   Đã hỏi chi tiết A <-> B, edge cases và tác động lên logic cũ để "đổ móng"? (Không vừa làm vừa hỏi)
+       │
+       ▼
+[4. ĐA BÊN]      Đã xác nhận đủ các team liên quan (BA, Core, Infra, Security, Ops) và timeline chờ duyệt thực tế?
+       │
+       ▼
+[5. MÔI TRƯỜNG]  Đã đối chiếu chênh lệch DEV / UAT / PROD và có Smoke Test + Alert chủ động khi go-live?
+```
+
+### Một câu tự nhắc cho mọi dự án sau này
+
+> *"Kỹ sư giỏi không chỉ là người code nhanh khi có yêu cầu, mà là người nhìn thấy trước những chỗ tài liệu viết thiếu, những câu hỏi nghiệp vụ khách hàng chưa nói, những khác biệt chết người trên Production, và những nút thắt đa bên trước khi đặt viên gạch đầu tiên."*

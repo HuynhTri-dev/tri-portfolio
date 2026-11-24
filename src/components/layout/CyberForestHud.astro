@@ -14,7 +14,8 @@ interface Props {
 const { isHome = false } = Astro.props;
 ---
 
-<!-- Symbiotic SVG Circuit Vines & Glassmorphic Leaves -->
+<!-- Symbiotic SVG Circuit Vines & Glassmorphic Leaves (Homepage only for Clean Reading on subpages) -->
+{isHome && (
 <div class="cyber-vines-layer" aria-hidden="true">
   <!-- Left Root-to-Canopy Circuit Vine -->
   <svg
@@ -123,12 +124,14 @@ const { isHome = false } = Astro.props;
     <span class="leaf-vein"></span>
   </div>
 </div>
+)}
 
-<!-- Subtle Technical Field HUD -->
+<!-- Subtle Technical Field HUD (Homepage only) -->
+{isHome && (
 <aside
   class="forest-field-hud"
   data-forest-hud
-  data-is-home={isHome ? "true" : "false"}
+  data-is-home="true"
   aria-hidden="true"
 >
   <div class="hud-top-row">
@@ -178,22 +181,26 @@ const { isHome = false } = Astro.props;
     </div>
   </div>
 </aside>
+)}
 
 <script>
   /**
    * @name cyberForestInteractionController
-   * @description Updates the Technical Field HUD (scroll depth, active biome,
-   *              spatial compass vector) and drives the delegated Magnetic
-   *              Spotlight Border glow across all `.panel` surfaces.
+   * @description Updates the Technical Field HUD (scroll depth, active biome via
+   *              IntersectionObserver, spatial compass vector) and drives the delegated
+   *              Magnetic Spotlight Border glow across all `.panel` surfaces.
    */
-  const BIOME_STAGES = [
-    { max: 0.14, name: "CANOPY HORIZON" },
-    { max: 0.3, name: "MYCELIUM ROOTS" },
-    { max: 0.48, name: "PRODUCTION TRAIL" },
-    { max: 0.68, name: "CRYSTAL GROVE" },
-    { max: 0.86, name: "MONOLITH PORTALS" },
-    { max: 1.01, name: "SANCTUARY GLADE" },
-  ];
+  const SECTION_BIOMES: Record<string, string> = {
+    home: "CANOPY HORIZON",
+    projects: "SELECTED WORK",
+    experience: "TRACK RECORD",
+    "technical-skill": "CRYSTAL GROVE",
+    "soft-skill": "HOW I WORK",
+    achievements: "MILESTONES",
+    education: "ACADEMIC ROOTS",
+    "beyond-code": "WIDER FIELD",
+    contact: "SANCTUARY GLADE",
+  };
 
   const depthEl = document.querySelector<HTMLElement>("[data-hud-depth]");
   const biomeEl = document.querySelector<HTMLElement>("[data-hud-biome]");
@@ -206,36 +213,51 @@ const { isHome = false } = Astro.props;
   let scrollTicking = false;
   function updateHudScroll(): void {
     scrollTicking = false;
+    if (!depthEl) return;
     const maxScroll = Math.max(
       1,
       document.documentElement.scrollHeight - window.innerHeight,
     );
     const ratio = Math.min(1, Math.max(0, window.scrollY / maxScroll));
     const meters = (ratio * 48.0).toFixed(1).padStart(4, "0");
-
-    if (depthEl) {
-      depthEl.textContent = `-${meters}m`;
-    }
-
-    if (biomeEl) {
-      const stage =
-        BIOME_STAGES.find((s) => ratio <= s.max) ??
-        BIOME_STAGES[BIOME_STAGES.length - 1];
-      biomeEl.textContent = stage.name;
-    }
+    depthEl.textContent = `-${meters}m`;
   }
 
-  window.addEventListener(
-    "scroll",
-    () => {
-      if (!scrollTicking) {
-        scrollTicking = true;
-        window.requestAnimationFrame(updateHudScroll);
-      }
-    },
-    { passive: true },
-  );
-  updateHudScroll();
+  if (hudRoot) {
+    window.addEventListener(
+      "scroll",
+      () => {
+        if (!scrollTicking) {
+          scrollTicking = true;
+          window.requestAnimationFrame(updateHudScroll);
+        }
+      },
+      { passive: true },
+    );
+    updateHudScroll();
+
+    if ("IntersectionObserver" in window && biomeEl) {
+      const sectionObserver = new IntersectionObserver(
+        (entries) => {
+          const visible = entries
+            .filter((entry) => entry.isIntersecting)
+            .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+          if (visible) {
+            const id = (visible.target as HTMLElement).id;
+            if (SECTION_BIOMES[id]) {
+              biomeEl.textContent = SECTION_BIOMES[id];
+            }
+          }
+        },
+        { rootMargin: "-25% 0px -55% 0px", threshold: [0, 0.2, 0.5] },
+      );
+
+      Object.keys(SECTION_BIOMES).forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) sectionObserver.observe(el);
+      });
+    }
+  }
 
   // Delegated Pointer Tracking for Compass + Magnetic Card Spotlight Border
   let activeCard: HTMLElement | null = null;

@@ -1,73 +1,71 @@
 ---
 /**
  * @name ProjectsSection.astro
- * @description Home page featured projects showcase with visual 16:9 preview screenshots, uniform heights, and direct case study dossiers.
+ * @description Value-first featured projects showcase on the homepage with 4-layer
+ *              whole-card clickable dossiers, impact metrics, and direct CTAs to /projects and /blog.
  */
 import { getCollection } from "astro:content";
 import SectionHeading from "../ui/SectionHeading.astro";
 
-const projects = (await getCollection("projects")).sort(
+const allProjects = (await getCollection("projects")).sort(
   (a, b) => a.data.order - b.data.order,
 );
+const featuredProjects = allProjects.slice(0, 6);
 ---
 
 <section class="section shell" id="projects">
   <SectionHeading
-    index="03 / SELECTED WORK"
+    index="01 / SELECTED WORK"
     titleEn="Systems I’ve built"
     titleVi="Hệ thống đã xây dựng"
-    descriptionEn="Two environments, one consistent approach: understand the workflow, design the system and measure the outcome."
-    descriptionVi="Hai môi trường, một cách tiếp cận nhất quán: hiểu quy trình, thiết kế hệ thống và đo lường kết quả."
+    descriptionEn="Production systems and product prototypes focused on real-world workflows and measurable outcomes."
+    descriptionVi="Các hệ thống vận hành thực tế và sản phẩm tập trung vào bài toán cốt lõi cùng kết quả đo lường được."
   />
 
   <div class="project-grid">
     {
-      projects.map((project) => (
+      featuredProjects.map((project) => (
         <article class="project-card panel">
-          <!-- Visual 16:9 Media Preview -->
-          <a href={`/projects/${project.id}`} class="project-media" aria-label={project.data.title}>
+          <!-- Layer 1: Visual 16:9 Media Preview -->
+          <div class="project-media">
             {project.data.image ? (
               <img src={project.data.image} alt={project.data.title} loading="lazy" />
             ) : (
-              <div class="media-fallback"><i class="fa-solid fa-layer-group"></i></div>
+              <div class="media-fallback" aria-hidden="true">
+                <i class="fa-solid fa-layer-group" />
+              </div>
             )}
-            <div class="media-overlay"></div>
+            <div class="media-overlay" aria-hidden="true" />
             <div class="media-badge">
-              <span class="pulse-dot"></span>
+              <span class="pulse-dot" aria-hidden="true" />
               <span data-en={project.data.type} data-vi={project.data.typeVi}>
                 {project.data.type}
               </span>
             </div>
-          </a>
+            <span class="media-period">{project.data.period}</span>
+          </div>
 
-          <!-- Uniform Card Body -->
+          <!-- Layers 2-4: Title (Whole-Card Clickable), Value Summary, Impact Metrics -->
           <div class="project-card-inner">
-            <div class="project-topline">
-              <span class="project-id">{project.data.projectId}</span>
-              <span class="project-date">{project.data.period}</span>
-            </div>
-
-            <div class="project-text-wrap">
+            <div class="project-head-row">
               <h3 class="project-title">
-                <a href={`/projects/${project.id}`}>{project.data.title}</a>
+                <a class="project-card-link" href={`/projects/${project.id}`}>
+                  {project.data.title}
+                </a>
               </h3>
-              <p
-                data-en={project.data.summary}
-                data-vi={project.data.summaryVi}
-                class="project-summary-text"
-              >
-                {project.data.summary}
-              </p>
+              <span class="card-arrow" aria-hidden="true">
+                <i class="fa-solid fa-arrow-up-right-from-square" />
+              </span>
             </div>
 
-            <!-- Tech Tags (Fixed Height Row) -->
-            <div class="tag-row">
-              {project.data.technologies.slice(0, 4).map((tech) => (
-                <span>{tech}</span>
-              ))}
-            </div>
+            <p
+              data-en={project.data.summary}
+              data-vi={project.data.summaryVi}
+              class="project-summary-text"
+            >
+              {project.data.summary}
+            </p>
 
-            <!-- Metrics Row (Uniform 3-Column Grid) -->
             {project.data.metrics && project.data.metrics.length > 0 && (
               <div class="project-metrics">
                 {project.data.metrics.slice(0, 3).map((metric) => (
@@ -80,18 +78,25 @@ const projects = (await getCollection("projects")).sort(
                 ))}
               </div>
             )}
-
-            <!-- Pinned Bottom Action Link -->
-            <a class="project-link" href={`/projects/${project.id}`}>
-              <span data-en="Open project dossier" data-vi="Mở hồ sơ dự án">
-                Open project dossier
-              </span>
-              <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-            </a>
           </div>
         </article>
       ))
     }
+  </div>
+
+  <div class="section-cta-bar">
+    <a class="btn btn--primary" href="/projects">
+      <span data-en="Explore all projects & open-source repos" data-vi="Xem toàn bộ dự án & mã nguồn mở">
+        Explore all projects &amp; open-source repos
+      </span>
+      <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+    </a>
+    <a class="btn btn--secondary" href="/blog">
+      <i class="fa-solid fa-book-bookmark" aria-hidden="true"></i>
+      <span data-en="Engineering Notes & D1 Knowledge Base" data-vi="Blog Kỹ thuật & Kho Tri Thức D1">
+        Engineering Notes &amp; D1 Knowledge Base
+      </span>
+    </a>
   </div>
 </section>
 
@@ -110,8 +115,9 @@ const projects = (await getCollection("projects")).sort(
     height: 100%;
     overflow: hidden;
     border-radius: 20px;
-    background: linear-gradient(170deg, rgb(14 30 23 / 70%), rgb(7 16 12 / 85%));
+    background: linear-gradient(170deg, rgb(14 30 23 / 72%), rgb(7 16 12 / 88%));
     border: 1px solid var(--border-default);
+    cursor: pointer;
     transition:
       transform var(--duration-normal) ease,
       border-color var(--duration-normal) ease,
@@ -120,17 +126,20 @@ const projects = (await getCollection("projects")).sort(
 
   .project-card:hover {
     transform: translateY(-4px);
-    border-color: rgb(24 199 133 / 48%);
-    box-shadow: 0 16px 36px -10px rgb(0 0 0 / 65%), 0 0 24px -4px rgb(24 199 133 / 14%);
+    border-color: rgb(24 199 133 / 50%);
+    box-shadow: 0 18px 38px -10px rgb(0 0 0 / 65%), 0 0 24px -4px rgb(24 199 133 / 15%);
   }
 
-  /* 16:9 Visual Preview Image */
+  .project-card:focus-within {
+    outline: 2px solid var(--brand-soft);
+    outline-offset: 4px;
+  }
+
   .project-media {
     position: relative;
-    display: block;
     width: 100%;
     aspect-ratio: 16 / 9;
-    max-height: 250px;
+    max-height: 248px;
     overflow: hidden;
     background: #040906;
     flex-shrink: 0;
@@ -157,13 +166,13 @@ const projects = (await getCollection("projects")).sort(
     justify-content: center;
     color: var(--text-muted);
     font-size: 2rem;
-    opacity: 0.3;
+    opacity: 0.35;
   }
 
   .media-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, transparent 40%, rgb(7 16 12 / 94%) 100%);
+    background: linear-gradient(180deg, transparent 42%, rgb(7 16 12 / 94%) 100%);
     pointer-events: none;
   }
 
@@ -174,145 +183,142 @@ const projects = (await getCollection("projects")).sort(
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    padding: 4px 10px;
+    padding: 5px 11px;
     border-radius: var(--radius-pill);
-    background: rgb(7 16 12 / 85%);
+    background: rgb(7 16 12 / 86%);
     border: 1px solid rgb(24 199 133 / 35%);
     color: #4eedb0;
     font-family: var(--font-mono);
-    font-size: var(--text-micro, 0.7rem);
+    font-size: var(--text-xs, 0.75rem);
     font-weight: 600;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     z-index: 2;
   }
 
+  .media-period {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    padding: 5px 10px;
+    border-radius: var(--radius-pill);
+    background: rgb(5 11 9 / 80%);
+    border: 1px solid rgb(255 255 255 / 10%);
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro, 0.7rem);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 2;
+  }
+
   .pulse-dot {
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     background: #18c785;
     box-shadow: 0 0 6px #18c785;
   }
 
-  /* Card Inner Body */
   .project-card-inner {
     flex: 1;
     display: flex;
     flex-direction: column;
+    gap: 12px;
     padding: 22px 26px 24px;
   }
 
-  .project-topline {
+  .project-head-row {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 10px;
+    gap: 14px;
   }
 
-  .project-id {
-    color: var(--brand-green);
-    font-family: var(--font-mono);
-    font-size: var(--text-xs, 0.75rem);
-    letter-spacing: 0.08em;
-  }
-
-  .project-date {
-    color: var(--text-muted);
-    font-family: var(--font-mono);
-    font-size: var(--text-xs, 0.75rem);
-  }
-
-  .project-text-wrap {
-    margin-bottom: 12px;
-  }
-
-  /* Uniform Title Height */
   .project-title {
-    height: 3.2rem;
-    margin: 0 0 8px;
-    font-size: 1.22rem;
-    letter-spacing: -0.035em;
-    line-height: 1.25;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    margin: 0;
+    font-size: 1.24rem;
+    letter-spacing: -0.03em;
+    line-height: 1.28;
   }
 
-  .project-title a {
+  .project-card-link {
     color: var(--text-main);
     text-decoration: none;
     transition: color var(--duration-fast) ease;
   }
 
-  .project-title a:hover {
+  /* Whole-card stretched link */
+  .project-card-link::after {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    content: "";
+  }
+
+  .project-card:hover .project-card-link {
     color: var(--brand-soft);
   }
 
-  /* Uniform Summary Height */
+  .card-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border-radius: 9px;
+    border: 1px solid rgb(24 199 133 / 24%);
+    background: rgb(24 199 133 / 8%);
+    color: var(--brand-soft);
+    font-size: 0.76rem;
+    transition:
+      transform var(--duration-fast) ease,
+      background var(--duration-fast) ease,
+      color var(--duration-fast) ease;
+  }
+
+  .project-card:hover .card-arrow {
+    transform: translate(2px, -2px);
+    background: var(--brand-green);
+    color: #03140d;
+  }
+
   .project-summary-text {
-    height: 2.8rem;
     margin: 0;
-    color: var(--text-muted);
-    font-size: 0.8rem;
-    line-height: 1.5;
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    line-height: 1.55;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
 
-  /* Tag Row (Uniform Single Row Min-Height) */
-  .tag-row {
-    min-height: 30px;
-    display: flex;
-    align-items: center;
-    flex-wrap: nowrap;
-    gap: 6px;
-    margin-bottom: 14px;
-    overflow: hidden;
-  }
-
-  .tag-row span {
-    padding: 3px 8px;
-    border: 1px solid var(--border-default);
-    border-radius: 6px;
-    background: rgb(255 255 255 / 2%);
-    color: var(--text-secondary);
-    font-family: var(--font-mono);
-    font-size: var(--text-micro, 0.7rem);
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  /* Metrics Grid (Uniform 3-Column Box) */
   .project-metrics {
-    min-height: 64px;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
+    gap: 10px;
     margin-top: auto;
-    margin-bottom: 16px;
+    padding-top: 8px;
   }
 
   .metric-item {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 7px 10px;
-    border: 1px solid rgb(255 255 255 / 5%);
+    padding: 10px 12px;
+    border: 1px solid rgb(255 255 255 / 7%);
     border-radius: var(--radius-small);
-    background: rgb(5 11 9 / 45%);
+    background: rgb(5 11 9 / 54%);
     overflow: hidden;
   }
 
   .metric-item strong {
     color: var(--brand-soft);
     font-family: var(--font-mono);
-    font-size: 0.92rem;
-    line-height: 1.1;
+    font-size: 1rem;
+    line-height: 1.15;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -321,7 +327,7 @@ const projects = (await getCollection("projects")).sort(
   .metric-item span {
     color: var(--text-muted);
     font-size: var(--text-micro, 0.7rem);
-    margin-top: 3px;
+    margin-top: 4px;
     text-transform: uppercase;
     letter-spacing: 0.03em;
     white-space: nowrap;
@@ -329,23 +335,13 @@ const projects = (await getCollection("projects")).sort(
     text-overflow: ellipsis;
   }
 
-  /* Action Link */
-  .project-link {
-    display: inline-flex;
+  .section-cta-bar {
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
-    margin-top: auto;
-    padding-top: 14px;
-    border-top: 1px solid rgb(255 255 255 / 5%);
-    color: var(--brand-soft);
-    font-size: 0.74rem;
-    font-weight: 700;
-    text-decoration: none;
-    transition: transform var(--duration-fast) ease;
-  }
-
-  .project-link:hover {
-    transform: translateX(3px);
+    justify-content: center;
+    gap: 14px;
+    margin-top: 36px;
   }
 
   @media (max-width: 960px) {
@@ -361,16 +357,15 @@ const projects = (await getCollection("projects")).sort(
 
     .project-title {
       font-size: 1.15rem;
-      min-height: auto;
-    }
-
-    .project-summary-text {
-      min-height: auto;
     }
 
     .project-metrics {
       grid-template-columns: 1fr;
-      min-height: auto;
+    }
+
+    .section-cta-bar {
+      flex-direction: column;
+      align-items: stretch;
     }
   }
 </style>

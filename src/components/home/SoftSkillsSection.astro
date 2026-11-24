@@ -1,60 +1,235 @@
 ---
 /**
  * @name SoftSkillsSection.astro
- * @description Evidence-backed soft skills cards highlighting engineering behaviors in real teams.
+ * @description Evidence-backed soft skills cards featuring bespoke Cyber-Arboretum
+ *              SVG micro-diagrams and clickable project proof links.
  */
 import SectionHeading from "../ui/SectionHeading.astro";
 import { softSkills } from "../../data/portfolio";
+
+const proofMap: Record<string, { labelEn: string; labelVi: string; href: string }> = {
+  "01": { labelEn: "Proof: OmniMer Health", labelVi: "Minh chứng: OmniMer Health", href: "/projects/omnimer-health" },
+  "02": { labelEn: "Proof: RitaVõ ProdID", labelVi: "Minh chứng: RitaVõ ProdID", href: "/projects/ritavo-prodid" },
+  "03": { labelEn: "Proof: Odoo PLM Workflow", labelVi: "Minh chứng: Quy trình Odoo PLM", href: "/experience/ritavo" },
+  "04": { labelEn: "Proof: GreenWave OLP '25", labelVi: "Minh chứng: GreenWave OLP '25", href: "https://github.com/sonmessia/GreenWave" },
+  "05": { labelEn: "Proof: Production Delivery", labelVi: "Minh chứng: Triển khai thực tế", href: "/experience/idb" },
+  "06": { labelEn: "Proof: Full Skill Matrix", labelVi: "Minh chứng: Ma trận Kỹ năng", href: "/blog" },
+};
 ---
 
 <section class="section shell" id="soft-skill">
   <SectionHeading
-    index="05 / HOW I WORK"
+    index="04 / HOW I WORK"
     titleEn="Soft skills, with evidence"
     titleVi="Kỹ năng mềm, có minh chứng"
-    descriptionEn="Behaviors demonstrated through real systems and team contexts — not percentages or abstract claims."
-    descriptionVi="Hành vi được thể hiện qua hệ thống và bối cảnh đội nhóm thực tế — không dùng phần trăm hay nhận định mơ hồ."
+    descriptionEn="Behaviors demonstrated through real systems and team contexts — backed by visual workflows and project proof."
+    descriptionVi="Hành vi được thể hiện qua hệ thống và bối cảnh đội nhóm thực tế — minh họa trực quan kèm dẫn chứng dự án."
   />
 
-  <div class="soft-grid grid gap-3.5 md:grid-cols-2 xl:grid-cols-3">
-    {softSkills.map((skill) => (
-      <article class="soft-card panel">
-        <span class="soft-number">{skill.number}</span>
-        <h3 data-en={skill.en} data-vi={skill.vi}>{skill.en}</h3>
-        <p data-en={skill.evidenceEn} data-vi={skill.evidenceVi}>{skill.evidenceEn}</p>
-      </article>
-    ))}
+  <div class="soft-grid grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+    {softSkills.map((skill) => {
+      const proof = proofMap[skill.number];
+      const isExternal = proof?.href.startsWith("http");
+      return (
+        <article class="soft-card panel">
+          <!-- Visual Micro-Diagram -->
+          <div class="soft-visual" aria-hidden="true">
+            <span class="soft-number">{skill.number}</span>
+
+            {skill.number === "01" && (
+              <svg viewBox="0 0 260 76" fill="none" class="soft-svg">
+                <line x1="36" y1="38" x2="224" y2="38" stroke="rgba(117,230,178,0.28)" stroke-width="1.5" stroke-dasharray="4 4" />
+                <rect x="16" y="24" width="44" height="28" rx="7" fill="rgba(24,199,133,0.12)" stroke="#18c785" stroke-width="1.2" />
+                <text x="38" y="41" text-anchor="middle" fill="#75e6b2" font-size="8.5" font-family="IBM Plex Mono, monospace" font-weight="600">SPEC</text>
+                <rect x="78" y="24" width="44" height="28" rx="7" fill="rgba(59,130,246,0.12)" stroke="#3b82f6" stroke-width="1.2" />
+                <text x="100" y="41" text-anchor="middle" fill="#93c5fd" font-size="8.5" font-family="IBM Plex Mono, monospace" font-weight="600">API</text>
+                <rect x="140" y="24" width="44" height="28" rx="7" fill="rgba(168,85,247,0.12)" stroke="#a855f7" stroke-width="1.2" />
+                <text x="162" y="41" text-anchor="middle" fill="#d8b4fe" font-size="8.5" font-family="IBM Plex Mono, monospace" font-weight="600">EVAL</text>
+                <rect x="202" y="24" width="44" height="28" rx="7" fill="rgba(24,199,133,0.22)" stroke="#75e6b2" stroke-width="1.4" />
+                <text x="224" y="41" text-anchor="middle" fill="#f2f7f4" font-size="8.5" font-family="IBM Plex Mono, monospace" font-weight="700">SHIP</text>
+              </svg>
+            )}
+
+            {skill.number === "02" && (
+              <svg viewBox="0 0 260 76" fill="none" class="soft-svg">
+                <path d="M18 52 L54 52 L68 38 L82 56 L96 18 L112 52 L148 52" stroke="#18c785" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="96" cy="18" r="4.5" fill="#f87171" stroke="#050b09" stroke-width="1.5" />
+                <circle cx="96" cy="18" r="10" stroke="rgba(248,113,113,0.4)" stroke-width="1" stroke-dasharray="2 2" />
+                <circle cx="190" cy="24" r="8" fill="rgba(59,130,246,0.16)" stroke="#7cb7ff" stroke-width="1.2" />
+                <circle cx="228" cy="24" r="8" fill="rgba(24,199,133,0.16)" stroke="#18c785" stroke-width="1.2" />
+                <circle cx="209" cy="54" r="8" fill="rgba(248,113,113,0.16)" stroke="#f87171" stroke-width="1.2" />
+                <path d="M198 24 L220 24 M224 31 L213 47 M205 47 L194 31" stroke="rgba(248,113,113,0.65)" stroke-width="1.2" stroke-dasharray="3 2" />
+              </svg>
+            )}
+
+            {skill.number === "03" && (
+              <svg viewBox="0 0 260 76" fill="none" class="soft-svg">
+                <path d="M56 38 L204 38" stroke="rgba(117,230,178,0.35)" stroke-width="1.5" />
+                <circle cx="44" cy="38" r="16" fill="rgba(24,199,133,0.12)" stroke="#18c785" stroke-width="1.2" />
+                <text x="44" y="41" text-anchor="middle" fill="#75e6b2" font-size="8" font-family="IBM Plex Mono, monospace" font-weight="700">R&amp;D</text>
+                <circle cx="102" cy="38" r="16" fill="rgba(59,130,246,0.12)" stroke="#3b82f6" stroke-width="1.2" />
+                <text x="102" y="41" text-anchor="middle" fill="#93c5fd" font-size="8" font-family="IBM Plex Mono, monospace" font-weight="700">MKT</text>
+                <circle cx="160" cy="38" r="16" fill="rgba(245,158,11,0.12)" stroke="#f59e0b" stroke-width="1.2" />
+                <text x="160" y="41" text-anchor="middle" fill="#fcd34d" font-size="8" font-family="IBM Plex Mono, monospace" font-weight="700">SALE</text>
+                <circle cx="218" cy="38" r="16" fill="rgba(168,85,247,0.14)" stroke="#a855f7" stroke-width="1.2" />
+                <text x="218" y="41" text-anchor="middle" fill="#d8b4fe" font-size="8" font-family="IBM Plex Mono, monospace" font-weight="700">OPS</text>
+              </svg>
+            )}
+
+            {skill.number === "04" && (
+              <svg viewBox="0 0 260 76" fill="none" class="soft-svg">
+                <line x1="130" y1="38" x2="54" y2="20" stroke="rgba(117,230,178,0.35)" stroke-width="1.2" />
+                <line x1="130" y1="38" x2="54" y2="56" stroke="rgba(117,230,178,0.35)" stroke-width="1.2" />
+                <line x1="130" y1="38" x2="206" y2="20" stroke="rgba(59,130,246,0.4)" stroke-width="1.2" />
+                <line x1="130" y1="38" x2="206" y2="56" stroke="rgba(59,130,246,0.4)" stroke-width="1.2" />
+                <circle cx="130" cy="38" r="18" fill="rgba(24,199,133,0.18)" stroke="#75e6b2" stroke-width="1.5" />
+                <text x="130" y="41" text-anchor="middle" fill="#f2f7f4" font-size="8.5" font-family="IBM Plex Mono, monospace" font-weight="700">LEAD</text>
+                <circle cx="54" cy="20" r="8" fill="#0b1713" stroke="#18c785" stroke-width="1.2" />
+                <circle cx="54" cy="56" r="8" fill="#0b1713" stroke="#18c785" stroke-width="1.2" />
+                <circle cx="206" cy="20" r="8" fill="#0b1713" stroke="#7cb7ff" stroke-width="1.2" />
+                <circle cx="206" cy="56" r="8" fill="#0b1713" stroke="#7cb7ff" stroke-width="1.2" />
+              </svg>
+            )}
+
+            {skill.number === "05" && (
+              <svg viewBox="0 0 260 76" fill="none" class="soft-svg">
+                <rect x="24" y="14" width="64" height="48" rx="8" fill="rgba(255,255,255,0.03)" stroke="rgba(142,190,166,0.2)" />
+                <rect x="32" y="24" width="48" height="9" rx="3" fill="rgba(142,190,166,0.22)" />
+                <rect x="32" y="38" width="38" height="9" rx="3" fill="rgba(142,190,166,0.14)" />
+                <rect x="98" y="14" width="64" height="48" rx="8" fill="rgba(59,130,246,0.06)" stroke="rgba(59,130,246,0.35)" />
+                <rect x="106" y="24" width="48" height="9" rx="3" fill="rgba(124,183,255,0.35)" />
+                <rect x="106" y="38" width="42" height="9" rx="3" fill="rgba(124,183,255,0.2)" />
+                <rect x="172" y="14" width="64" height="48" rx="8" fill="rgba(24,199,133,0.09)" stroke="rgba(24,199,133,0.48)" />
+                <rect x="180" y="24" width="48" height="9" rx="3" fill="#18c785" />
+                <rect x="180" y="38" width="48" height="9" rx="3" fill="rgba(117,230,178,0.45)" />
+              </svg>
+            )}
+
+            {skill.number === "06" && (
+              <svg viewBox="0 0 260 76" fill="none" class="soft-svg">
+                <path d="M24 58 C 72 56, 98 44, 134 32 C 166 21, 194 16, 234 14" stroke="#18c785" stroke-width="2" stroke-linecap="round" />
+                <circle cx="42" cy="56" r="4" fill="#75e6b2" />
+                <circle cx="102" cy="43" r="4.5" fill="#7cb7ff" />
+                <circle cx="166" cy="23" r="5" fill="#d8b4fe" />
+                <circle cx="232" cy="14" r="5.5" fill="#18c785" stroke="#f2f7f4" stroke-width="1.2" />
+                <text x="42" y="70" text-anchor="middle" fill="#8b9c93" font-size="7.5" font-family="IBM Plex Mono, monospace">BE</text>
+                <text x="102" y="60" text-anchor="middle" fill="#8b9c93" font-size="7.5" font-family="IBM Plex Mono, monospace">MOBILE</text>
+                <text x="166" y="41" text-anchor="middle" fill="#8b9c93" font-size="7.5" font-family="IBM Plex Mono, monospace">ODOO</text>
+                <text x="226" y="32" text-anchor="middle" fill="#75e6b2" font-size="7.5" font-family="IBM Plex Mono, monospace" font-weight="700">AI</text>
+              </svg>
+            )}
+          </div>
+
+          <div class="soft-body">
+            <h3 data-en={skill.en} data-vi={skill.vi}>{skill.en}</h3>
+            <p data-en={skill.evidenceEn} data-vi={skill.evidenceVi}>{skill.evidenceEn}</p>
+          </div>
+
+          {proof && (
+            <a
+              class="soft-proof-link"
+              href={proof.href}
+              target={isExternal ? "_blank" : undefined}
+              rel={isExternal ? "noreferrer" : undefined}
+            >
+              <span data-en={proof.labelEn} data-vi={proof.labelVi}>{proof.labelEn}</span>
+              <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+            </a>
+          )}
+        </article>
+      );
+    })}
   </div>
 </section>
 
 <style>
   .soft-card {
     position: relative;
-    min-height: 245px;
-    padding: 28px;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
     border-radius: var(--radius-standard);
     transition: transform var(--duration-normal) ease, border-color var(--duration-normal) ease;
   }
 
-  .soft-card:hover { transform: translateY(-4px); border-color: var(--border-active); }
-
-  .soft-number {
-    display: grid;
-    width: 32px;
-    height: 32px;
-    place-items: center;
-    border: 1px solid var(--border-default);
-    border-radius: 8px;
-    color: var(--brand-green);
-    font-family: var(--font-mono);
-    font-size: var(--text-xs, 0.75rem);
+  .soft-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--border-active);
   }
 
-  h3 { margin: 28px 0 12px; font-size: 1.08rem; }
-  p { margin: 0; color: var(--text-muted); font-size: 0.83rem; }
+  .soft-visual {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 108px;
+    padding: 14px 18px;
+    border-bottom: 1px solid rgb(142 190 166 / 12%);
+    background:
+      radial-gradient(circle at 50% 0%, rgb(24 199 133 / 9%), transparent 70%),
+      rgb(4 11 8 / 65%);
+  }
 
-  @media (max-width: 540px) {
-    .soft-card { min-height: 205px; }
+  .soft-svg {
+    width: 100%;
+    max-width: 260px;
+    height: 76px;
+  }
+
+  .soft-number {
+    position: absolute;
+    top: 10px;
+    left: 12px;
+    display: grid;
+    width: 26px;
+    height: 26px;
+    place-items: center;
+    border: 1px solid var(--border-default);
+    border-radius: 7px;
+    background: rgb(5 11 9 / 80%);
+    color: var(--brand-green);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro, 0.7rem);
+    font-weight: 600;
+  }
+
+  .soft-body {
+    flex: 1;
+    padding: 20px 24px 16px;
+  }
+
+  h3 {
+    margin: 0 0 8px;
+    font-size: 1.08rem;
+    color: var(--text-main);
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.86rem;
+    line-height: 1.55;
+  }
+
+  .soft-proof-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 24px;
+    border-top: 1px solid rgb(142 190 166 / 10%);
+    background: rgb(24 199 133 / 4%);
+    color: var(--brand-soft);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs, 0.75rem);
+    font-weight: 600;
+    text-decoration: none;
+    transition: background var(--duration-fast) ease, color var(--duration-fast) ease;
+  }
+
+  .soft-proof-link:hover {
+    background: rgb(24 199 133 / 12%);
+    color: var(--text-main);
   }
 </style>

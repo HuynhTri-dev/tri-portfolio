@@ -125,7 +125,7 @@ export const ArboretumSvgCanvas: React.FC<ArboretumSvgCanvasProps> = ({
       />
 
       {/* Ambient Bioluminescent Spores Floating in the Soil */}
-      <g className="arboretum-forest-spores">
+      <g className="arboretum-forest-spores" aria-hidden="true">
         {bioSpores.map((spore) => (
           <circle
             key={spore.id}
@@ -135,20 +135,24 @@ export const ArboretumSvgCanvas: React.FC<ArboretumSvgCanvasProps> = ({
             fill="#d9b36c"
             opacity="0.3"
           >
-            <animate
-              attributeName="opacity"
-              values={`0.08;${spore.maxOpacity};0.08`}
-              dur={spore.dur}
-              begin={spore.delay}
-              repeatCount="indefinite"
-            />
-            <animate
-              attributeName="cy"
-              values={`${spore.cy};${spore.cy - 14};${spore.cy}`}
-              dur={spore.dur}
-              begin={spore.delay}
-              repeatCount="indefinite"
-            />
+            {breezeEnabled && (
+              <>
+                <animate
+                  attributeName="opacity"
+                  values={`0.08;${spore.maxOpacity};0.08`}
+                  dur={spore.dur}
+                  begin={spore.delay}
+                  repeatCount="indefinite"
+                />
+                <animate
+                  attributeName="cy"
+                  values={`${spore.cy};${spore.cy - 14};${spore.cy}`}
+                  dur={spore.dur}
+                  begin={spore.delay}
+                  repeatCount="indefinite"
+                />
+              </>
+            )}
           </circle>
         ))}
       </g>

@@ -169,6 +169,69 @@ img {
 .text-link span:last-child { transition: transform var(--duration-fast) ease; }
 .text-link:hover span:last-child { transform: translate(3px, -3px); }
 
+/* Shared Design System Buttons (WCAG 2.5.5 >= 44px touch target) */
+.btn {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 20px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-small);
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform var(--duration-fast) ease,
+    border-color var(--duration-fast) ease,
+    background var(--duration-fast) ease,
+    color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn--primary {
+  background: var(--brand-green);
+  color: #03140d;
+  border-color: var(--brand-green);
+  box-shadow: 0 10px 26px rgb(24 199 133 / 22%);
+}
+
+.btn--primary:hover {
+  background: var(--brand-soft);
+  border-color: var(--brand-soft);
+  color: #03140d;
+}
+
+.btn--secondary {
+  border-color: var(--border-default);
+  background: rgb(255 255 255 / 3.5%);
+  color: var(--text-main);
+}
+
+.btn--secondary:hover {
+  border-color: var(--border-active);
+  background: rgb(24 199 133 / 10%);
+  color: var(--brand-soft);
+}
+
+.btn--ghost {
+  border-color: rgb(255 255 255 / 10%);
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.btn--ghost:hover {
+  border-color: rgb(255 255 255 / 24%);
+  background: rgb(255 255 255 / 5%);
+  color: var(--text-main);
+}
+
 .skip-link {
   position: fixed;
   top: 10px;

@@ -25,7 +25,7 @@ const baseHeadingDepth = documentHeadings.length
 ---
 
 <article class="dossier shell">
-  <a class="back-link" href="/#projects">← <span data-en="Back to projects" data-vi="Quay lại dự án">Back to projects</span></a>
+  <a class="back-link" href="/projects">← <span data-en="All projects" data-vi="Tất cả dự án">All projects</span></a>
 
   <header class="dossier-hero panel">
     <div class="project-identity">
@@ -50,16 +50,16 @@ const baseHeadingDepth = documentHeadings.length
     </div>
 
     <aside class="project-meta">
-      <div><small>ROLE</small><strong>{project.role}</strong></div>
-      <div><small>PERIOD</small><strong>{project.period}</strong></div>
+      <div><small data-en="ROLE" data-vi="VAI TRÒ">ROLE</small><strong>{project.role}</strong></div>
+      <div><small data-en="PERIOD" data-vi="THỜI GIAN">PERIOD</small><strong>{project.period}</strong></div>
       {project.links?.source && (
         <a href={project.links.source} target="_blank" rel="noreferrer">
-          <small>SOURCE</small><strong>GitHub <i class="fa-solid fa-arrow-up-right-from-square"></i></strong>
+          <small data-en="SOURCE" data-vi="MÃ NGUỒN">SOURCE</small><strong>GitHub <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></strong>
         </a>
       )}
       {project.links?.live && (
         <a href={project.links.live} target="_blank" rel="noreferrer">
-          <small>DEMO</small><strong>YouTube <i class="fa-solid fa-arrow-up-right-from-square"></i></strong>
+          <small data-en="DEMO" data-vi="DEMO">DEMO</small><strong>YouTube <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></strong>
         </a>
       )}
     </aside>

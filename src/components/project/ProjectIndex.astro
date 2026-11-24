@@ -160,19 +160,12 @@ const filters = [
             </div>
 
             <h3 class="card-title">
-              <a href={project.href}>{project.title}</a>
+              <a class="visual-card-link" href={project.href}>{project.title}</a>
             </h3>
 
             <p class="card-summary" data-en={project.description} data-vi={project.descriptionVi}>
               {project.description}
             </p>
-
-            {project.unlocked && (
-              <div class="proj-unlocked-strip">
-                <i class="fa-solid fa-unlock-keyhole" aria-hidden="true"></i>
-                <span data-en={project.unlocked.en} data-vi={project.unlocked.vi}>{project.unlocked.en}</span>
-              </div>
-            )}
 
             <!-- Metrics Chips -->
             {project.metrics && (
@@ -185,32 +178,19 @@ const filters = [
                 ))}
               </div>
             )}
-
-            <!-- Tech Pills -->
-            <div class="tech-pills">
-              {project.technologies.slice(0, 4).map((tech) => (
-                <span>{tech}</span>
-              ))}
-            </div>
           </div>
 
-          <!-- Bottom Actions -->
-          <div class="card-footer">
-            <a href={project.href} class="btn-cta btn-cta--primary">
-              <span data-en={project.hrefLabel ?? "Case Study"} data-vi={project.hrefLabelVi ?? "Case Study"}>
-                {project.hrefLabel ?? "Case Study"}
-              </span>
-              <i class="fa-solid fa-arrow-right"></i>
-            </a>
-            {project.liveUrl && (
-              <a href={project.liveUrl} target="_blank" rel="noreferrer" class="btn-cta btn-cta--ghost">
+          <!-- Bottom Live Action (only when liveUrl exists; whole card opens dossier) -->
+          {project.liveUrl && (
+            <div class="card-footer">
+              <a href={project.liveUrl} target="_blank" rel="noreferrer" class="btn-cta btn-cta--ghost card-secondary-action">
                 <span data-en={project.liveLabel ?? "Live Demo"} data-vi={project.liveLabelVi ?? "Trực Tuyến"}>
                   {project.liveLabel ?? "Live Demo"}
                 </span>
-                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
               </a>
-            )}
-          </div>
+            </div>
+          )}
         </article>
       ))}
     </div>
@@ -270,19 +250,12 @@ const filters = [
             </div>
 
             <h3 class="card-title">
-              <a href={project.href}>{project.title}</a>
+              <a class="visual-card-link" href={project.href}>{project.title}</a>
             </h3>
 
             <p class="card-summary" data-en={project.description} data-vi={project.descriptionVi}>
               {project.description}
             </p>
-
-            {project.unlocked && (
-              <div class="proj-unlocked-strip">
-                <i class="fa-solid fa-unlock-keyhole" aria-hidden="true"></i>
-                <span data-en={project.unlocked.en} data-vi={project.unlocked.vi}>{project.unlocked.en}</span>
-              </div>
-            )}
 
             <!-- Metrics Chips -->
             {project.metrics && (
@@ -295,32 +268,19 @@ const filters = [
                 ))}
               </div>
             )}
-
-            <!-- Tech Pills -->
-            <div class="tech-pills">
-              {project.technologies.slice(0, 4).map((tech) => (
-                <span>{tech}</span>
-              ))}
-            </div>
           </div>
 
-          <!-- Bottom Actions -->
-          <div class="card-footer">
-            <a href={project.href} class="btn-cta btn-cta--primary">
-              <span data-en={project.hrefLabel ?? "Case Study"} data-vi={project.hrefLabelVi ?? "Case Study"}>
-                {project.hrefLabel ?? "Case Study"}
-              </span>
-              <i class="fa-solid fa-arrow-right"></i>
-            </a>
-            {project.liveUrl && (
-              <a href={project.liveUrl} target="_blank" rel="noreferrer" class="btn-cta btn-cta--ghost">
+          <!-- Bottom Live Action (only when liveUrl exists; whole card opens dossier) -->
+          {project.liveUrl && (
+            <div class="card-footer">
+              <a href={project.liveUrl} target="_blank" rel="noreferrer" class="btn-cta btn-cta--ghost card-secondary-action">
                 <span data-en={project.liveLabel ?? "Live Demo"} data-vi={project.liveLabelVi ?? "Demo"}>
                   {project.liveLabel ?? "Live Demo"}
                 </span>
-                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
               </a>
-            )}
-          </div>
+            </div>
+          )}
         </article>
       ))}
     </div>
@@ -617,18 +577,19 @@ const filters = [
   .filter-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 5px;
+    gap: 8px;
   }
 
   .filter-list button {
-    padding: 6px 12px;
+    min-height: 40px;
+    padding: 8px 14px;
     border: 1px solid transparent;
     border-radius: var(--radius-pill);
     background: transparent;
     color: var(--text-muted);
     cursor: pointer;
     font-family: var(--font-mono);
-    font-size: 0.62rem;
+    font-size: var(--text-xs, 0.75rem);
     transition: all var(--duration-fast) ease;
   }
 
@@ -652,7 +613,7 @@ const filters = [
     padding: 18px 4px 32px;
     color: var(--text-muted);
     font-family: var(--font-mono);
-    font-size: 0.64rem;
+    font-size: var(--text-xs, 0.75rem);
   }
 
   .counter-text strong {
@@ -662,12 +623,26 @@ const filters = [
 
   .gh-link {
     display: inline-flex;
+    min-height: 40px;
     align-items: center;
     gap: 8px;
     color: var(--text-secondary);
     text-decoration: none;
-    font-size: 0.64rem;
+    font-size: var(--text-xs, 0.75rem);
     transition: color var(--duration-fast) ease;
+  }
+
+  .visual-card-link::after {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    content: "";
+  }
+
+  .card-secondary-action {
+    position: relative;
+    z-index: 2;
+    min-height: 40px;
   }
 
   .gh-link:hover {

@@ -32,14 +32,14 @@ export type TechGroup = {
 };
 
 export const profileLinks = [
-  { number: "01", href: "#education", en: "Education", vi: "Học vấn" },
-  { number: "02", href: "#experience", en: "Experience & Teams", vi: "Nơi làm việc & Tổ chức" },
-  { number: "03", href: "#projects", en: "Projects", vi: "Dự án" },
-  { number: "04", href: "#technical-skill", en: "Technical Skills", vi: "Kỹ năng kỹ thuật" },
-  { number: "05", href: "#soft-skill", en: "Soft Skills", vi: "Kỹ năng mềm" },
-  { number: "06", href: "#achievements", en: "Achievements", vi: "Thành tựu" },
+  { number: "01", href: "#projects", en: "Selected Projects", vi: "Dự án tiêu biểu" },
+  { number: "02", href: "#experience", en: "Work & Affiliations", vi: "Kinh nghiệm & Tổ chức" },
+  { number: "03", href: "#technical-skill", en: "Capability Systems", vi: "Năng lực kỹ thuật" },
+  { number: "04", href: "#soft-skill", en: "How I Work", vi: "Cách làm việc" },
+  { number: "05", href: "#achievements", en: "Achievements", vi: "Thành tựu" },
+  { number: "06", href: "#education", en: "Education", vi: "Học vấn" },
   { number: "07", href: "#beyond-code", en: "Beyond Code", vi: "Ngoài lập trình" },
-  { number: "08", href: "#contact", en: "Contact", vi: "Liên hệ" },
+  { number: "08", href: "/blog", en: "Blog & Knowledge Base", vi: "Blog & Kho Tri Thức" },
 ];
 
 export const techGroups: TechGroup[] = [

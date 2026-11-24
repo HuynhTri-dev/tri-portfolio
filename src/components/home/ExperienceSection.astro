@@ -63,7 +63,9 @@ const getScopeLabel = (item: (typeof experiences)[0]) => {
                     <img src={item.logo} alt={item.orgName} class="company-logo-img" width="36" height="36" loading="lazy" />
                   </div>
                   <div class="org-info">
-                    <h3 class="org-title">{item.orgName}</h3>
+                    <h3 class="org-title">
+                      <a class="exp-card-link" href={`/experience/${item.id}`}>{item.orgName}</a>
+                    </h3>
                     <span class="period-pill" data-en={item.periodEn} data-vi={item.periodVi}>
                       <i class="fa-regular fa-clock" aria-hidden="true"></i>
                       {item.periodEn}
@@ -77,18 +79,14 @@ const getScopeLabel = (item: (typeof experiences)[0]) => {
                 </span>
               </div>
 
-              <!-- Role Title & Location -->
+              <!-- Role Title -->
               <div class="role-row">
                 <h4 class="role-name" data-en={item.roleEn} data-vi={item.roleVi}>
                   {item.roleEn}
                 </h4>
-                <span class="location-text" data-en={item.locationEn} data-vi={item.locationVi}>
-                  <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
-                  {item.locationEn}
-                </span>
               </div>
 
-              <!-- Connected System / Engagements Box (Uniform Min-Height) -->
+              <!-- Connected System / Engagements Box -->
               <div class="connected-product-box">
                 <div class="connected-product-header">
                   <span class="product-label" data-en={scope.labelEn} data-vi={scope.labelVi}>{scope.labelEn}</span>
@@ -109,21 +107,14 @@ const getScopeLabel = (item: (typeof experiences)[0]) => {
                   {scope.valueEn}
                 </strong>
               </div>
-
-              <!-- Tech Stack Row -->
-              <div class="tech-row">
-                {item.technologies.slice(0, 4).map((tech) => (
-                  <span class="tech-badge">{tech}</span>
-                ))}
-              </div>
             </div>
 
-            <!-- Bottom Action Buttons (Always Aligned to Bottom) -->
+            <!-- Bottom Action Footer -->
             <div class="card-action-footer">
-              <a href={`/experience/${item.id}`} class="btn-role-detail">
-                <span data-en="View role & projects" data-vi="Chi tiết vai trò & dự án">View role & projects</span>
+              <span class="role-cue">
+                <span data-en="View role & impact" data-vi="Xem vai trò & thành tựu">View role &amp; impact</span>
                 <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-              </a>
+              </span>
 
               {item.orgHref && (
                 <a href={item.orgHref} target="_blank" rel="noreferrer" class="btn-org-link" aria-label={`Visit official portal of ${item.orgName}`}>
@@ -230,7 +221,7 @@ const getScopeLabel = (item: (typeof experiences)[0]) => {
 
   .org-title {
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 1.12rem;
     font-weight: 700;
     letter-spacing: -0.025em;
     color: var(--text-main);
@@ -238,6 +229,23 @@ const getScopeLabel = (item: (typeof experiences)[0]) => {
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: 1.25;
+  }
+
+  .exp-card-link {
+    color: inherit;
+    text-decoration: none;
+    transition: color var(--duration-fast) ease;
+  }
+
+  .exp-card-link::after {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    content: "";
+  }
+
+  .experience-card:hover .exp-card-link {
+    color: var(--brand-soft);
   }
 
   .period-pill {
@@ -302,14 +310,12 @@ const getScopeLabel = (item: (typeof experiences)[0]) => {
     animation: beaconPulse 2s infinite ease-in-out;
   }
 
-  /* Role Row (Fixed Height) */
+  /* Role Row */
   .role-row {
     margin-bottom: 14px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 3px;
-    height: 46px;
   }
 
   .role-name {
@@ -318,25 +324,7 @@ const getScopeLabel = (item: (typeof experiences)[0]) => {
     font-weight: 600;
     color: var(--brand-soft);
     letter-spacing: -0.02em;
-    line-height: 1.25;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .location-text {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    color: var(--text-muted);
-    font-size: 0.68rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .location-text i {
-    font-size: var(--text-micro, 0.7rem);
+    line-height: 1.35;
   }
 
   /* Connected Product Box (Uniform Min-Height) */
@@ -459,38 +447,34 @@ const getScopeLabel = (item: (typeof experiences)[0]) => {
     margin-top: auto;
   }
 
-  .btn-role-detail {
+  .role-cue {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 14px;
-    border-radius: 10px;
-    background: rgb(24 199 133 / 14%);
-    border: 1px solid rgb(24 199 133 / 40%);
     color: var(--brand-soft);
-    font-size: 0.72rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all var(--duration-fast) ease;
+    font-size: 0.8rem;
+    font-weight: 700;
+    transition: transform var(--duration-fast) ease;
   }
 
-  .btn-role-detail:hover {
-    background: var(--brand-green);
-    color: #030806;
-    border-color: var(--brand-green);
-    transform: translateX(2px);
+  .experience-card:hover .role-cue {
+    transform: translateX(3px);
   }
 
   .btn-org-link {
+    position: relative;
+    z-index: 2;
     display: inline-flex;
+    min-height: 40px;
     align-items: center;
     gap: 6px;
-    padding: 7px 12px;
-    border-radius: 8px;
-    background: rgb(255 255 255 / 3%);
-    border: 1px solid rgb(255 255 255 / 8%);
+    padding: 8px 14px;
+    border-radius: 10px;
+    background: rgb(255 255 255 / 4%);
+    border: 1px solid rgb(255 255 255 / 10%);
     color: var(--text-secondary);
-    font-size: 0.68rem;
+    font-size: 0.75rem;
+    font-weight: 600;
     text-decoration: none;
     transition: all var(--duration-fast) ease;
   }

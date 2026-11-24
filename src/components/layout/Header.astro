@@ -90,19 +90,18 @@ const anchor = (id: string) => (isHome ? `#${id}` : `/#${id}`);
   <nav class="mobile-menu" id="mobile-menu" aria-label="Mobile navigation">
     <a href={anchor("home")} data-en="Home" data-vi="Trang chủ">Home</a>
     <a href="/projects" data-en="Projects" data-vi="Dự án">Projects</a>
-    <a href="/blog" data-en="Blog" data-vi="Blog">Blog</a>
-    <a href={anchor("education")} data-en="Education" data-vi="Học vấn"
-      >Education</a
-    >
-    <a href={anchor("experience")} data-en="Experience" data-vi="Nơi làm việc & Tổ chức"
-      >Experience</a
-    >
-    <a
-      href={anchor("technical-skill")}
-      data-en="Technical Skills"
-      data-vi="Kỹ năng kỹ thuật">Technical Skills</a
-    >
+    <a href="/blog" data-en="Blog & Knowledge Base" data-vi="Blog & Kho Tri Thức">Blog & Knowledge Base</a>
+    <a href={anchor("experience")} data-en="Experience" data-vi="Kinh nghiệm làm việc">Experience</a>
+    <a href={anchor("technical-skill")} data-en="Capabilities" data-vi="Năng lực kỹ thuật">Capabilities</a>
     <a href="/contact" data-en="Contact" data-vi="Liên hệ">Contact</a>
+    <a
+      href="/Huynh-Minh-Tri-Software-Engineer-CV.pdf"
+      target="_blank"
+      rel="noreferrer"
+      class="mobile-cv-link"
+      data-en="View / Download CV (PDF)"
+      data-vi="Xem / Tải CV (PDF)"
+    >View / Download CV (PDF)</a>
   </nav>
 </header>
 

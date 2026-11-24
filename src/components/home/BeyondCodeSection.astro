@@ -1,10 +1,50 @@
 ---
 /**
  * @name BeyondCodeSection.astro
- * @description Perspectives and interdisciplinary interests beyond core software engineering.
+ * @description Visual story cards highlighting interdisciplinary craft beyond code
+ *              (Design Systems, Multi-Domain Impact, Community & Knowledge Sharing)
+ *              with real project photography and clickable destinations.
  */
 import SectionHeading from "../ui/SectionHeading.astro";
-import { beyondCards } from "../../data/portfolio";
+
+const visualStories = [
+  {
+    label: "01 / DESIGN-TO-CODE",
+    en: "Design Systems & UI Craft",
+    vi: "Hệ thống Thiết kế & Trải nghiệm UI",
+    descriptionEn: "Translating Figma prototypes and C.R.A.P. visual hierarchy directly into accessible, production-ready components.",
+    descriptionVi: "Chuyển hóa nguyên mẫu Figma và phân cấp thị giác trực tiếp thành giao diện thực tế dễ sử dụng.",
+    image: "/cj_crop/1.png",
+    imageAlt: "Design Your Future CJ Crop UI/UX Design System preview",
+    href: "/projects/cj-crop",
+    ctaEn: "View UI/UX case study",
+    ctaVi: "Xem dự án thiết kế UI/UX",
+  },
+  {
+    label: "02 / MULTI-DOMAIN SYSTEMS",
+    en: "Real-World Domain Empathy",
+    vi: "Thấu hiểu Nghiệp vụ Đa ngành",
+    descriptionEn: "Understanding domain constraints across Banking Voice AI, Circular AgriTech, and Healthcare before writing a single line of code.",
+    descriptionVi: "Nắm rõ bài toán thực tế từ Ngân hàng, Nông nghiệp tuần hoàn đến Y tế số trước khi đặt bút thiết kế kiến trúc.",
+    image: "/projects/vinagreen/hero_preview.png",
+    imageAlt: "VinaGreen circular agritech platform interface",
+    href: "/projects",
+    ctaEn: "Explore domain systems",
+    ctaVi: "Khám phá các hệ thống",
+  },
+  {
+    label: "03 / KNOWLEDGE & COMMUNITY",
+    en: "Writing & Team Energy",
+    vi: "Chia sẻ Tri thức & Cộng đồng",
+    descriptionEn: "Documenting production troubleshooting postmortems in a live D1 Knowledge Base and presenting solutions with peers.",
+    descriptionVi: "Hệ thống hóa kinh nghiệm xử lý lỗi thực chiến trên Kho Tri thức D1 và cùng đội ngũ thuyết trình giải pháp.",
+    image: "/images/cj-group.png",
+    imageAlt: "Huynh Minh Tri presenting a product solution at CJ Group",
+    href: "/blog",
+    ctaEn: "Read engineering notes",
+    ctaVi: "Đọc kho tri thức kỹ thuật",
+  },
+];
 ---
 
 <section class="section shell" id="beyond-code">
@@ -12,17 +52,39 @@ import { beyondCards } from "../../data/portfolio";
     index="07 / BEYOND CODE"
     titleEn="A wider field of view"
     titleVi="Góc nhìn rộng hơn"
-    descriptionEn="The strongest software decisions come from curiosity about people, systems and the context around the code."
-    descriptionVi="Những quyết định phần mềm tốt nhất đến từ sự tò mò về con người, hệ thống và bối cảnh xung quanh mã nguồn."
+    descriptionEn="The strongest software decisions come from real-world context — bridging design craft, domain empathy, and open knowledge sharing."
+    descriptionVi="Những quyết định phần mềm tốt nhất đến từ bối cảnh thực tế — kết nối thẩm mỹ thiết kế, hiểu biết nghiệp vụ và tinh thần chia sẻ tri thức."
   />
 
   <div class="beyond-grid">
-    {beyondCards.map((card) => (
-      <article class="beyond-card">
-        <span>{card.label}</span>
-        <h3 data-en={card.en} data-vi={card.vi}>{card.en}</h3>
-        <p data-en={card.descriptionEn} data-vi={card.descriptionVi}>{card.descriptionEn}</p>
-        <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+    {visualStories.map((story) => (
+      <article class="beyond-card panel">
+        <div class="beyond-media">
+          <img src={story.image} alt={story.imageAlt} loading="lazy" />
+          <div class="beyond-media-scrim" aria-hidden="true" />
+          <span class="beyond-kicker">{story.label}</span>
+        </div>
+
+        <div class="beyond-content">
+          <div class="beyond-head">
+            <h3>
+              <a class="beyond-card-link" href={story.href}>
+                <span data-en={story.en} data-vi={story.vi}>{story.en}</span>
+              </a>
+            </h3>
+            <span class="beyond-arrow" aria-hidden="true">
+              <i class="fa-solid fa-arrow-up-right-from-square" />
+            </span>
+          </div>
+
+          <p data-en={story.descriptionEn} data-vi={story.descriptionVi}>
+            {story.descriptionEn}
+          </p>
+
+          <span class="beyond-cta" data-en={story.ctaEn} data-vi={story.ctaVi}>
+            {story.ctaEn}
+          </span>
+        </div>
       </article>
     ))}
   </div>
@@ -31,40 +93,147 @@ import { beyondCards } from "../../data/portfolio";
 <style>
   .beyond-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1px;
-    overflow: hidden;
-    border: 1px solid var(--border-default);
-    border-radius: 22px;
-    background: var(--border-default);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
   }
 
   .beyond-card {
     position: relative;
-    min-height: 330px;
-    padding: 34px;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
-    background: radial-gradient(circle at 120% 100%, rgb(24 199 133 / 13%), transparent 44%), var(--deep-background);
-    transition: background var(--duration-normal) ease;
+    border-radius: 20px;
+    border: 1px solid var(--border-default);
+    background: linear-gradient(170deg, rgb(13 28 21 / 78%), rgb(6 14 11 / 92%));
+    cursor: pointer;
+    transition:
+      transform var(--duration-normal) ease,
+      border-color var(--duration-normal) ease,
+      box-shadow var(--duration-normal) ease;
   }
 
-  .beyond-card:nth-child(2) {
-    background: radial-gradient(circle at 120% 100%, rgb(59 130 246 / 12%), transparent 44%), var(--deep-background);
+  .beyond-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--border-active);
+    box-shadow: 0 18px 36px -10px rgb(0 0 0 / 62%), 0 0 22px -6px rgb(24 199 133 / 15%);
   }
 
-  .beyond-card:hover { background-color: var(--elevated-background); }
-  .beyond-card > span { color: var(--text-muted); font-family: var(--font-mono); font-size: var(--text-xs, 0.75rem); letter-spacing: 0.08em; }
-  h3 { margin: 100px 0 15px; font-size: 1.35rem; }
-  p { margin: 0; color: var(--text-muted); font-size: 0.82rem; }
-  i { position: absolute; top: 30px; right: 30px; color: var(--brand-green); font-style: normal; }
-
-  @media (max-width: 820px) {
-    .beyond-grid { grid-template-columns: 1fr; }
-    .beyond-card { min-height: 260px; }
-    h3 { margin-top: 54px; }
+  .beyond-card:focus-within {
+    outline: 2px solid var(--brand-soft);
+    outline-offset: 4px;
   }
 
-  @media (max-width: 540px) {
-    .beyond-card { padding: 28px; }
+  .beyond-media {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: #040906;
+  }
+
+  .beyond-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 500ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .beyond-card:hover .beyond-media img {
+    transform: scale(1.05);
+  }
+
+  .beyond-media-scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgb(5 11 9 / 12%) 0%, rgb(6 14 11 / 92%) 100%);
+    pointer-events: none;
+  }
+
+  .beyond-kicker {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+    background: rgb(5 11 9 / 84%);
+    border: 1px solid rgb(117 230 178 / 28%);
+    color: var(--brand-soft);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro, 0.7rem);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .beyond-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px 22px 22px;
+  }
+
+  .beyond-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 1.16rem;
+    line-height: 1.28;
+    color: var(--text-main);
+  }
+
+  .beyond-card-link {
+    color: inherit;
+    text-decoration: none;
+    transition: color var(--duration-fast) ease;
+  }
+
+  .beyond-card-link::after {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    content: "";
+  }
+
+  .beyond-card:hover .beyond-card-link {
+    color: var(--brand-soft);
+  }
+
+  .beyond-arrow {
+    color: var(--brand-green);
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    transition: transform var(--duration-fast) ease;
+  }
+
+  .beyond-card:hover .beyond-arrow {
+    transform: translate(3px, -3px);
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.86rem;
+    line-height: 1.55;
+  }
+
+  .beyond-cta {
+    margin-top: auto;
+    padding-top: 10px;
+    color: var(--brand-soft);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs, 0.75rem);
+    font-weight: 600;
+  }
+
+  @media (max-width: 920px) {
+    .beyond-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

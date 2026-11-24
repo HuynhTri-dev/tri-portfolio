@@ -1,7 +1,8 @@
 ---
 /**
  * @name ContactSection.astro
- * @description Bioluminescent Glade contact section with availability status card and direct links.
+ * @description Bioluminescent Glade contact section using unified design tokens,
+ *              availability status card, LinkedIn channel, and one-click email copy.
  */
 ---
 
@@ -18,38 +19,49 @@
       Open to Software Engineering opportunities where backend systems, AI and product thinking meet.
     </p>
 
-    <div class="work-availability-card">
+    <div class="work-availability-card panel">
       <div class="availability-status">
-        <span class="status-dot-pulse"></span>
-        <span class="status-title" data-en="OPEN FOR OPPORTUNITIES" data-vi="SẴN SÀNG NHẬN CƠ HỘI MỚI">OPEN FOR OPPORTUNITIES</span>
+        <span class="status-dot-pulse" aria-hidden="true"></span>
+        <span class="status-title" data-en="OPEN FOR OPPORTUNITIES" data-vi="SẴN SÀNG NHẬN CƠ HỘI MỚI">
+          OPEN FOR OPPORTUNITIES
+        </span>
       </div>
 
       <div class="availability-items">
         <div class="avail-item">
-          <span class="avail-icon"><i class="fa-solid fa-briefcase"></i></span>
+          <span class="avail-icon" aria-hidden="true"><i class="fa-solid fa-briefcase"></i></span>
           <div class="avail-text">
             <strong data-en="Full-time Roles" data-vi="Vị trí Full-time">Full-time Roles</strong>
-            <p data-en="Full-Stack AI Engineer, Backend Engineer (FastAPI/Node.js), Mobile Developer (Flutter), Web Developer (Design & Code)" data-vi="Full-Stack AI Engineer, Backend Engineer (FastAPI/Node.js), Lập trình di động (Flutter), Lập trình Web (Thiết kế & Lập trình)">
-              Full-Stack AI Engineer, Backend Engineer (FastAPI/Node.js), Mobile Developer (Flutter), Web Developer (Design & Code)
+            <p
+              data-en="Backend & AI Engineer (FastAPI / Node.js), Realtime Voicebot AI, Mobile Developer (Flutter)"
+              data-vi="Kỹ sư Backend & AI (FastAPI / Node.js), Realtime Voicebot AI, Lập trình di động (Flutter)"
+            >
+              Backend &amp; AI Engineer (FastAPI / Node.js), Realtime Voicebot AI, Mobile Developer (Flutter)
             </p>
           </div>
         </div>
 
         <div class="avail-item">
-          <span class="avail-icon"><i class="fa-solid fa-rocket"></i></span>
+          <span class="avail-icon" aria-hidden="true"><i class="fa-solid fa-rocket"></i></span>
           <div class="avail-text">
-            <strong data-en="Contract & Freelance" data-vi="Dự án & Freelance">Contract & Freelance</strong>
-            <p data-en="AI Agents Development, Hybrid RAG Systems, Wearable Biometrics Processing Pipeline, Web & Mobile Design" data-vi="Xây dựng AI Agents, Hệ thống Hybrid RAG, Đường ống xử lý sinh hiệu Wearable, Thiết kế Web & App">
-              AI Agents Development, Hybrid RAG Systems, Wearable Biometrics Processing Pipeline, Web & Mobile Design
+            <strong data-en="Contract & Advisory" data-vi="Dự án & Tư vấn">Contract &amp; Advisory</strong>
+            <p
+              data-en="Voicebot PBX/WebRTC Integration, Kafka Event Streaming, Hybrid RAG & Production Systems"
+              data-vi="Tích hợp Voicebot PBX/WebRTC, Kafka Event Streaming, Hybrid RAG & Hệ thống thực tế"
+            >
+              Voicebot PBX/WebRTC Integration, Kafka Event Streaming, Hybrid RAG &amp; Production Systems
             </p>
           </div>
         </div>
 
         <div class="avail-item">
-          <span class="avail-icon"><i class="fa-solid fa-earth-americas"></i></span>
+          <span class="avail-icon" aria-hidden="true"><i class="fa-solid fa-earth-americas"></i></span>
           <div class="avail-text">
             <strong data-en="Work Mode" data-vi="Hình thức làm việc">Work Mode</strong>
-            <p data-en="Remote (Global / Vietnam) or Hybrid (Ho Chi Minh City)" data-vi="Remote (Toàn cầu / Việt Nam) hoặc Hybrid (TP.HCM)">
+            <p
+              data-en="Remote (Global / Vietnam) or Hybrid (Ho Chi Minh City)"
+              data-vi="Remote (Toàn cầu / Việt Nam) hoặc Hybrid (TP.HCM)"
+            >
               Remote (Global / Vietnam) or Hybrid (Ho Chi Minh City)
             </p>
           </div>
@@ -57,66 +69,174 @@
       </div>
     </div>
   </div>
+
   <div class="contact-links">
-    <a href="mailto:huynhminhtri1109@gmail.com">
-      <small>EMAIL</small><span>huynhminhtri1109@gmail.com</span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+    <div class="contact-row">
+      <a class="contact-row-main" href="mailto:huynhminhtri1109@gmail.com">
+        <small data-en="EMAIL" data-vi="EMAIL">EMAIL</small>
+        <span>huynhminhtri1109@gmail.com</span>
+      </a>
+      <button
+        type="button"
+        class="copy-inline-btn"
+        data-home-copy-email
+        aria-label="Copy email address"
+      >
+        <i class="fa-regular fa-copy" aria-hidden="true"></i>
+        <span data-en="Copy" data-vi="Chép">Copy</span>
+      </button>
+    </div>
+
+    <a class="contact-link-row" href="https://www.linkedin.com/in/huỳnh-minh-trí-bb71a0259" target="_blank" rel="noreferrer">
+      <small>LINKEDIN</small>
+      <span>Huỳnh Minh Trí</span>
+      <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
     </a>
-    <a href="tel:+84982294937">
-      <small>PHONE</small><span>+84 982 294 937</span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+
+    <a class="contact-link-row" href="tel:+84982294937">
+      <small data-en="PHONE" data-vi="ĐIỆN THOẠI">PHONE</small>
+      <span>+84 982 294 937</span>
+      <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
     </a>
-    <a href="https://github.com/HuynhTri-dev" target="_blank" rel="noreferrer">
-      <small>GITHUB</small><span>@HuynhTri-dev</span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+
+    <a class="contact-link-row" href="https://github.com/HuynhTri-dev" target="_blank" rel="noreferrer">
+      <small>GITHUB</small>
+      <span>@HuynhTri-dev</span>
+      <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
     </a>
   </div>
 </section>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>("[data-home-copy-email]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const email = "huynhminhtri1109@gmail.com";
+      const isVi = document.documentElement.lang === "vi";
+      const span = btn.querySelector("span");
+      try {
+        await navigator.clipboard.writeText(email);
+        if (span) span.textContent = isVi ? "Đã chép ✓" : "Copied ✓";
+        btn.classList.add("is-copied");
+        setTimeout(() => {
+          if (span) span.textContent = isVi ? "Chép" : "Copy";
+          btn.classList.remove("is-copied");
+        }, 2000);
+      } catch {
+        window.location.href = `mailto:${email}`;
+      }
+    });
+  });
+</script>
 
 <style>
   .contact {
     display: grid;
     grid-template-columns: 1.1fr 0.9fr;
-    gap: 90px;
+    gap: 80px;
     align-items: center;
     margin-top: 30px;
-    padding-top: 110px;
-    padding-bottom: 110px;
+    padding-top: 104px;
+    padding-bottom: 104px;
     border-top: 1px solid var(--border-default);
   }
 
   h2 {
     max-width: 720px;
-    margin: 16px 0 24px;
-    font-size: clamp(2.6rem, 5vw, 5rem);
-    letter-spacing: -0.07em;
-    line-height: 0.98;
+    margin: 16px 0 20px;
+    font-size: clamp(2.6rem, 5vw, 4.6rem);
+    letter-spacing: -0.06em;
+    line-height: 1;
   }
 
-  .contact-copy p { max-width: 620px; color: var(--text-muted); }
-  .contact-links { border-top: 1px solid var(--border-default); }
+  .contact-copy > p {
+    max-width: 600px;
+    color: var(--text-secondary);
+  }
 
-  .contact-links a {
+  .contact-links {
+    border-top: 1px solid var(--border-default);
+  }
+
+  .contact-row,
+  .contact-link-row {
     display: grid;
-    min-height: 78px;
-    grid-template-columns: 84px 1fr 20px;
+    min-height: 76px;
     align-items: center;
     border-bottom: 1px solid var(--border-default);
     transition: padding var(--duration-fast) ease, color var(--duration-fast) ease;
   }
 
-  .contact-links a:hover { padding-inline: 8px; color: var(--brand-soft); }
-  .contact-links small { color: var(--text-muted); font-family: var(--font-mono); font-size: var(--text-xs, 0.75rem); }
-  .contact-links span { font-size: 0.82rem; overflow-wrap: anywhere; }
-  .contact-links i { color: var(--brand-green); font-style: normal; }
+  .contact-row {
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+  }
 
-  /* Work Availability Card */
+  .contact-row-main {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    align-items: center;
+    min-height: 76px;
+    transition: color var(--duration-fast) ease;
+  }
+
+  .contact-row-main:hover {
+    color: var(--brand-soft);
+  }
+
+  .contact-link-row {
+    grid-template-columns: 92px 1fr 20px;
+  }
+
+  .contact-link-row:hover {
+    padding-inline: 8px;
+    color: var(--brand-soft);
+  }
+
+  .contact-links small {
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs, 0.75rem);
+  }
+
+  .contact-links span {
+    font-size: 0.88rem;
+    overflow-wrap: anywhere;
+  }
+
+  .contact-link-row i {
+    color: var(--brand-green);
+    font-style: normal;
+  }
+
+  .copy-inline-btn {
+    display: inline-flex;
+    min-height: 40px;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-default);
+    background: rgb(24 199 133 / 8%);
+    color: var(--brand-soft);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs, 0.75rem);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--duration-fast) ease;
+  }
+
+  .copy-inline-btn:hover,
+  .copy-inline-btn.is-copied {
+    background: var(--brand-green);
+    border-color: var(--brand-green);
+    color: #03140d;
+  }
+
+  /* Work Availability Card (Unified tokens.css palette) */
   .work-availability-card {
-    margin-top: 32px;
+    margin-top: 28px;
     padding: 24px;
-    background: rgba(18, 24, 20, 0.55);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-standard);
   }
 
   .availability-status {
@@ -125,29 +245,29 @@
     gap: 10px;
     margin-bottom: 18px;
     padding-bottom: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid var(--border-default);
   }
 
   .status-dot-pulse {
-    width: 10px;
-    height: 10px;
-    background-color: #10b981;
+    width: 9px;
+    height: 9px;
+    background-color: var(--brand-green);
     border-radius: 50%;
-    box-shadow: 0 0 10px #10b981;
+    box-shadow: 0 0 10px var(--brand-green);
     animation: pulse 2s infinite;
   }
 
   @keyframes pulse {
-    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-    70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgb(24 199 133 / 70%); }
+    70% { transform: scale(1); box-shadow: 0 0 0 8px rgb(24 199 133 / 0%); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgb(24 199 133 / 0%); }
   }
 
   .status-title {
     font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: var(--text-xs, 0.75rem);
     letter-spacing: 0.08em;
-    color: #10b981;
+    color: var(--brand-soft);
     font-weight: 600;
   }
 
@@ -164,7 +284,8 @@
   }
 
   .avail-icon {
-    font-size: 1.25rem;
+    color: var(--brand-green);
+    font-size: 1.1rem;
     line-height: 1.4;
     flex-shrink: 0;
   }
@@ -172,15 +293,15 @@
   .avail-text strong {
     display: block;
     font-size: 0.92rem;
-    color: #f1f5f9;
+    color: var(--text-main);
     margin-bottom: 2px;
     font-weight: 600;
   }
 
   .avail-text p {
     font-size: 0.85rem;
-    color: #94a3b8;
-    line-height: 1.45;
+    color: var(--text-secondary);
+    line-height: 1.5;
     margin: 0;
   }
 
@@ -194,7 +315,9 @@
   }
 
   @media (max-width: 540px) {
-    h2 { font-size: 2.8rem; }
-    .contact-links a { grid-template-columns: 72px 1fr 16px; }
+    h2 { font-size: 2.6rem; }
+    .contact-row-main,
+    .contact-link-row { grid-template-columns: 78px 1fr 16px; }
+    .contact-row-main { grid-template-columns: 78px 1fr; }
   }
 </style>

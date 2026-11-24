@@ -40,6 +40,13 @@ export const SvgNodeRender: React.FC<SvgNodeRenderProps> = ({
   onPointerLeave,
   onClick,
 }) => {
+  const handleKeyDown = (e: React.KeyboardEvent<SVGGElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onClick(node.id);
+    }
+  };
+
   // 1. HEARTWOOD ROOT CORE
   if (node.kind === "CORE") {
     const lines = (language === "vi" ? node.shortVi : node.shortEn).split("\n");
@@ -47,12 +54,17 @@ export const SvgNodeRender: React.FC<SvgNodeRenderProps> = ({
       <g
         key={node.id}
         className="constellation-core-node"
+        role="button"
+        tabIndex={0}
+        aria-pressed={isSelected}
+        aria-label={language === "vi" ? node.labelVi : node.labelEn}
         transform={`translate(${pos.x}, ${pos.y})`}
         style={{ cursor: isDragging ? "grabbing" : "grab" }}
         onPointerDown={(e) => onPointerDown(e, node.id)}
         onPointerEnter={() => onPointerEnter(node.id)}
         onPointerLeave={onPointerLeave}
         onClick={() => onClick(node.id)}
+        onKeyDown={handleKeyDown}
       >
         {/* Root Anchor Spurs */}
         <circle
@@ -119,6 +131,10 @@ export const SvgNodeRender: React.FC<SvgNodeRenderProps> = ({
       <g
         key={node.id}
         className="constellation-hub-node"
+        role="button"
+        tabIndex={0}
+        aria-pressed={isSelected}
+        aria-label={`${language === "vi" ? node.labelVi : node.labelEn} — Rank ${node.rank}`}
         transform={`translate(${pos.x}, ${pos.y})`}
         style={{
           cursor: isDragging ? "grabbing" : "grab",
@@ -128,6 +144,7 @@ export const SvgNodeRender: React.FC<SvgNodeRenderProps> = ({
         onPointerEnter={() => onPointerEnter(node.id)}
         onPointerLeave={onPointerLeave}
         onClick={() => onClick(node.id)}
+        onKeyDown={handleKeyDown}
       >
         {(isSelected || isHovered) && (
           <circle
@@ -217,6 +234,10 @@ export const SvgNodeRender: React.FC<SvgNodeRenderProps> = ({
     <g
       key={node.id}
       className="constellation-leaf-node"
+      role="button"
+      tabIndex={0}
+      aria-pressed={isSelected}
+      aria-label={`${language === "vi" ? node.labelVi : node.labelEn} — ${isArticle ? "Article" : `Rank ${node.rank}`}`}
       transform={`translate(${pos.x}, ${pos.y})`}
       style={{
         cursor: isDragging ? "grabbing" : "pointer",
@@ -226,6 +247,7 @@ export const SvgNodeRender: React.FC<SvgNodeRenderProps> = ({
       onPointerEnter={() => onPointerEnter(node.id)}
       onPointerLeave={onPointerLeave}
       onClick={() => onClick(node.id)}
+      onKeyDown={handleKeyDown}
     >
       <g
         className="leaf-breeze-wrapper"

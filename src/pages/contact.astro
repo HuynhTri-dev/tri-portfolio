@@ -250,13 +250,13 @@ const expertisePills = [
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    padding: 4px 10px;
+    padding: 5px 12px;
     border-radius: var(--radius-pill);
     background: rgb(24 199 133 / 10%);
     border: 1px solid rgb(24 199 133 / 30%);
     color: #4eedb0;
     font-family: var(--font-mono);
-    font-size: 0.6rem;
+    font-size: var(--text-xs, 0.75rem);
     font-weight: 600;
     width: fit-content;
   }
@@ -403,7 +403,7 @@ const expertisePills = [
   }
 
   .channel-label {
-    font-size: 0.6rem;
+    font-size: var(--text-micro, 0.7rem);
     color: var(--text-muted);
     font-family: var(--font-mono);
     text-transform: uppercase;
@@ -411,7 +411,7 @@ const expertisePills = [
   }
 
   .channel-value {
-    font-size: 0.84rem;
+    font-size: 0.86rem;
     color: var(--text-main);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -421,15 +421,16 @@ const expertisePills = [
 
   .btn-channel-act {
     display: inline-flex;
+    min-height: 40px;
     align-items: center;
     gap: 6px;
-    padding: 6px 12px;
+    padding: 8px 14px;
     border-radius: 8px;
     background: rgb(255 255 255 / 4%);
     border: 1px solid rgb(255 255 255 / 8%);
     color: var(--text-secondary);
     font-family: var(--font-mono);
-    font-size: 0.62rem;
+    font-size: var(--text-xs, 0.75rem);
     text-decoration: none;
     cursor: pointer;
     transition: all var(--duration-fast) ease;
