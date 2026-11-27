@@ -47,16 +47,11 @@ const featuredProjects = allProjects.slice(0, 6);
 
           <!-- Layers 2-4: Title (Whole-Card Clickable), Value Summary, Impact Metrics -->
           <div class="project-card-inner">
-            <div class="project-head-row">
-              <h3 class="project-title">
-                <a class="project-card-link" href={`/projects/${project.id}`}>
-                  {project.data.title}
-                </a>
-              </h3>
-              <span class="card-arrow" aria-hidden="true">
-                <i class="fa-solid fa-arrow-up-right-from-square" />
-              </span>
-            </div>
+            <h3 class="project-title">
+              <a class="project-card-link" href={`/projects/${project.id}`}>
+                {project.data.title}
+              </a>
+            </h3>
 
             <p
               data-en={project.data.summary}
@@ -228,13 +223,6 @@ const featuredProjects = allProjects.slice(0, 6);
     padding: 22px 26px 24px;
   }
 
-  .project-head-row {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 14px;
-  }
-
   .project-title {
     margin: 0;
     font-size: 1.24rem;
@@ -258,30 +246,6 @@ const featuredProjects = allProjects.slice(0, 6);
 
   .project-card:hover .project-card-link {
     color: var(--brand-soft);
-  }
-
-  .card-arrow {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    flex-shrink: 0;
-    border-radius: 9px;
-    border: 1px solid rgb(24 199 133 / 24%);
-    background: rgb(24 199 133 / 8%);
-    color: var(--brand-soft);
-    font-size: 0.76rem;
-    transition:
-      transform var(--duration-fast) ease,
-      background var(--duration-fast) ease,
-      color var(--duration-fast) ease;
-  }
-
-  .project-card:hover .card-arrow {
-    transform: translate(2px, -2px);
-    background: var(--brand-green);
-    color: #03140d;
   }
 
   .project-summary-text {
